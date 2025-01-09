@@ -18,7 +18,7 @@ func NewUserHandler(svc service.Service) *UserHandler {
 	}
 }
 
-// 用户登录
+// Login 用户登录
 func (h *UserHandler) Login(c *gin.Context) {
 	var req request.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -38,7 +38,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 	})
 }
 
-// 刷新令牌
+// RefreshToken 刷新令牌
 func (h *UserHandler) RefreshToken(c *gin.Context) {
 	var req request.RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -58,7 +58,7 @@ func (h *UserHandler) RefreshToken(c *gin.Context) {
 	})
 }
 
-// 用户登出
+// Logout 用户登出
 func (h *UserHandler) Logout(c *gin.Context) {
 	token := c.GetHeader("Authorization")
 	if token == "" || len(token) <= 7 || token[:7] != "Bearer " {
@@ -75,7 +75,7 @@ func (h *UserHandler) Logout(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// 创建用户
+// Create 创建用户
 func (h *UserHandler) Create(c *gin.Context) {
 	var user model.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -91,7 +91,7 @@ func (h *UserHandler) Create(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// 更新用户
+// Update 更新用户
 func (h *UserHandler) Update(c *gin.Context) {
 	var user model.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -107,7 +107,7 @@ func (h *UserHandler) Update(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// 删除用户
+// Delete 删除用户
 func (h *UserHandler) Delete(c *gin.Context) {
 	var req struct {
 		ID uint64 `json:"id" binding:"required"`
@@ -126,7 +126,7 @@ func (h *UserHandler) Delete(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// 获取用户列表
+// List 获取用户列表
 func (h *UserHandler) List(c *gin.Context) {
 	var req struct {
 		Page int `form:"page" binding:"required,min=1"`
@@ -189,4 +189,23 @@ func (h *UserHandler) UpdatePassword(c *gin.Context) {
 	}
 
 	response.Success(c, nil)
+}
+
+func (h *UserHandler) Current(c *gin.Context) {
+	userId, exists := c.Get("user_id")
+	if !exists {
+		response.Error(c, 500, "获取用户信息失败")
+		return
+	}
+	id, ok := userId.(uint64)
+	if !ok {
+		response.Error(c, 500, "获取用户信息失败")
+		return
+	}
+	user, err := h.svc.User().FindByID(c.Request.Context(), id)
+	if err != nil {
+		response.Error(c, 500, err.Error())
+		return
+	}
+	response.Success(c, user)
 }
