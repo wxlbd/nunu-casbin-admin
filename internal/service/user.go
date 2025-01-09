@@ -3,9 +3,10 @@ package service
 import (
 	"context"
 	"errors"
+
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/repository"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/jwt"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/jwtx"
 
 	"time"
 
@@ -28,10 +29,10 @@ type UserService interface {
 
 type userService struct {
 	repo repository.Repository
-	jwt  *jwt.JWT
+	jwt  *jwtx.JWT
 }
 
-func NewUserService(repo repository.Repository, jwt *jwt.JWT) UserService {
+func NewUserService(repo repository.Repository, jwt *jwtx.JWT) UserService {
 	return &userService{
 		repo: repo,
 		jwt:  jwt,
