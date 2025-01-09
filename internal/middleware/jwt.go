@@ -1,13 +1,13 @@
 package middleware
 
 import (
-	"github.com/wxlbd/nunu-casbin-admin/pkg/jwt"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/jwtx"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-func JWTAuth(jwt *jwt.JWT) gin.HandlerFunc {
+func JWTAuth(jwt *jwtx.JWT) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader("Authorization")
 		if token == "" {
