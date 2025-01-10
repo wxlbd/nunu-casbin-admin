@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/casbin/casbin/v2"
 
@@ -132,15 +134,64 @@ func (s *roleService) AssignMenus(ctx context.Context, roleID uint64, menuIDs []
 }
 
 // convertMenuToAPI 将菜单名称转换为 API 路径和方法
+// 示例: permission:user:save -> POST /api/permission/user
 func convertMenuToAPI(menuName string) (path, method string) {
-	// TODO 根据命名规范进行转换
-	// 例如：
-	// permission:user:save -> POST /api/permission/user
-	// permission:user:update -> PUT /api/permission/user
-	// permission:user:delete -> DELETE /api/permission/user
-	// permission:user:index -> GET /api/permission/user
-	// ...
-	return path, method
+	// 基础路径前缀
+	const apiPrefix = "/api"
+
+	// 分割菜单名称
+	parts := strings.Split(menuName, ":")
+	if len(parts) < 3 {
+		return "", ""
+	}
+
+	// 获取模块和资源
+	module := parts[0]   // 例如: permission
+	resource := parts[1] // 例如: user
+	action := parts[2]   // 例如: save
+
+	// 动作映射表
+	actionMap := map[string]struct {
+		method     string
+		pathSuffix string
+	}{
+		"create": {"POST", ""},
+		"save":   {"POST", ""},
+		"update": {"PUT", ""},
+		"delete": {"DELETE", ""},
+		"get":    {"GET", ""},
+		"detail": {"GET", "/:id"},
+		"list":   {"GET", ""},
+		"index":  {"GET", ""},
+
+		// 扩展的业务操作
+		"enable":  {"PATCH", "/enable"},
+		"disable": {"PATCH", "/disable"},
+		"assign":  {"POST", "/assign"},
+		"revoke":  {"POST", "/revoke"},
+		"upload":  {"POST", "/upload"},
+		"export":  {"GET", "/export"},
+		"import":  {"POST", "/import"},
+		"batch":   {"POST", "/batch"},
+		"tree":    {"GET", "/tree"},
+		"status":  {"PATCH", "/status"},
+	}
+
+	// 查找动作对应的方法和路径后缀
+	actionInfo, exists := actionMap[action]
+	if !exists {
+		return "", ""
+	}
+
+	// 构建完整的 API 路径
+	path = fmt.Sprintf("%s/%s/%s%s",
+		apiPrefix,
+		module,
+		resource,
+		actionInfo.pathSuffix,
+	)
+
+	return path, actionInfo.method
 }
 
 func (s *roleService) GetRoleMenus(ctx context.Context, roleID uint64) ([]*model.Menu, error) {
