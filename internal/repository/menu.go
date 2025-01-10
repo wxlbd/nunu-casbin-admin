@@ -12,10 +12,12 @@ type MenuRepository interface {
 	Update(ctx context.Context, menu *model.Menu) error
 	Delete(ctx context.Context, id uint64) error
 	FindByID(ctx context.Context, id uint64) (*model.Menu, error)
+	FindByIDs(ctx context.Context, ids []uint64) ([]*model.Menu, error)
 	FindByName(ctx context.Context, name string) (*model.Menu, error)
 	List(ctx context.Context, page, size int) ([]*model.Menu, int64, error)
 	FindByParentID(ctx context.Context, parentID uint64) ([]*model.Menu, error)
 	FindByRoleID(ctx context.Context, roleID uint64) ([]*model.Menu, error)
+	FindAll(ctx context.Context) ([]*model.Menu, error)
 }
 
 type menuRepository struct {
@@ -95,4 +97,22 @@ func (r *menuRepository) FindByName(ctx context.Context, name string) (*model.Me
 		return nil, err
 	}
 	return &menu, nil
+}
+
+func (r *menuRepository) FindByIDs(ctx context.Context, ids []uint64) ([]*model.Menu, error) {
+	var menus []*model.Menu
+	err := r.db.WithContext(ctx).Where("id IN (?)", ids).Find(&menus).Error
+	if err != nil {
+		return nil, err
+	}
+	return menus, nil
+}
+
+func (r *menuRepository) FindAll(ctx context.Context) ([]*model.Menu, error) {
+	var menus []*model.Menu
+	err := r.db.WithContext(ctx).Find(&menus).Error
+	if err != nil {
+		return nil, err
+	}
+	return menus, nil
 }
