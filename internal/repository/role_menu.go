@@ -14,6 +14,7 @@ type RoleMenuRepository interface {
 	FindMenusByRoleID(ctx context.Context, roleID uint64) ([]*model.Menu, error)
 	FindRolesByMenuID(ctx context.Context, menuID uint64) ([]*model.Role, error)
 	BatchCreate(ctx context.Context, roleID uint64, menuIDs []uint64) error
+	FindMenusByRoleIDs(ctx context.Context, roleIDs ...uint64) ([]*model.Menu, error)
 }
 
 type roleMenuRepository struct {
@@ -36,20 +37,31 @@ func (r *roleMenuRepository) Create(ctx context.Context, roleID, menuID uint64) 
 func (r *roleMenuRepository) Delete(ctx context.Context, roleID, menuID uint64) error {
 	return r.db.WithContext(ctx).
 		Where("role_id = ? AND menu_id = ?", roleID, menuID).
-		Delete(&model.RoleBelongsMenu{}).Error
+		Delete(&model.RoleMenus{}).Error
 }
 
 func (r *roleMenuRepository) DeleteByRoleID(ctx context.Context, roleID uint64) error {
 	return r.db.WithContext(ctx).
 		Where("role_id = ?", roleID).
-		Delete(&model.RoleBelongsMenu{}).Error
+		Delete(&model.RoleMenus{}).Error
 }
 
 func (r *roleMenuRepository) FindMenusByRoleID(ctx context.Context, roleID uint64) ([]*model.Menu, error) {
 	var menus []*model.Menu
 	err := r.db.WithContext(ctx).
-		Joins("JOIN role_belongs_menu ON role_belongs_menu.menu_id = menu.id").
-		Where("role_belongs_menu.role_id = ?", roleID).
+		Joins("JOIN role_menus ON role_menus.menu_id = menu.id").
+		Where("role_menus.role_id = ?", roleID).
+		Find(&menus).Error
+	if err != nil {
+		return nil, err
+	}
+	return menus, nil
+}
+func (r *roleMenuRepository) FindMenusByRoleIDs(ctx context.Context, roleIDs ...uint64) ([]*model.Menu, error) {
+	var menus []*model.Menu
+	err := r.db.WithContext(ctx).
+		Joins("JOIN role_menus ON role_menus.menu_id = menu.id").
+		Where("role_menus.role_id IN ?", roleIDs).
 		Find(&menus).Error
 	if err != nil {
 		return nil, err
@@ -60,8 +72,8 @@ func (r *roleMenuRepository) FindMenusByRoleID(ctx context.Context, roleID uint6
 func (r *roleMenuRepository) FindRolesByMenuID(ctx context.Context, menuID uint64) ([]*model.Role, error) {
 	var roles []*model.Role
 	err := r.db.WithContext(ctx).
-		Joins("JOIN role_belongs_menu ON role_belongs_menu.role_id = role.id").
-		Where("role_belongs_menu.menu_id = ?", menuID).
+		Joins("JOIN role_menus ON role_menus.role_id = role.id").
+		Where("role_menus.menu_id = ?", menuID).
 		Find(&roles).Error
 	if err != nil {
 		return nil, err
@@ -73,7 +85,7 @@ func (r *roleMenuRepository) BatchCreate(ctx context.Context, roleID uint64, men
 	// 开启事务
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// 先删除原有的关联
-		if err := tx.Where("role_id = ?", roleID).Delete(&model.RoleBelongsMenu{}).Error; err != nil {
+		if err := tx.Where("role_id = ?", roleID).Delete(&model.RoleMenus{}).Error; err != nil {
 			return err
 		}
 
