@@ -144,7 +144,7 @@ func (h *RoleHandler) GetMenus(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, menus)
+	response.Success(c, dto.ToMenuList(menus))
 }
 
 func (h *RoleHandler) Detail(ctx *gin.Context) {
