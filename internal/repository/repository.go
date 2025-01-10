@@ -8,6 +8,7 @@ type Repository interface {
 	Menu() MenuRepository
 	UserRole() UserRoleRepository
 	RoleMenu() RoleMenuRepository
+	DB() *gorm.DB
 }
 
 type repository struct {
@@ -48,4 +49,8 @@ func (r *repository) UserRole() UserRoleRepository {
 
 func (r *repository) RoleMenu() RoleMenuRepository {
 	return r.roleMenuRepo
+}
+
+func (r *repository) DB() *gorm.DB {
+	return r.db
 }
