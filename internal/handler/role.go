@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/wxlbd/nunu-casbin-admin/internal/handler/request"
 	"github.com/wxlbd/nunu-casbin-admin/internal/handler/response"
@@ -132,35 +134,28 @@ func (h *RoleHandler) AssignMenus(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-//// GetRoleMenus 获取角色菜单
-//func (h *RoleHandler) GetRoleMenus(c *gin.Context) {
-//	var req request.RoleIDRequest
-//	if err := c.ShouldBindJSON(&req); err != nil {
-//		response.ParamError(c)
-//		return
-//	}
-//
-//	role, err := h.svc.Role().FindByID(c, req.ID)
-//	if err != nil {
-//		response.ServerError(c, err)
-//		return
-//	}
-//
-//	menus, err := h.svc.Role().GetRoleMenus(c, req.ID)
-//	if err != nil {
-//		response.ServerError(c, err)
-//		return
-//	}
-//
-//	response.Success(c, &response.RoleMenusResponse{
-//		Role: &response.RoleResponse{
-//			ID:     role.ID,
-//			Name:   role.Name,
-//			Code:   role.Code,
-//			Status: role.Status,
-//			Sort:   role.Sort,
-//			Remark: role.Remark,
-//		},
-//		Menus: menus,
-//	})
-//}
+// GetMenus 获取角色菜单
+func (h *RoleHandler) GetMenus(c *gin.Context) {
+	// 从查询参数获取角色ID
+	roleID := c.Query("role_id")
+	if roleID == "" {
+		response.ParamError(c)
+		return
+	}
+
+	// 转换为 uint64
+	id, err := strconv.ParseUint(roleID, 10, 64)
+	if err != nil {
+		response.ParamError(c)
+		return
+	}
+
+	// 获取角色的菜单列表
+	menus, err := h.svc.Role().GetRoleMenus(c, id)
+	if err != nil {
+		response.ServerError(c, err)
+		return
+	}
+
+	response.Success(c, menus)
+}
