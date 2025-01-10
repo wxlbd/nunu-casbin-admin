@@ -20,7 +20,7 @@ type UserResponse struct {
 	Status         int    `json:"status"`
 	LoginIp        string `json:"login_ip"`
 	LoginTime      string `json:"login_time"`
-	BackendSetting string `json:"backend_setting"`
+	BackendSetting any    `json:"backend_setting"`
 	CreatedBy      int    `json:"created_by"`
 	UpdatedBy      int    `json:"updated_by"`
 	CreatedAt      string `json:"created_at"`
