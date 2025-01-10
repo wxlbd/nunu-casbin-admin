@@ -2,19 +2,23 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
 	"github.com/wxlbd/nunu-casbin-admin/internal/handler/request"
 	"github.com/wxlbd/nunu-casbin-admin/internal/handler/response"
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/service"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
 )
 
 type UserHandler struct {
 	svc service.Service
+	cfg *config.Config
 }
 
-func NewUserHandler(svc service.Service) *UserHandler {
+func NewUserHandler(svc service.Service, cfg *config.Config) *UserHandler {
 	return &UserHandler{
 		svc: svc,
+		cfg: cfg,
 	}
 }
 
@@ -35,6 +39,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 	response.Success(c, &response.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+		ExpiresAt:    int64(h.cfg.JWT.AccessExpire.Seconds()),
 	})
 }
 
@@ -55,6 +60,7 @@ func (h *UserHandler) RefreshToken(c *gin.Context) {
 	response.Success(c, &response.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+		ExpiresAt:    int64(h.cfg.JWT.AccessExpire.Seconds()),
 	})
 }
 
@@ -129,8 +135,8 @@ func (h *UserHandler) Delete(c *gin.Context) {
 // List 获取用户列表
 func (h *UserHandler) List(c *gin.Context) {
 	var req struct {
-		Page int `form:"page" binding:"required,min=1"`
-		Size int `form:"size" binding:"required,min=1,max=100"`
+		Page     int `form:"page" binding:"required,min=1"`
+		PageSize int `form:"page_size" binding:"required,min=1,max=100"`
 	}
 
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -138,16 +144,13 @@ func (h *UserHandler) List(c *gin.Context) {
 		return
 	}
 
-	users, total, err := h.svc.User().List(c, req.Page, req.Size)
+	users, total, err := h.svc.User().List(c, req.Page, req.PageSize)
 	if err != nil {
 		response.Error(c, 500, err.Error())
 		return
 	}
 
-	response.Success(c, gin.H{
-		"list":  users,
-		"total": total,
-	})
+	response.Success(c, dto.ToUserListResponse(users, total))
 }
 
 // AssignRoles 分配角色
@@ -191,6 +194,7 @@ func (h *UserHandler) UpdatePassword(c *gin.Context) {
 	response.Success(c, nil)
 }
 
+// Current 获取当前用户信息
 func (h *UserHandler) Current(c *gin.Context) {
 	userId, exists := c.Get("user_id")
 	if !exists {
@@ -207,5 +211,23 @@ func (h *UserHandler) Current(c *gin.Context) {
 		response.Error(c, 500, err.Error())
 		return
 	}
-	response.Success(c, user)
+	response.Success(c, dto.ToUserResponse(user))
+}
+
+// GetRoles 获取用户角色列表
+func (h *UserHandler) GetRoles(c *gin.Context) {
+	id := c.GetUint64("user_id")
+	if id == 0 {
+		response.ParamError(c)
+		return
+	}
+
+	// 获取用户的角色列表
+	roles, err := h.svc.User().GetUserRoles(c, id)
+	if err != nil {
+		response.ServerError(c, err)
+		return
+	}
+
+	response.Success(c, roles)
 }
