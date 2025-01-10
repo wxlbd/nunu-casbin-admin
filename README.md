@@ -1,184 +1,156 @@
-# nunu-layout-basic - Basic Layout
+# Nunu-Casbin-Admin
 
-Nunu is an application scaffold based on Golang. Its name comes from a game character in League of Legends, a little boy riding on the shoulder of a yeti. Like Nunu, this project also stands on the shoulders of giants. It is a composition of various popular libraries from the Golang ecosystem, which can help you quickly build efficient and reliable applications.
+一个基于 Go 语言开发的现代化后台管理系统，集成了 RBAC 权限管理、JWT 认证等功能。
 
-[简体中文介绍](https://github.com/go-nunu/nunu-layout-basic/blob/main/README_zh.md)
+## 特性
 
-![Nunu](https://github.com/go-nunu/nunu/blob/main/.github/assets/banner.png)
+- 基于 Casbin 的 RBAC 权限管理
+- JWT Token 认证和自动续期
+- 基于 Gin 的 RESTful API
+- 统一的错误处理和响应格式
+- 支持多种数据库（MySQL、PostgreSQL、SQLite）
+- 完整的用户、角色、菜单管理
+- 优雅的项目结构和代码组织
 
-## Documentation
-* [User Guide](https://github.com/go-nunu/nunu/blob/main/docs/en/guide.md)
-* [Architecture](https://github.com/go-nunu/nunu/blob/main/docs/en/architecture.md)
-* [Getting Started Tutorial](https://github.com/go-nunu/nunu/blob/main/docs/en/tutorial.md)
+## 技术栈
 
-## Features
-- **Gin**: https://github.com/gin-gonic/gin
-- **Gorm**: https://github.com/go-gorm/gorm
-- **Wire**: https://github.com/google/wire
-- **Viper**: https://github.com/spf13/viper
-- **Zap**: https://github.com/uber-go/zap
-- **Golang-jwt**: https://github.com/golang-jwt/jwt
-- **Go-redis**: https://github.com/go-redis/redis
-- **Testify**: https://github.com/stretchr/testify
-- **Sonyflake**: https://github.com/sony/sonyflake
-- **gocron**:  https://github.com/go-co-op/gocron
-- More...
+- **框架**: [Gin](https://github.com/gin-gonic/gin)
+- **ORM**: [GORM](https://gorm.io/)
+- **权限**: [Casbin](https://casbin.org/)
+- **认证**: [JWT](https://github.com/golang-jwt/jwt)
+- **缓存**: [Redis](https://github.com/redis/go-redis)
+- **配置**: [Viper](https://github.com/spf13/viper)
+- **日志**: [Zap](https://github.com/uber-go/zap)
+- **依赖注入**: [Wire](https://github.com/google/wire)
 
-## Highlights
-* **Low Learning Curve and Customization**: Nunu encapsulates popular libraries that Gophers are familiar with. You can easily customize the application to meet specific requirements.
-* **High Performance and Scalability**: Nunu aims to be high-performance and scalable. It utilizes the latest technologies and best practices to ensure your application can handle high traffic and large data volumes.
-* **Security and Reliability**: Nunu uses stable and reliable third-party libraries to ensure the security and reliability of your application.
-* **Modularity and Extensibility**: Nunu is designed to be modular and extensible. You can easily add new features and functionalities by using third-party libraries or writing your own modules.
-* **Comprehensive Documentation and Test Coverage**: Nunu has comprehensive documentation and test coverage. It provides detailed documentation and examples to help you get started quickly. It also includes a test suite to ensure your application works as expected.
+## 项目结构
 
-## Nunu CLI
-
-![Nunu](https://github.com/go-nunu/nunu/blob/main/.github/assets/screenshot.jpg)
-
-## Directory Structure
-```
+```plaintext
 .
-├── cmd
-│   └── server
-│       ├── main.go
-│       ├── wire.go
-│       └── wire_gen.go
-├── config
-│   ├── local.yml
-│   └── prod.yml
-├── internal
-│   ├── handler
-│   │   ├── handler.go
-│   │   └── user.go
-│   ├── middleware
-│   │   └── cors.go
-│   ├── model
-│   │   └── user.go
-│   ├── repository
-│   │   ├── repository.go
-│   │   └── user.go
-│   ├── server
-│   │   └── http.go
-│   └── service
-│       ├── service.go
-│       └── user.go
-├── pkg
-├── LICENSE
-├── README.md
-├── README_zh.md
-├── go.mod
-└── go.sum
-
+├── cmd/                    # 应用程序入口
+│   └── server/             # HTTP 服务器
+├── configs/                # 配置文件目录
+│   ├── config.yaml         # 应用配置
+│   └── casbin/             # Casbin 配置
+├── internal/               # 内部代码
+│   ├── dto/                # 数据传输对象
+│   ├── handler/            # HTTP 处理器
+│   │   ├── request/        # 请求结构
+│   │   └── response/       # 响应结构
+│   ├── middleware/         # 中间件
+│   ├── model/              # 数据模型
+│   ├── repository/         # 数据访问层
+│   └── service/            # 业务逻辑层
+├── pkg/                    # 公共包
+│   ├── config/             # 配置管理
+│   ├── helper/             # 辅助工具
+│   ├── http/               # HTTP 客户端
+│   ├── jwtx/               # JWT 工具
+│   ├── log/                # 日志工具
+│   └── utils/              # 通用工具
+└── storage/                # 存储目录
+    └── logs/               # 日志文件
 ```
 
-This is a classic directory structure for a Golang project, which includes the following directories:
+## 核心功能
 
-- cmd: Contains the entry points of the application, including the main function and dependency injection code.
-  - server: The main entry point of the application, including the main function and dependency injection code.
-    - main.go: The main function used to start the application.
-    - wire.go: The dependency injection code generated using Wire.
-    - wire_gen.go: The dependency injection code generated using Wire.
+### 用户管理
+- 用户 CRUD
+- 密码加密存储
+- 登录历史记录
+- 用户状态管理
 
-- config: Contains the configuration files of the application.
-  - local.yml: The configuration file for the local environment.
-  - prod.yml: The configuration file for the production environment.
+### 角色管理
+- 角色 CRUD
+- 角色-菜单分配
+- 角色-API权限控制
 
-- internal: Contains the internal code of the application.
-  - handler: Contains the handlers for handling HTTP requests.
-    - handler.go: The common handler for handling HTTP requests.
-    - user.go: The handler for handling user-related HTTP requests.
-  - middleware: Contains the middleware code.
-    - cors.go: The CORS (Cross-Origin Resource Sharing) middleware.
-  - model: Contains the data model code.
-    - user.go: The user data model.
-  - repository: Contains the data access code.
-    - repository.go: The common interface for data access.
-    - user.go: The implementation of the user data access interface.
-  - server: Contains the server code.
-    - http.go: The implementation of the HTTP server.
-  - service: Contains the business logic code.
-    - service.go: The common interface for business logic.
-    - user.go: The implementation of the user business logic.
+### 菜单管理
+- 菜单 CRUD
+- 菜单树形结构
+- 按钮级权限控制
 
-- pkg: Contains the public packages of the application.
-- storage: Contains the storage files of the application.
-- go.mod: The Go module file.
-- go.sum: The dependency versions file for the Go module.
+### 权限控制
+- 基于 Casbin 的 RBAC
+- 细粒度的 API 权限控制
+- 动态权限分配
 
-## Requirements
-To use Nunu, you need to have the following software installed on your system:
+## 快速开始
 
-* Golang 1.16 or higher
-* Git
+### 环境要求
 
-### Installation
+- Go 1.20+
+- MySQL 5.7+ / PostgreSQL 10+ / SQLite 3
+- Redis 6.0+
 
-You can install Nunu using the following command:
+### 安装
 
+1. 克隆项目
 ```bash
-go install github.com/go-nunu/nunu@latest
+git clone https://github.com/yourusername/nunu-casbin-admin.git
+cd nunu-casbin-admin
 ```
 
-### Creating a New Project
-
-You can create a new Golang project using the following command:
-
+2. 安装依赖
 ```bash
-nunu new projectName
+go mod download
 ```
 
-By default, it will pull from the GitHub repository, but you can also use a mirror repository for faster access:
-
-```
-// Use the basic template
-nunu new projectName -r https://gitee.com/go-nunu/nunu-layout-basic.git
-// Use the advanced template
-nunu new projectName -r https://gitee.com/go-nunu/nunu-layout-advanced.git
-```
-
-This command will create a directory named `projectName` and generate an elegant Golang project structure within it.
-
-### Creating Components
-
-You can create handlers, services, repositories, and models for your project using the following commands:
-
+3. 配置数据库
 ```bash
-nunu create handler user
-nunu create service user
-nunu create repository user
-nunu create model user
-```
-or
-```
-nunu create all user
+# 编辑 configs/config.yaml
+cp configs/config.yaml.example configs/config.yaml
 ```
 
-These commands will create components named `UserHandler`, `UserService`, `UserDao`, and `UserModel` respectively and place them in the correct directories.
-
-### Starting the Project
-
-You can quickly start your project using the following command:
-
+4. 初始化数据库
 ```bash
-nunu run
+# 导入数据库结构
+mysql -u root -p your_database < mineadmin.sql
 ```
 
-This command will start your Golang project and support hot-reloading of files.
-
-### Compiling wire.go
-
-You can quickly compile `wire.go` using the following command:
-
+5. 运行项目
 ```bash
-nunu wire
+go run cmd/server/main.go
 ```
 
-This command will compile your `wire.go` file and generate the required dependencies.
+## API 文档
 
-## Contribution
+### 认证相关
+- POST /admin/v1/login - 用户登录
+- POST /admin/v1/refresh-token - 刷新令牌
 
-If you find any issues or have any improvement suggestions, please feel free to raise an issue or submit a pull request. Your contributions are highly appreciated!
+### 用户管理
+- GET /admin/v1/user - 获取用户列表
+- POST /admin/v1/user - 创建用户
+- PUT /admin/v1/user/:id - 更新用户
+- DELETE /admin/v1/user/:id - 删除用户
 
-## License
+### 角色管理
+- GET /admin/v1/role - 获取角色列表
+- POST /admin/v1/role - 创建角色
+- PUT /admin/v1/role/:id - 更新角色
+- DELETE /admin/v1/role/:id - 删除角色
 
-Nunu is released under the MIT License. See the [LICENSE](LICENSE) file for more information.
+### 菜单管理
+- GET /admin/v1/menu/tree - 获取菜单树
+- POST /admin/v1/menu - 创建菜单
+- PUT /admin/v1/menu/:id - 更新菜单
+- DELETE /admin/v1/menu/:id - 删除菜单
+
+## 贡献指南
+
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
+3. 提交更改 (`git commit -m 'Add some amazing feature'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 提交 Pull Request
+
+## 许可证
+
+本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+
+## 联系方式
+
+- 作者：[Your Name]
+- 邮箱：[your.email@example.com]
+- 项目地址：[https://github.com/yourusername/nunu-casbin-admin]
