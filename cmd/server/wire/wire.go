@@ -10,8 +10,10 @@ import (
 	"github.com/wxlbd/nunu-casbin-admin/internal/repository"
 	"github.com/wxlbd/nunu-casbin-admin/internal/server"
 	"github.com/wxlbd/nunu-casbin-admin/internal/service"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/casbinx"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/gormx"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/jwtx"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/log"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/redisx"
 )
@@ -33,8 +35,10 @@ var HandlerSet = wire.NewSet(
 func NewWire(*config.Config, *log.Logger) (*gin.Engine, func(), error) {
 
 	panic(wire.Build(
+		casbinx.New,
 		gormx.NewDB,
 		redisx.New,
+		jwtx.New,
 		ServerSet,
 		RepositorySet,
 		ServiceSet,
