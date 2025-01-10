@@ -8,6 +8,7 @@ import (
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/service"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
+	"strconv"
 )
 
 type UserHandler struct {
@@ -204,6 +205,23 @@ func (h *UserHandler) Current(c *gin.Context) {
 	id, ok := userId.(uint64)
 	if !ok {
 		response.Error(c, 500, "获取用户信息失败")
+		return
+	}
+	user, err := h.svc.User().FindByID(c.Request.Context(), id)
+	if err != nil {
+		response.Error(c, 500, err.Error())
+		return
+	}
+	response.Success(c, dto.ToUserResponse(user))
+}
+
+// Detail 获取当前用户信息
+func (h *UserHandler) Detail(c *gin.Context) {
+	param := c.Param("id")
+
+	id, err := strconv.ParseUint(param, 10, 64)
+	if err != nil {
+		response.Error(c, 400, "参数错误")
 		return
 	}
 	user, err := h.svc.User().FindByID(c.Request.Context(), id)
