@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -98,22 +99,8 @@ func (h *RoleHandler) List(c *gin.Context) {
 		response.ServerError(c, err)
 		return
 	}
-
-	// 转换响应结构
-	var list []*response.RoleResponse
-	for _, role := range roles {
-		list = append(list, &response.RoleResponse{
-			ID:     role.ID,
-			Name:   role.Name,
-			Code:   role.Code,
-			Status: role.Status,
-			Sort:   role.Sort,
-			Remark: role.Remark,
-		})
-	}
-
 	response.Success(c, &response.RoleListResponse{
-		List:  list,
+		List:  dto.ToRoleList(roles),
 		Total: total,
 	})
 }
@@ -158,4 +145,20 @@ func (h *RoleHandler) GetMenus(c *gin.Context) {
 	}
 
 	response.Success(c, menus)
+}
+
+func (h *RoleHandler) Detail(ctx *gin.Context) {
+	param := ctx.Param("id")
+
+	id, err := strconv.ParseUint(param, 10, 64)
+	if err != nil {
+		response.Error(ctx, 400, "参数错误")
+		return
+	}
+	role, err := h.svc.Role().FindByID(ctx.Request.Context(), id)
+	if err != nil {
+		response.Error(ctx, 500, err.Error())
+		return
+	}
+	response.Success(ctx, dto.ToRoleResponse(role))
 }
