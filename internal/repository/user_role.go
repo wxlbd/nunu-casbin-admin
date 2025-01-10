@@ -34,14 +34,14 @@ func (r *userRoleRepository) Create(ctx context.Context, userID, roleID uint64) 
 func (r *userRoleRepository) Delete(ctx context.Context, userID, roleID uint64) error {
 	return r.db.WithContext(ctx).
 		Where("user_id = ? AND role_id = ?", userID, roleID).
-		Delete(&model.UserBelongsRole{}).Error
+		Delete(&model.UserRoles{}).Error
 }
 
 func (r *userRoleRepository) FindRolesByUserID(ctx context.Context, userID uint64) ([]*model.Role, error) {
 	var roles []*model.Role
 	err := r.db.WithContext(ctx).
-		Joins("JOIN user_belongs_role ON user_belongs_role.role_id = role.id").
-		Where("user_belongs_role.user_id = ?", userID).
+		Joins("JOIN user_roles ON user_roles.role_id = role.id").
+		Where("user_roles.user_id = ?", userID).
 		Find(&roles).Error
 	if err != nil {
 		return nil, err
@@ -52,8 +52,8 @@ func (r *userRoleRepository) FindRolesByUserID(ctx context.Context, userID uint6
 func (r *userRoleRepository) FindUsersByRoleID(ctx context.Context, roleID uint64) ([]*model.User, error) {
 	var users []*model.User
 	err := r.db.WithContext(ctx).
-		Joins("JOIN user_belongs_role ON user_belongs_role.user_id = user.id").
-		Where("user_belongs_role.role_id = ?", roleID).
+		Joins("JOIN user_roles ON user_roles.user_id = user.id").
+		Where("user_roles.role_id = ?", roleID).
 		Find(&users).Error
 	if err != nil {
 		return nil, err
