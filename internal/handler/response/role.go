@@ -2,12 +2,14 @@ package response
 
 // RoleResponse 角色信息响应
 type RoleResponse struct {
-	ID     uint64 `json:"id"`
-	Name   string `json:"name"`
-	Code   string `json:"code"`
-	Status int8   `json:"status"`
-	Sort   int16  `json:"sort"`
-	Remark string `json:"remark"`
+	ID      uint64 `json:"id"`
+	Name    string `json:"name"`
+	Code    string `json:"code"`
+	Status  int8   `json:"status"`
+	Sort    int16  `json:"sort"`
+	Remark  string `json:"remark"`
+	Created string `json:"created"`
+	Updated string `json:"updated"`
 }
 
 // RoleListResponse 角色列表响应
@@ -17,7 +19,4 @@ type RoleListResponse struct {
 }
 
 // RoleMenusResponse 角色菜单响应
-type RoleMenusResponse struct {
-	Role  *RoleResponse `json:"role"`
-	Menus []*Menu       `json:"menus"`
-}
+type RoleMenusResponse []*Menu
