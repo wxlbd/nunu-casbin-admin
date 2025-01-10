@@ -18,7 +18,7 @@ func NewMenuHandler(svc service.Service) *MenuHandler {
 	}
 }
 
-// 创建菜单
+// Create 创建菜单
 func (h *MenuHandler) Create(c *gin.Context) {
 	var req request.MenuRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -43,7 +43,7 @@ func (h *MenuHandler) Create(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// 更新菜单
+// Update 更新菜单
 func (h *MenuHandler) Update(c *gin.Context) {
 	var req request.MenuRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -69,7 +69,7 @@ func (h *MenuHandler) Update(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// 删除菜单
+// Delete 删除菜单
 func (h *MenuHandler) Delete(c *gin.Context) {
 	var req request.MenuIDRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -104,7 +104,29 @@ func (h *MenuHandler) GetUserMenus(c *gin.Context) {
 		return
 	}
 
-	menus, err := h.svc.Menu().GetUserMenus(c, userID)
+	// 获取用户的角色
+	roles, err := h.svc.User().GetUserRoles(c, userID)
+	if err != nil {
+		response.ServerError(c, err)
+		return
+	}
+
+	// 检查是否有超级管理员角色
+	isAdmin := false
+	for _, role := range roles {
+		if role.Code == "SuperAdmin" {
+			isAdmin = true
+			break
+		}
+	}
+
+	var menus []*service.MenuTree
+	if isAdmin {
+		menus, err = h.svc.Menu().GetMenuTree(c)
+	} else {
+		menus, err = h.svc.Menu().GetUserMenus(c, userID)
+	}
+
 	if err != nil {
 		response.ServerError(c, err)
 		return
