@@ -1,10 +1,11 @@
 package service
 
 import (
+	"github.com/casbin/casbin/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/wxlbd/nunu-casbin-admin/internal/repository"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/jwt"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/jwtx"
 )
 
 type Service interface {
@@ -18,18 +19,10 @@ type service struct {
 	userSvc UserService
 	roleSvc RoleService
 	menuSvc MenuService
-	jwt     *jwt.JWT
+	jwt     *jwtx.JWT
 }
 
-func NewService(repo repository.Repository, cfg *config.Config, rdb *redis.Client) (Service, error) {
-
-	j := jwt.New(jwt.Config{
-		AccessSecret:  cfg.JWT.AccessSecret,
-		RefreshSecret: cfg.JWT.RefreshSecret,
-		AccessExpire:  cfg.JWT.AccessExpire,
-		RefreshExpire: cfg.JWT.RefreshExpire,
-		Issuer:        cfg.JWT.Issuer,
-	}, rdb)
+func NewService(repo repository.Repository, cfg *config.Config, rdb *redis.Client, j *jwtx.JWT, enforcer *casbin.Enforcer) (Service, error) {
 
 	svc := &service{
 		repo: repo,
@@ -38,7 +31,7 @@ func NewService(repo repository.Repository, cfg *config.Config, rdb *redis.Clien
 
 	svc.userSvc = NewUserService(repo, j)
 	svc.roleSvc = NewRoleService(repo)
-	svc.menuSvc = NewMenuService(repo)
+	svc.menuSvc = NewMenuService(repo, enforcer)
 
 	return svc, nil
 }
