@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
 	"github.com/wxlbd/nunu-casbin-admin/internal/handler/request"
 	"github.com/wxlbd/nunu-casbin-admin/internal/handler/response"
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
@@ -93,7 +94,7 @@ func (h *MenuHandler) GetMenuTree(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, tree)
+	response.Success(c, dto.ToMenuTree(tree))
 }
 
 // GetUserMenus 获取用户菜单
@@ -132,5 +133,5 @@ func (h *MenuHandler) GetUserMenus(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, menus)
+	response.Success(c, dto.ToMenuTree(menus))
 }
