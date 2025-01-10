@@ -1,4 +1,4 @@
-package casbin
+package casbinx
 
 import (
 	"github.com/casbin/casbin/v2"
@@ -6,17 +6,15 @@ import (
 	"gorm.io/gorm"
 )
 
-func InitCasbin(db *gorm.DB) (*casbin.Enforcer, error) {
+func New(db *gorm.DB) (*casbin.Enforcer, error) {
 	adapter, err := gormadapter.NewAdapterByDB(db)
 	if err != nil {
 		return nil, err
 	}
-
 	enforcer, err := casbin.NewEnforcer("configs/casbin/rbac_model.conf", adapter)
 	if err != nil {
 		return nil, err
 	}
-
 	err = enforcer.LoadPolicy()
 	if err != nil {
 		return nil, err
