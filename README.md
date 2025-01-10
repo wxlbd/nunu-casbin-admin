@@ -151,6 +151,6 @@ go run cmd/server/main.go
 
 ## 联系方式
 
-- 作者：[Your Name]
-- 邮箱：[your.email@example.com]
-- 项目地址：[https://github.com/yourusername/nunu-casbin-admin]
+- 作者：[wxl]
+- 邮箱：[gopher095@gmail.com]
+- 项目地址：[https://github.com/wxlbd/nunu-casbin-admin]
