@@ -1,16 +1,21 @@
 package handler
 
-import "github.com/wxlbd/nunu-casbin-admin/internal/service"
+import (
+	"github.com/wxlbd/nunu-casbin-admin/internal/service"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
+)
 
 type Handler struct {
 	user *UserHandler
 	role *RoleHandler
 	menu *MenuHandler
+	cfg  *config.Config
 }
 
-func NewHandler(svc service.Service) *Handler {
+func NewHandler(svc service.Service, cfg *config.Config) *Handler {
 	return &Handler{
-		user: NewUserHandler(svc),
+		cfg:  cfg,
+		user: NewUserHandler(svc, cfg),
 		role: NewRoleHandler(svc),
 		menu: NewMenuHandler(svc),
 	}
