@@ -48,34 +48,38 @@ func NewServerHTTP(
 			middleware.CasbinMiddleware(enforcer, logger, svc),
 		)
 		{
-			// 用户管理
-			user := authorized.Group("/user")
+			// 用户管理 system:user:xxx
+			userGroup := authorized.Group("/system/user")
 			{
-				user.GET("", handler.User().List)
-				user.POST("", handler.User().Create)
-				user.PUT("/:id", handler.User().Update)
-				user.DELETE("/:id", handler.User().Delete)
-				user.POST("/password", handler.User().UpdatePassword)
-				user.POST("/roles", handler.User().AssignRoles)
+				userGroup.GET("", handler.User().List)                      // system:user:list
+				userGroup.POST("", handler.User().Create)                   // system:user:create
+				userGroup.PUT("/:id", handler.User().Update)                // system:user:update
+				userGroup.DELETE("/:id", handler.User().Delete)             // system:user:delete
+				userGroup.GET("/:id", handler.User().Detail)                // system:user:detail
+				userGroup.PATCH("/password", handler.User().UpdatePassword) // system:user:password
+				userGroup.POST("/assign", handler.User().AssignRoles)       // system:user:assign
 			}
 
-			// 角色管理
-			role := authorized.Group("/role")
+			// 角色管理 system:role:xxx
+			roleGroup := authorized.Group("/system/role")
 			{
-				role.GET("", handler.Role().List)
-				role.POST("", handler.Role().Create)
-				role.PUT("/:id", handler.Role().Update)
-				role.DELETE("/:id", handler.Role().Delete)
-				role.GET("/menus", handler.Role().GetMenus)
-				role.POST("/menus", handler.Role().AssignMenus)
+				roleGroup.GET("", handler.Role().List)                // system:role:list
+				roleGroup.POST("", handler.Role().Create)             // system:role:create
+				roleGroup.PUT("/:id", handler.Role().Update)          // system:role:update
+				roleGroup.DELETE("/:id", handler.Role().Delete)       // system:role:delete
+				roleGroup.GET("/:id", handler.Role().Detail)          // system:role:detail
+				roleGroup.GET("/menus", handler.Role().GetMenus)      // system:role:menus
+				roleGroup.POST("/assign", handler.Role().AssignMenus) // system:role:assign
 			}
 
-			// 菜单管理
-			menu := authorized.Group("/menu")
+			// 菜单管理 system:menu:xxx
+			menuGroup := authorized.Group("/system/menu")
 			{
-				menu.POST("", handler.Menu().Create)
-				menu.PUT("/:id", handler.Menu().Update)
-				menu.DELETE("/:id", handler.Menu().Delete)
+				//menuGroup.GET("", handler.Menu().List)             // system:menu:list
+				menuGroup.POST("", handler.Menu().Create)          // system:menu:create
+				menuGroup.PUT("/:id", handler.Menu().Update)       // system:menu:update
+				menuGroup.DELETE("/:id", handler.Menu().Delete)    // system:menu:delete
+				menuGroup.GET("/tree", handler.Menu().GetMenuTree) // system:menu:tree
 			}
 		}
 	}
