@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/casbin/casbin/v2"
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/repository"
 )
@@ -16,6 +17,7 @@ type MenuService interface {
 	List(ctx context.Context, page, size int) ([]*model.Menu, int64, error)
 	GetMenuTree(ctx context.Context) ([]*MenuTree, error)
 	GetUserMenus(ctx context.Context, userID uint64) ([]*MenuTree, error)
+	GetAllMenus(ctx context.Context) ([]*model.Menu, error)
 }
 
 type MenuTree struct {
@@ -24,34 +26,39 @@ type MenuTree struct {
 }
 
 type menuService struct {
-	repo repository.Repository
+	repo     repository.Repository
+	enforcer *casbin.Enforcer
 }
 
-func NewMenuService(repo repository.Repository) MenuService {
+func NewMenuService(repo repository.Repository, enforcer *casbin.Enforcer) MenuService {
 	return &menuService{
-		repo: repo,
+		repo:     repo,
+		enforcer: enforcer,
 	}
 }
 
 func (s *menuService) Create(ctx context.Context, menu *model.Menu) error {
-	// 检查菜单名称是否已存在
-	existMenu, _ := s.repo.Menu().FindByName(ctx, menu.Name)
-	if existMenu != nil {
-		return errors.New("菜单名称已存在")
+	if err := s.repo.Menu().Create(ctx, menu); err != nil {
+		return err
 	}
 
-	// 如果不是根菜单，检查父菜单是否存在
-	if menu.ParentID != 0 {
-		parentMenu, err := s.repo.Menu().FindByID(ctx, menu.ParentID)
+	// 如果是按钮类型，需要更新所有拥有该菜单的角色的权限策略
+	if menu.Meta.Type == "B" {
+		roles, err := s.repo.RoleMenu().FindRolesByMenuID(ctx, menu.ID)
 		if err != nil {
 			return err
 		}
-		if parentMenu == nil {
-			return errors.New("父菜单不存在")
+
+		path, method := convertMenuToAPI(menu.Name)
+		for _, role := range roles {
+			_, err = s.enforcer.AddPolicy(role.Code, path, method)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
-	return s.repo.Menu().Create(ctx, menu)
+	return nil
 }
 
 func (s *menuService) Update(ctx context.Context, menu *model.Menu) error {
@@ -92,22 +99,25 @@ func (s *menuService) Update(ctx context.Context, menu *model.Menu) error {
 }
 
 func (s *menuService) Delete(ctx context.Context, id uint64) error {
-	// 检查是否有子菜单
-	children, err := s.repo.Menu().FindByParentID(ctx, id)
+	menu, err := s.repo.Menu().FindByID(ctx, id)
 	if err != nil {
 		return err
-	}
-	if len(children) > 0 {
-		return errors.New("请先删除子菜单")
 	}
 
-	// 检查是否有角色关联此菜单
-	roles, err := s.repo.RoleMenu().FindRolesByMenuID(ctx, id)
-	if err != nil {
-		return err
-	}
-	if len(roles) > 0 {
-		return errors.New("该菜单已被角色使用，无法删除")
+	// 如果是按钮类型，需要删除相关的权限策略
+	if menu.Meta.Type == "B" {
+		roles, err := s.repo.RoleMenu().FindRolesByMenuID(ctx, id)
+		if err != nil {
+			return err
+		}
+
+		path, method := convertMenuToAPI(menu.Name)
+		for _, role := range roles {
+			_, err = s.enforcer.RemovePolicy(role.Code, path, method)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return s.repo.Menu().Delete(ctx, id)
@@ -156,6 +166,11 @@ func (s *menuService) GetUserMenus(ctx context.Context, userID uint64) ([]*MenuT
 	}
 
 	return s.buildMenuTree(menus, 0), nil
+}
+
+func (s *menuService) GetAllMenus(ctx context.Context) ([]*model.Menu, error) {
+	// 直接从数据库获取所有菜单
+	return s.repo.Menu().FindAll(ctx)
 }
 
 // 构建菜单树
