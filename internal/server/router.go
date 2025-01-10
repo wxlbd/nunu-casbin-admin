@@ -23,7 +23,10 @@ func NewServerHTTP(
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r := gin.Default()
-	r.Use(middleware.CORSMiddleware())
+	r.Use(
+		middleware.CORSMiddleware(),
+		middleware.RequestLogger(logger),
+	)
 
 	// 管理后台接口
 	admin := r.Group("/admin/v1")
