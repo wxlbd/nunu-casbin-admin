@@ -25,6 +25,7 @@ type UserService interface {
 	Login(ctx context.Context, username, password string) (accessToken, refreshToken string, err error)
 	RefreshToken(ctx context.Context, refreshToken string) (newAccessToken, newRefreshToken string, err error)
 	Logout(ctx context.Context, token string) error
+	GetUserRoles(ctx context.Context, userID uint64) ([]*model.Role, error)
 }
 
 type userService struct {
@@ -168,4 +169,18 @@ func (s *userService) Logout(ctx context.Context, token string) error {
 
 	// 将 token 加入黑名单
 	return s.jwt.AddToBlacklist(ctx, token, claims)
+}
+
+func (s *userService) GetUserRoles(ctx context.Context, userID uint64) ([]*model.Role, error) {
+	// 检查用户是否存在
+	user, err := s.repo.User().FindByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, errors.New("用户不存在")
+	}
+
+	// 获取用户的角色列表
+	return s.repo.UserRole().FindRolesByUserID(ctx, userID)
 }
