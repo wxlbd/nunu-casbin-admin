@@ -3,8 +3,12 @@ package service
 import (
 	"context"
 	"errors"
+
+	"github.com/casbin/casbin/v2"
+
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/repository"
+	"gorm.io/gorm"
 )
 
 type RoleService interface {
@@ -18,7 +22,8 @@ type RoleService interface {
 }
 
 type roleService struct {
-	repo repository.Repository
+	repo     repository.Repository
+	enforcer *casbin.Enforcer
 }
 
 func NewRoleService(repo repository.Repository) RoleService {
@@ -57,17 +62,17 @@ func (s *roleService) Update(ctx context.Context, role *model.Role) error {
 }
 
 func (s *roleService) Delete(ctx context.Context, id uint64) error {
-	// 检查是否有用户关联此角色
-	users, err := s.repo.UserRole().FindUsersByRoleID(ctx, id)
+	role, err := s.repo.Role().FindByID(ctx, id)
 	if err != nil {
 		return err
 	}
-	if len(users) > 0 {
-		return errors.New("该角色下存在用户，无法删除")
+	if role == nil {
+		return errors.New("角色不存在")
 	}
 
-	// 删除角色的同时需要删除角色-菜单关联
-	if err := s.repo.RoleMenu().DeleteByRoleID(ctx, id); err != nil {
+	// 删除该角色的所有权限策略
+	_, err = s.enforcer.DeletePermissionsForUser(role.Code)
+	if err != nil {
 		return err
 	}
 
@@ -83,28 +88,59 @@ func (s *roleService) List(ctx context.Context, page, size int) ([]*model.Role, 
 }
 
 func (s *roleService) AssignMenus(ctx context.Context, roleID uint64, menuIDs []uint64) error {
-	// 检查角色是否存在
-	role, err := s.repo.Role().FindByID(ctx, roleID)
-	if err != nil {
-		return err
-	}
-	if role == nil {
-		return errors.New("角色不存在")
-	}
+	// 开启事务
+	return s.repo.DB().Transaction(func(tx *gorm.DB) error {
+		// 1. 先删除原有的角色-菜单关联
+		if err := s.repo.RoleMenu().DeleteByRoleID(ctx, roleID); err != nil {
+			return err
+		}
 
-	// 检查菜单是否都存在
-	for _, menuID := range menuIDs {
-		menu, err := s.repo.Menu().FindByID(ctx, menuID)
+		// 2. 获取所有按钮类型的菜单（即 API）
+		menus, err := s.repo.Menu().FindByIDs(ctx, menuIDs)
 		if err != nil {
 			return err
 		}
-		if menu == nil {
-			return errors.New("菜单不存在")
-		}
-	}
 
-	// 批量分配菜单
-	return s.repo.RoleMenu().BatchCreate(ctx, roleID, menuIDs)
+		// 3. 更新 Casbin 策略
+		role, err := s.repo.Role().FindByID(ctx, roleID)
+		if err != nil {
+			return err
+		}
+
+		// 先删除该角色的所有策略
+		_, err = s.enforcer.DeletePermissionsForUser(role.Code)
+		if err != nil {
+			return err
+		}
+
+		// 添加新的策略
+		for _, menu := range menus {
+			if menu.Meta.Type == "B" { // 按钮类型
+				// 根据菜单名称生成 API 路径和方法
+				// 例如：permission:user:save -> POST /api/user
+				path, method := convertMenuToAPI(menu.Name)
+				_, err = s.enforcer.AddPolicy(role.Code, path, method)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		// 4. 创建新的角色-菜单关联
+		return s.repo.RoleMenu().BatchCreate(ctx, roleID, menuIDs)
+	})
+}
+
+// convertMenuToAPI 将菜单名称转换为 API 路径和方法
+func convertMenuToAPI(menuName string) (path, method string) {
+	// TODO 根据命名规范进行转换
+	// 例如：
+	// permission:user:save -> POST /api/permission/user
+	// permission:user:update -> PUT /api/permission/user
+	// permission:user:delete -> DELETE /api/permission/user
+	// permission:user:index -> GET /api/permission/user
+	// ...
+	return path, method
 }
 
 func (s *roleService) GetRoleMenus(ctx context.Context, roleID uint64) ([]*model.Menu, error) {
@@ -117,5 +153,6 @@ func (s *roleService) GetRoleMenus(ctx context.Context, roleID uint64) ([]*model
 		return nil, errors.New("角色不存在")
 	}
 
+	// 获取角色的菜单列表
 	return s.repo.RoleMenu().FindMenusByRoleID(ctx, roleID)
 }
