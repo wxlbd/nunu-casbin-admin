@@ -1,17 +1,19 @@
 package middleware
 
 import (
-	"net/http"
-
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/wxlbd/nunu-casbin-admin/internal/service"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/log"
+	"go.uber.org/zap"
+	"net/http"
 )
 
-func CasbinMiddleware(enforcer *casbin.Enforcer) gin.HandlerFunc {
+func CasbinMiddleware(enforcer *casbin.Enforcer, log *log.Logger, svc service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 获取当前登录用户
-		user, exists := c.Get("user")
-		if !exists {
+		userID := c.GetUint64("user_id")
+		if userID == 0 {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code":    401,
 				"message": "未登录",
@@ -20,22 +22,60 @@ func CasbinMiddleware(enforcer *casbin.Enforcer) gin.HandlerFunc {
 			return
 		}
 
-		// 获取请求的URI和方法
-		obj := c.Request.URL.Path
-		act := c.Request.Method
-
-		// 检查权限
-		ok, err := enforcer.Enforce(user, obj, act)
+		// 获取用户的角色列表
+		roles, err := svc.User().GetUserRoles(c, userID)
 		if err != nil {
+			log.WithContext(c).Error("获取用户角色失败", zap.Error(err))
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"code":    500,
-				"message": "权限检查失败",
+				"message": "获取用户角色失败",
 			})
 			c.Abort()
 			return
 		}
 
-		if !ok {
+		// 将角色列表存入上下文
+		c.Set("user_roles", roles)
+
+		// 检查是否是超级管理员
+		isAdmin := false
+		for _, role := range roles {
+			if role.Code == "SuperAdmin" {
+				isAdmin = true
+				break
+			}
+		}
+
+		// 如果是超级管理员，直接放行
+		if isAdmin {
+			c.Next()
+			return
+		}
+
+		// 获取请求的URI和方法
+		obj := c.Request.URL.Path
+		act := c.Request.Method
+		// 检查权限
+		// 遍历用户角色，检查是否有权限
+		hasPermission := false
+		for _, role := range roles {
+			ok, err := enforcer.Enforce(role.Code, obj, act)
+			if err != nil {
+				log.WithContext(c).Error("权限检查失败", zap.Error(err))
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"code":    500,
+					"message": "权限检查失败",
+				})
+				c.Abort()
+				return
+			}
+			if ok {
+				hasPermission = true
+				break
+			}
+		}
+		// 如果没有任何角色有权限，返回403
+		if !hasPermission {
 			c.JSON(http.StatusForbidden, gin.H{
 				"code":    403,
 				"message": "没有权限",
@@ -43,7 +83,6 @@ func CasbinMiddleware(enforcer *casbin.Enforcer) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-
 		c.Next()
 	}
 }
