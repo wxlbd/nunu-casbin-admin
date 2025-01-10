@@ -44,7 +44,7 @@ func (h *RoleHandler) Create(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// 更新角色
+// Update 更新角色
 func (h *RoleHandler) Update(c *gin.Context) {
 	var req request.RoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -69,7 +69,7 @@ func (h *RoleHandler) Update(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// 删除角色
+// Delete 删除角色
 func (h *RoleHandler) Delete(c *gin.Context) {
 	var req request.RoleIDRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -85,7 +85,7 @@ func (h *RoleHandler) Delete(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// 获取角色列表
+// List 获取角色列表
 func (h *RoleHandler) List(c *gin.Context) {
 	var req request.RoleListRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -118,7 +118,7 @@ func (h *RoleHandler) List(c *gin.Context) {
 	})
 }
 
-// 分配菜单
+// AssignMenus 分配菜单
 func (h *RoleHandler) AssignMenus(c *gin.Context) {
 	var req request.AssignMenusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
