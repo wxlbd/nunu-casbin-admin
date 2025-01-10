@@ -87,7 +87,7 @@
 
 1. 克隆项目
 ```bash
-git clone https://github.com/yourusername/nunu-casbin-admin.git
+git clone https://github.com/wxlbd/nunu-casbin-admin.git
 cd nunu-casbin-admin
 ```
 
