@@ -8,6 +8,7 @@ import (
 	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/ginx"
 	"strconv"
+	"strings"
 )
 
 type UserHandler struct {
@@ -99,13 +100,13 @@ func (h *UserHandler) Create(c *gin.Context) {
 
 // Update 更新用户
 func (h *UserHandler) Update(c *gin.Context) {
-	var user dto.UserRequest
+	var user dto.UpdateUserRequest
 	if err := c.ShouldBindJSON(&user); err != nil {
 		ginx.Error(c, 400, "参数错误")
 		return
 	}
 
-	if err := h.svc.User().Update(c, &user); err != nil {
+	if err := h.svc.User().Update(c, user.ToModel()); err != nil {
 		ginx.Error(c, 500, err.Error())
 		return
 	}
@@ -115,16 +116,18 @@ func (h *UserHandler) Update(c *gin.Context) {
 
 // Delete 删除用户
 func (h *UserHandler) Delete(c *gin.Context) {
-	var req struct {
-		ID uint64 `json:"id" binding:"required"`
-	}
+	str := strings.Split(c.Param("ids"), ",")
+	ids := make([]uint64, 0, len(str))
 
-	if err := c.ShouldBindJSON(&req); err != nil {
-		ginx.Error(c, 400, "参数错误")
-		return
+	for _, s := range str {
+		id, err := strconv.ParseUint(s, 10, 64)
+		if err != nil {
+			ginx.Error(c, 400, "参数错误")
+			return
+		}
+		ids = append(ids, id)
 	}
-
-	if err := h.svc.User().Delete(c, req.ID); err != nil {
+	if err := h.svc.User().Delete(c, ids...); err != nil {
 		ginx.Error(c, 500, err.Error())
 		return
 	}
@@ -134,10 +137,7 @@ func (h *UserHandler) Delete(c *gin.Context) {
 
 // List 获取用户列表
 func (h *UserHandler) List(c *gin.Context) {
-	var req struct {
-		Page     int `form:"page" binding:"required,min=1"`
-		PageSize int `form:"page_size" binding:"required,min=1,max=100"`
-	}
+	var req dto.UserListRequest
 
 	if err := c.ShouldBindQuery(&req); err != nil {
 		ginx.Error(c, 400, "参数错误")
@@ -175,11 +175,7 @@ func (h *UserHandler) AssignRoles(c *gin.Context) {
 
 // UpdatePassword 修改密码
 func (h *UserHandler) UpdatePassword(c *gin.Context) {
-	var req struct {
-		ID          uint64 `json:"id" binding:"required"`
-		OldPassword string `json:"old_password" binding:"required"`
-		NewPassword string `json:"new_password" binding:"required,min=6"`
-	}
+	var req dto.UpdatePasswordRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		ginx.Error(c, 400, "参数错误")
