@@ -57,7 +57,7 @@ func NewServerHTTP(
 				userGroup.GET("", handler.User().List)                      // system:user:list
 				userGroup.POST("", handler.User().Create)                   // system:user:create
 				userGroup.PUT("/:id", handler.User().Update)                // system:user:update
-				userGroup.DELETE("/:id", handler.User().Delete)             // system:user:delete
+				userGroup.DELETE("/:ids", handler.User().Delete)            // system:user:delete
 				userGroup.GET("/:id", handler.User().Detail)                // system:user:detail
 				userGroup.PATCH("/password", handler.User().UpdatePassword) // system:user:password
 				userGroup.POST("/assign", handler.User().AssignRoles)       // system:user:assign
