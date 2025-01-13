@@ -53,7 +53,7 @@ func (s *userService) Create(ctx context.Context, user *model.User) error {
 		return err
 	}
 	user.Password = string(hashedPassword)
-
+	user.LoginTime = time.Unix(0, 0)
 	return s.repo.User().Create(ctx, user)
 }
 
