@@ -30,7 +30,7 @@ func NewService(repo repository.Repository, cfg *config.Config, rdb *redis.Clien
 	}
 
 	svc.userSvc = NewUserService(repo, j)
-	svc.roleSvc = NewRoleService(repo)
+	svc.roleSvc = NewRoleService(repo, enforcer)
 	svc.menuSvc = NewMenuService(repo, enforcer)
 
 	return svc, nil
