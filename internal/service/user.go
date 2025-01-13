@@ -19,7 +19,7 @@ type UserService interface {
 	Delete(ctx context.Context, ids ...uint64) error
 	FindByID(ctx context.Context, id uint64) (*model.User, error)
 	FindByUsername(ctx context.Context, username string) (*model.User, error)
-	List(ctx context.Context, page, size int) ([]*model.User, int64, error)
+	List(ctx context.Context, query *model.UserQuery) ([]*model.User, int64, error)
 	UpdatePassword(ctx context.Context, id uint64, oldPassword, newPassword string) error
 	AssignRoles(ctx context.Context, userID uint64, roleIDs []uint64) error
 	Login(ctx context.Context, username, password string) (accessToken, refreshToken string, err error)
@@ -88,8 +88,8 @@ func (s *userService) FindByUsername(ctx context.Context, username string) (*mod
 	return s.repo.User().FindByUsername(ctx, username)
 }
 
-func (s *userService) List(ctx context.Context, page, size int) ([]*model.User, int64, error) {
-	return s.repo.User().List(ctx, page, size)
+func (s *userService) List(ctx context.Context, query *model.UserQuery) ([]*model.User, int64, error) {
+	return s.repo.User().List(ctx, query)
 }
 
 func (s *userService) UpdatePassword(ctx context.Context, id uint64, oldPassword, newPassword string) error {
