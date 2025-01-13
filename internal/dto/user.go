@@ -3,32 +3,96 @@ package dto
 import (
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/types"
-	"time"
 )
 
-// ToUserResponse 将 User 模型转换为响应 DTO
-func ToUserResponse(user *model.User) *UserResponse {
-	if user == nil {
+// UserBase 基础字段
+type UserBase struct {
+	Nickname       string                `json:"nickname"`
+	Phone          string                `json:"phone"`
+	Email          string                `json:"email"`
+	Avatar         string                `json:"avatar"`
+	Status         int8                  `json:"status"`
+	UserType       int                   `json:"user_type"`
+	Signed         string                `json:"signed"`
+	BackendSetting *types.BackendSetting `json:"backend_setting"`
+	Remark         string                `json:"remark"`
+}
+
+// CreateUserRequest CreateUserReq 创建用户请求
+type CreateUserRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	UserBase
+}
+
+// UpdateUserRequest UpdateUserReq 更新用户请求
+type UpdateUserRequest struct {
+	ID       uint64 `json:"id" binding:"required"`
+	Password string `json:"password,omitempty"` // 更新时密码可选
+	UserBase
+}
+
+// UserResponse 用户响应
+type UserResponse struct {
+	ID       uint64 `json:"id"`
+	Username string `json:"username"`
+	UserBase
+	LoginIp   string `json:"login_ip"`
+	LoginTime string `json:"login_time"`
+	CreatedBy uint64 `json:"created_by"`
+	UpdatedBy uint64 `json:"updated_by"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+// ToModel 转换方法
+func (req *CreateUserRequest) ToModel(createdBy uint64) *model.User {
+	return &model.User{
+		Username:  req.Username,
+		Password:  req.Password,
+		Nickname:  req.Nickname,
+		Phone:     req.Phone,
+		Email:     req.Email,
+		Status:    req.Status,
+		CreatedBy: createdBy,
+	}
+}
+
+func (req *UpdateUserRequest) ToModel() *model.User {
+	return &model.User{
+		ID:       req.ID,
+		Password: req.Password, // 如果为空则不会更新
+		Nickname: req.Nickname,
+		Phone:    req.Phone,
+		Email:    req.Email,
+		Status:   req.Status,
+		//UpdatedBy: updatedBy,
+	}
+}
+
+// ToUserResponse 模型转响应
+func ToUserResponse(m *model.User) *UserResponse {
+	if m == nil {
 		return nil
 	}
 	return &UserResponse{
-		ID:             int(user.ID),
-		Username:       user.Username,
-		Nickname:       user.Nickname,
-		Phone:          user.Phone,
-		Email:          user.Email,
-		Avatar:         user.Avatar,
-		Status:         int(user.Status),
-		LoginTime:      user.LoginTime.Format(time.DateTime),
-		CreatedBy:      int(user.CreatedBy),
-		UpdatedBy:      int(user.UpdatedBy),
-		CreatedAt:      user.CreatedAt.Format(time.DateTime),
-		UpdatedAt:      user.UpdatedAt.Format(time.DateTime),
-		Remark:         user.Remark,
-		UserType:       user.UserType,
-		Signed:         user.Signed,
-		LoginIp:        user.LoginIp,
-		BackendSetting: user.BackendSetting,
+		ID:       m.ID,
+		Username: m.Username,
+		UserBase: UserBase{
+			Nickname:       m.Nickname,
+			Phone:          m.Phone,
+			Email:          m.Email,
+			Status:         m.Status,
+			BackendSetting: m.BackendSetting,
+			Remark:         m.Remark,
+			Avatar:         m.Avatar,
+			UserType:       m.UserType,
+			Signed:         m.Signed,
+		},
+		CreatedBy: m.CreatedBy,
+		UpdatedBy: m.UpdatedBy,
+		CreatedAt: m.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt: m.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
 }
 
@@ -63,23 +127,14 @@ type RefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
 }
 
-// UserRequest 创建/更新用户请求
-type UserRequest struct {
-	ID             uint64                `json:"id"` // 更新时必填
-	Username       string                `json:"username" binding:"required"`
-	Password       string                `json:"password,omitempty"` // 创建时必填，更新时选填
-	Nickname       string                `json:"nickname"`
-	Phone          string                `json:"phone"`
-	Email          string                `json:"email"`
-	Status         int8                  `json:"status"`
-	BackendSetting *types.BackendSetting `json:"backend_setting"`
-	UserType       int                   `json:"user_type"`
-	Remark         string                `json:"remark"`
-}
-
 // UserListRequest 用户列表请求
 type UserListRequest struct {
 	types.PageParam
+	Username string `form:"username"`
+	Nickname string `form:"nickname"`
+	Phone    string `form:"phone"`
+	Email    string `form:"email"`
+	Status   int8   `form:"status"`
 }
 
 // AssignRolesRequest 分配角色请求
@@ -100,27 +155,6 @@ type LoginResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	ExpiresAt    int64  `json:"expires_at"`
-}
-
-// UserResponse 用户信息响应
-type UserResponse struct {
-	ID             int                   `json:"id"`
-	Username       string                `json:"username"`
-	UserType       int                   `json:"user_type"`
-	Nickname       string                `json:"nickname"`
-	Phone          string                `json:"phone"`
-	Email          string                `json:"email"`
-	Avatar         string                `json:"avatar"`
-	Signed         string                `json:"signed"`
-	Status         int                   `json:"status"`
-	LoginIp        string                `json:"login_ip"`
-	LoginTime      string                `json:"login_time"`
-	BackendSetting *types.BackendSetting `json:"backend_setting"`
-	CreatedBy      int                   `json:"created_by"`
-	UpdatedBy      int                   `json:"updated_by"`
-	CreatedAt      string                `json:"created_at"`
-	UpdatedAt      string                `json:"updated_at"`
-	Remark         string                `json:"remark"`
 }
 
 // UserListResponse 用户列表响应
