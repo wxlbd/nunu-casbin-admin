@@ -2,11 +2,10 @@ package handler
 
 import (
 	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/ginx"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/wxlbd/nunu-casbin-admin/internal/handler/request"
-	"github.com/wxlbd/nunu-casbin-admin/internal/handler/response"
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/service"
 )
@@ -23,9 +22,9 @@ func NewRoleHandler(svc service.Service) *RoleHandler {
 
 // Create 创建角色
 func (h *RoleHandler) Create(c *gin.Context) {
-	var req request.RoleRequest
+	var req dto.RoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.ParamError(c)
+		ginx.ParamError(c)
 		return
 	}
 
@@ -38,18 +37,18 @@ func (h *RoleHandler) Create(c *gin.Context) {
 	}
 
 	if err := h.svc.Role().Create(c, role); err != nil {
-		response.ServerError(c, err)
+		ginx.ServerError(c, err)
 		return
 	}
 
-	response.Success(c, nil)
+	ginx.Success(c, nil)
 }
 
 // Update 更新角色
 func (h *RoleHandler) Update(c *gin.Context) {
-	var req request.RoleRequest
+	var req dto.RoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.ParamError(c)
+		ginx.ParamError(c)
 		return
 	}
 
@@ -63,43 +62,43 @@ func (h *RoleHandler) Update(c *gin.Context) {
 	}
 
 	if err := h.svc.Role().Update(c, role); err != nil {
-		response.ServerError(c, err)
+		ginx.ServerError(c, err)
 		return
 	}
 
-	response.Success(c, nil)
+	ginx.Success(c, nil)
 }
 
 // Delete 删除角色
 func (h *RoleHandler) Delete(c *gin.Context) {
-	var req request.RoleIDRequest
+	var req dto.RoleIDRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.ParamError(c)
+		ginx.ParamError(c)
 		return
 	}
 
 	if err := h.svc.Role().Delete(c, req.ID); err != nil {
-		response.ServerError(c, err)
+		ginx.ServerError(c, err)
 		return
 	}
 
-	response.Success(c, nil)
+	ginx.Success(c, nil)
 }
 
 // List 获取角色列表
 func (h *RoleHandler) List(c *gin.Context) {
-	var req request.RoleListRequest
+	var req dto.RoleListRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.ParamError(c)
+		ginx.ParamError(c)
 		return
 	}
 
 	roles, total, err := h.svc.Role().List(c, req.Page, req.Size)
 	if err != nil {
-		response.ServerError(c, err)
+		ginx.ServerError(c, err)
 		return
 	}
-	response.Success(c, &response.RoleListResponse{
+	ginx.Success(c, &dto.RoleListResponse{
 		List:  dto.ToRoleList(roles),
 		Total: total,
 	})
@@ -107,18 +106,18 @@ func (h *RoleHandler) List(c *gin.Context) {
 
 // AssignMenus 分配菜单
 func (h *RoleHandler) AssignMenus(c *gin.Context) {
-	var req request.AssignMenusRequest
+	var req dto.AssignMenusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.ParamError(c)
+		ginx.ParamError(c)
 		return
 	}
 
 	if err := h.svc.Role().AssignMenus(c, req.RoleID, req.MenuIDs); err != nil {
-		response.ServerError(c, err)
+		ginx.ServerError(c, err)
 		return
 	}
 
-	response.Success(c, nil)
+	ginx.Success(c, nil)
 }
 
 // GetMenus 获取角色菜单
@@ -126,25 +125,25 @@ func (h *RoleHandler) GetMenus(c *gin.Context) {
 	// 从查询参数获取角色ID
 	roleID := c.Query("role_id")
 	if roleID == "" {
-		response.ParamError(c)
+		ginx.ParamError(c)
 		return
 	}
 
 	// 转换为 uint64
 	id, err := strconv.ParseUint(roleID, 10, 64)
 	if err != nil {
-		response.ParamError(c)
+		ginx.ParamError(c)
 		return
 	}
 
 	// 获取角色的菜单列表
 	menus, err := h.svc.Role().GetRoleMenus(c, id)
 	if err != nil {
-		response.ServerError(c, err)
+		ginx.ServerError(c, err)
 		return
 	}
 
-	response.Success(c, dto.ToMenuList(menus))
+	ginx.Success(c, dto.ToMenuList(menus))
 }
 
 func (h *RoleHandler) Detail(ctx *gin.Context) {
@@ -152,13 +151,13 @@ func (h *RoleHandler) Detail(ctx *gin.Context) {
 
 	id, err := strconv.ParseUint(param, 10, 64)
 	if err != nil {
-		response.Error(ctx, 400, "参数错误")
+		ginx.Error(ctx, 400, "参数错误")
 		return
 	}
 	role, err := h.svc.Role().FindByID(ctx.Request.Context(), id)
 	if err != nil {
-		response.Error(ctx, 500, err.Error())
+		ginx.Error(ctx, 500, err.Error())
 		return
 	}
-	response.Success(ctx, dto.ToRoleResponse(role))
+	ginx.Success(ctx, dto.ToRoleResponse(role))
 }
