@@ -1,14 +1,15 @@
 package handler
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/service"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/ginx"
-	"strconv"
-	"strings"
 )
 
 type UserHandler struct {
@@ -138,13 +139,20 @@ func (h *UserHandler) Delete(c *gin.Context) {
 // List 获取用户列表
 func (h *UserHandler) List(c *gin.Context) {
 	var req dto.UserListRequest
-
 	if err := c.ShouldBindQuery(&req); err != nil {
 		ginx.Error(c, 400, "参数错误")
 		return
 	}
 
-	users, total, err := h.svc.User().List(c, req.Page, req.PageSize)
+	// 参数验证
+	if req.Page < 1 {
+		req.Page = 1
+	}
+	if req.PageSize < 1 || req.PageSize > 100 {
+		req.PageSize = 10
+	}
+
+	users, total, err := h.svc.User().List(c, req.ToModel())
 	if err != nil {
 		ginx.Error(c, 500, err.Error())
 		return
