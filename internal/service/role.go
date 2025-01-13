@@ -16,7 +16,7 @@ import (
 type RoleService interface {
 	Create(ctx context.Context, role *model.Role) error
 	Update(ctx context.Context, role *model.Role) error
-	Delete(ctx context.Context, id uint64) error
+	Delete(ctx context.Context, id ...uint64) error
 	FindByID(ctx context.Context, id uint64) (*model.Role, error)
 	List(ctx context.Context, page, size int) ([]*model.Role, int64, error)
 	AssignMenus(ctx context.Context, roleID uint64, menuIDs []uint64) error
@@ -28,9 +28,10 @@ type roleService struct {
 	enforcer *casbin.Enforcer
 }
 
-func NewRoleService(repo repository.Repository) RoleService {
+func NewRoleService(repo repository.Repository, enforcer *casbin.Enforcer) RoleService {
 	return &roleService{
-		repo: repo,
+		repo:     repo,
+		enforcer: enforcer,
 	}
 }
 
@@ -63,22 +64,22 @@ func (s *roleService) Update(ctx context.Context, role *model.Role) error {
 	return s.repo.Role().Update(ctx, role)
 }
 
-func (s *roleService) Delete(ctx context.Context, id uint64) error {
-	role, err := s.repo.Role().FindByID(ctx, id)
+func (s *roleService) Delete(ctx context.Context, ids ...uint64) error {
+	roles, err := s.repo.Role().FindByIDs(ctx, ids)
 	if err != nil {
 		return err
 	}
-	if role == nil {
+	if len(roles) == 0 {
 		return errors.New("角色不存在")
 	}
-
 	// 删除该角色的所有权限策略
-	_, err = s.enforcer.DeletePermissionsForUser(role.Code)
-	if err != nil {
-		return err
+	for _, role := range roles {
+		_, err = s.enforcer.DeletePermissionsForUser(role.Code)
+		if err != nil {
+			return err
+		}
 	}
-
-	return s.repo.Role().Delete(ctx, id)
+	return s.repo.Role().Delete(ctx, ids...)
 }
 
 func (s *roleService) FindByID(ctx context.Context, id uint64) (*model.Role, error) {
@@ -158,7 +159,7 @@ func convertMenuToAPI(menuName string) (path, method string) {
 		"create": {"POST", ""},
 		"save":   {"POST", ""},
 		"update": {"PUT", ""},
-		"delete": {"DELETE", ""},
+		"delete": {"DELETE", "/:ids"},
 		"get":    {"GET", ""},
 		"detail": {"GET", "/:id"},
 		"list":   {"GET", ""},
