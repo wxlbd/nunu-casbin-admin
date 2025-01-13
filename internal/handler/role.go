@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/ginx"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
@@ -71,13 +73,18 @@ func (h *RoleHandler) Update(c *gin.Context) {
 
 // Delete 删除角色
 func (h *RoleHandler) Delete(c *gin.Context) {
-	var req dto.RoleIDRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		ginx.ParamError(c)
-		return
+	param := c.Param("ids")
+	ids := strings.Split(param, ",")
+	var idList []uint64
+	for _, id := range ids {
+		idInt, err := strconv.ParseUint(id, 10, 64)
+		if err != nil {
+			ginx.Error(c, 400, "参数错误")
+			return
+		}
+		idList = append(idList, idInt)
 	}
-
-	if err := h.svc.Role().Delete(c, req.ID); err != nil {
+	if err := h.svc.Role().Delete(c, idList...); err != nil {
 		ginx.ServerError(c, err)
 		return
 	}
@@ -93,7 +100,7 @@ func (h *RoleHandler) List(c *gin.Context) {
 		return
 	}
 
-	roles, total, err := h.svc.Role().List(c, req.Page, req.Size)
+	roles, total, err := h.svc.Role().List(c, req.Page, req.PageSize)
 	if err != nil {
 		ginx.ServerError(c, err)
 		return
