@@ -10,7 +10,7 @@ import (
 type UserRepository interface {
 	Create(ctx context.Context, user *model.User) error
 	Update(ctx context.Context, user *model.User) error
-	Delete(ctx context.Context, id uint64) error
+	Delete(ctx context.Context, ids ...uint64) error
 	FindByID(ctx context.Context, id uint64) (*model.User, error)
 	FindByUsername(ctx context.Context, username string) (*model.User, error)
 	List(ctx context.Context, page, size int) ([]*model.User, int64, error)
@@ -31,11 +31,11 @@ func (r *userRepository) Create(ctx context.Context, user *model.User) error {
 }
 
 func (r *userRepository) Update(ctx context.Context, user *model.User) error {
-	return r.db.WithContext(ctx).Save(user).Error
+	return r.db.WithContext(ctx).Updates(user).Error
 }
 
-func (r *userRepository) Delete(ctx context.Context, id uint64) error {
-	return r.db.WithContext(ctx).Delete(&model.User{}, id).Error
+func (r *userRepository) Delete(ctx context.Context, ids ...uint64) error {
+	return r.db.WithContext(ctx).Delete(&model.User{}, ids).Error
 }
 
 func (r *userRepository) FindByID(ctx context.Context, id uint64) (*model.User, error) {
