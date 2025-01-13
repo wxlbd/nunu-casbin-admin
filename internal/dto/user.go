@@ -137,6 +137,18 @@ type UserListRequest struct {
 	Status   int8   `form:"status"`
 }
 
+func (req *UserListRequest) ToModel() *model.UserQuery {
+	return &model.UserQuery{
+		Page:     req.Page,
+		PageSize: req.PageSize,
+		Username: req.Username,
+		Nickname: req.Nickname,
+		Phone:    req.Phone,
+		Email:    req.Email,
+		Status:   req.Status,
+	}
+}
+
 // AssignRolesRequest 分配角色请求
 type AssignRolesRequest struct {
 	UserID  uint64   `json:"user_id" binding:"required"`
