@@ -32,3 +32,14 @@ type User struct {
 func (User) TableName() string {
 	return "user"
 }
+
+type UserQuery struct {
+	Username string `json:"username"`
+	Phone    string `json:"phone"`
+	Email    string `json:"email"`
+	Status   int8   `json:"status"`
+	Nickname string `json:"nickname"`
+	Page     int    `json:"page"`
+	PageSize int    `json:"size"`
+	OrderBy  string `json:"order_by"`
+}
