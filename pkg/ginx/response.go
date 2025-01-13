@@ -1,4 +1,4 @@
-package response
+package ginx
 
 import "github.com/gin-gonic/gin"
 
@@ -8,13 +8,13 @@ const (
 )
 
 type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    any    `json:"data,omitempty"`
 }
 
-// 成功响应
-func Success(c *gin.Context, data interface{}) {
+// Success 成功响应
+func Success(c *gin.Context, data any) {
 	c.JSON(200, Response{
 		Code:    SUCCESS,
 		Message: "success",
@@ -22,7 +22,7 @@ func Success(c *gin.Context, data interface{}) {
 	})
 }
 
-// 错误响应
+// Error 错误响应
 func Error(c *gin.Context, code int, message string) {
 	c.JSON(code, Response{
 		Code:    code,
@@ -30,22 +30,22 @@ func Error(c *gin.Context, code int, message string) {
 	})
 }
 
-// 参数错误响应
+// ParamError 参数错误响应
 func ParamError(c *gin.Context) {
 	Error(c, 400, "参数错误")
 }
 
-// 未授权响应
+// Unauthorized 未授权响应
 func Unauthorized(c *gin.Context) {
 	Error(c, 401, "未授权")
 }
 
-// 禁止访问响应
+// Forbidden 禁止访问响应
 func Forbidden(c *gin.Context) {
 	Error(c, 403, "禁止访问")
 }
 
-// 服务器错误响应
+// ServerError 服务器错误响应
 func ServerError(c *gin.Context, err error) {
 	Error(c, 500, err.Error())
 }
