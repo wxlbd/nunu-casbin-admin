@@ -16,7 +16,7 @@ import (
 type UserService interface {
 	Create(ctx context.Context, user *model.User) error
 	Update(ctx context.Context, user *model.User) error
-	Delete(ctx context.Context, id uint64) error
+	Delete(ctx context.Context, ids ...uint64) error
 	FindByID(ctx context.Context, id uint64) (*model.User, error)
 	FindByUsername(ctx context.Context, username string) (*model.User, error)
 	List(ctx context.Context, page, size int) ([]*model.User, int64, error)
@@ -76,8 +76,8 @@ func (s *userService) Update(ctx context.Context, user *model.User) error {
 	return s.repo.User().Update(ctx, user)
 }
 
-func (s *userService) Delete(ctx context.Context, id uint64) error {
-	return s.repo.User().Delete(ctx, id)
+func (s *userService) Delete(ctx context.Context, ids ...uint64) error {
+	return s.repo.User().Delete(ctx, ids...)
 }
 
 func (s *userService) FindByID(ctx context.Context, id uint64) (*model.User, error) {
