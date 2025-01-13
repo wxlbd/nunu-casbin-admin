@@ -3,10 +3,9 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
-	"github.com/wxlbd/nunu-casbin-admin/internal/handler/request"
-	"github.com/wxlbd/nunu-casbin-admin/internal/handler/response"
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/service"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/ginx"
 )
 
 type MenuHandler struct {
@@ -21,9 +20,9 @@ func NewMenuHandler(svc service.Service) *MenuHandler {
 
 // Create 创建菜单
 func (h *MenuHandler) Create(c *gin.Context) {
-	var req request.MenuRequest
+	var req dto.MenuRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.ParamError(c)
+		ginx.ParamError(c)
 		return
 	}
 
@@ -37,18 +36,18 @@ func (h *MenuHandler) Create(c *gin.Context) {
 	}
 
 	if err := h.svc.Menu().Create(c, menu); err != nil {
-		response.ServerError(c, err)
+		ginx.ServerError(c, err)
 		return
 	}
 
-	response.Success(c, nil)
+	ginx.Success(c, nil)
 }
 
 // Update 更新菜单
 func (h *MenuHandler) Update(c *gin.Context) {
-	var req request.MenuRequest
+	var req dto.MenuRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.ParamError(c)
+		ginx.ParamError(c)
 		return
 	}
 
@@ -63,52 +62,52 @@ func (h *MenuHandler) Update(c *gin.Context) {
 	}
 
 	if err := h.svc.Menu().Update(c, menu); err != nil {
-		response.ServerError(c, err)
+		ginx.ServerError(c, err)
 		return
 	}
 
-	response.Success(c, nil)
+	ginx.Success(c, nil)
 }
 
 // Delete 删除菜单
 func (h *MenuHandler) Delete(c *gin.Context) {
-	var req request.MenuIDRequest
+	var req dto.MenuIDRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.ParamError(c)
+		ginx.ParamError(c)
 		return
 	}
 
 	if err := h.svc.Menu().Delete(c, req.ID); err != nil {
-		response.ServerError(c, err)
+		ginx.ServerError(c, err)
 		return
 	}
 
-	response.Success(c, nil)
+	ginx.Success(c, nil)
 }
 
 // GetMenuTree 获取菜单树
 func (h *MenuHandler) GetMenuTree(c *gin.Context) {
 	tree, err := h.svc.Menu().GetMenuTree(c)
 	if err != nil {
-		response.ServerError(c, err)
+		ginx.ServerError(c, err)
 		return
 	}
 
-	response.Success(c, dto.ToMenuTree(tree))
+	ginx.Success(c, dto.ToMenuTree(tree))
 }
 
 // GetUserMenus 获取用户菜单
 func (h *MenuHandler) GetUserMenus(c *gin.Context) {
 	userID := c.GetUint64("user_id")
 	if userID == 0 {
-		response.Unauthorized(c)
+		ginx.Unauthorized(c)
 		return
 	}
 
 	// 获取用户的角色
 	roles, err := h.svc.User().GetUserRoles(c, userID)
 	if err != nil {
-		response.ServerError(c, err)
+		ginx.ServerError(c, err)
 		return
 	}
 
@@ -129,9 +128,9 @@ func (h *MenuHandler) GetUserMenus(c *gin.Context) {
 	}
 
 	if err != nil {
-		response.ServerError(c, err)
+		ginx.ServerError(c, err)
 		return
 	}
 
-	response.Success(c, dto.ToMenuTree(menus))
+	ginx.Success(c, dto.ToMenuTree(menus))
 }
