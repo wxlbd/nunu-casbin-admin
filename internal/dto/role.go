@@ -47,13 +47,26 @@ type RoleIDRequest struct {
 
 // RoleListRequest 角色列表请求
 type RoleListRequest struct {
-	types.PageParam
+	*types.PageParam
+	Name   string `form:"name"`
+	Code   string `form:"code"`
+	Status int8   `form:"status"`
+}
+
+func (r *RoleListRequest) ToModel() *model.RoleQuery {
+	r.Normalize()
+	return &model.RoleQuery{
+		PageParam: r.PageParam,
+		Name:      r.Name,
+		Code:      r.Code,
+		Status:    r.Status,
+	}
 }
 
 // AssignMenusRequest 分配菜单请求
 type AssignMenusRequest struct {
-	RoleID  uint64   `json:"role_id" binding:"required"`
-	MenuIDs []uint64 `json:"menu_ids" binding:"required"`
+	RoleID      uint64
+	Permissions []string `json:"permissions" binding:"required"`
 }
 
 // RoleResponse 角色信息响应
