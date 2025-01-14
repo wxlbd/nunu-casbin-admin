@@ -107,8 +107,26 @@ func (b *BackendSetting) UnmarshalJSON(data []byte) error {
 
 // PageParam 分页请求参数
 type PageParam struct {
-	Page     int `json:"page" form:"page" binding:"required,min=1"`
-	PageSize int `json:"pageSize" form:"page_size" binding:"required,min=1,max=100"`
+	Page     int `json:"page" form:"page"`
+	PageSize int `json:"pageSize" form:"page_size"`
+}
+
+// Normalize 规范化分页参数
+func (p *PageParam) Normalize() {
+	if p.Page <= 0 {
+		p.Page = 1
+	}
+	if p.PageSize <= 0 {
+		p.PageSize = 10
+	}
+	if p.PageSize > 100 {
+		p.PageSize = 100
+	}
+}
+
+// GetOffset 获取偏移量
+func (p *PageParam) GetOffset() int {
+	return (p.Page - 1) * p.PageSize
 }
 
 // MenuMeta 菜单元数据
