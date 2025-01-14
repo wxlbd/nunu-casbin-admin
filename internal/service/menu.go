@@ -40,7 +40,7 @@ func (s *menuService) Create(ctx context.Context, req *dto.CreateMenuRequest) er
 	menu := req.ToModel()
 
 	// 2. 查询菜单名称是否已存在
-	if exist, _ := s.repo.Menu().FindByName(ctx, menu.Name); exist != nil {
+	if ms, _ := s.repo.Menu().FindByName(ctx, menu.Name); len(ms) > 0 {
 		return errors.New("菜单名称已存在")
 	}
 
