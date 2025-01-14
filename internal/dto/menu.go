@@ -3,8 +3,9 @@ package dto
 import (
 	"time"
 
+	"github.com/wxlbd/nunu-casbin-admin/internal/types"
+
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
-	"github.com/wxlbd/nunu-casbin-admin/internal/service"
 )
 
 func ToMenuList(menus []*model.Menu) []*Menu {
@@ -32,7 +33,7 @@ func ToMenu(menu *model.Menu) *Menu {
 	}
 }
 
-func ToMenuTree(menus []*service.MenuTree) []*MenuTreeNode {
+func ToMenuTree(menus []*model.MenuTree) []*MenuTreeNode {
 	var menuList []*MenuTreeNode
 	for _, menu := range menus {
 		menuList = append(menuList, ToMenuTreeNode(menu))
@@ -40,7 +41,7 @@ func ToMenuTree(menus []*service.MenuTree) []*MenuTreeNode {
 	return menuList
 }
 
-func ToMenuTreeNode(menu *service.MenuTree) *MenuTreeNode {
+func ToMenuTreeNode(menu *model.MenuTree) *MenuTreeNode {
 	if menu == nil {
 		return nil
 	}
@@ -50,27 +51,12 @@ func ToMenuTreeNode(menu *service.MenuTree) *MenuTreeNode {
 		Name:      menu.Name,
 		Path:      menu.Path,
 		Component: menu.Component,
-		Meta:      ToMenuMeta(menu.Meta),
+		Meta:      menu.Meta,
 		Sort:      menu.Sort,
 		Status:    menu.Status,
 		CreatedAt: menu.CreatedAt.Format(time.DateTime),
 		UpdatedAt: menu.UpdatedAt.Format(time.DateTime),
 		Children:  ToMenuTree(menu.Children),
-	}
-}
-func ToMenuMeta(meta model.MenuMeta) Meta {
-	return Meta{
-		I18N:             meta.I18n,
-		Icon:             meta.Icon,
-		Type:             meta.Type,
-		Affix:            meta.Affix,
-		Cache:            meta.Cache,
-		Title:            meta.Title,
-		Hidden:           meta.Hidden,
-		Copyright:        meta.Copyright,
-		ComponentPath:    meta.ComponentPath,
-		ComponentSuffix:  meta.ComponentSuffix,
-		BreadcrumbEnable: meta.BreadcrumbEnable,
 	}
 }
 
@@ -79,7 +65,7 @@ type MenuTreeNode struct {
 	ID        uint64          `json:"id"`
 	ParentID  uint64          `json:"parent_id"`
 	Name      string          `json:"name"`
-	Meta      Meta            `json:"meta"`
+	Meta      *types.MenuMeta `json:"meta"`
 	Path      string          `json:"path"`
 	Component string          `json:"component"`
 	Redirect  string          `json:"redirect"`
@@ -91,20 +77,6 @@ type MenuTreeNode struct {
 	UpdatedAt string          `json:"updated_at"`
 	Remark    string          `json:"remark"`
 	Children  []*MenuTreeNode `json:"children"`
-}
-
-type Meta struct {
-	I18N             string `json:"i18n"`
-	Icon             string `json:"icon"`
-	Type             string `json:"type"`
-	Affix            bool   `json:"affix"`
-	Cache            bool   `json:"cache"`
-	Title            string `json:"title"`
-	Hidden           bool   `json:"hidden"`
-	Copyright        bool   `json:"copyright"`
-	ComponentPath    string `json:"componentPath"`
-	ComponentSuffix  string `json:"componentSuffix"`
-	BreadcrumbEnable bool   `json:"breadcrumbEnable"`
 }
 
 // MenuTreeResponse 菜单列表响应
@@ -142,6 +114,104 @@ type MenuIDRequest struct {
 
 // MenuListRequest 菜单列表请求
 type MenuListRequest struct {
-	Page int `form:"page" binding:"required,min=1"`
-	Size int `form:"size" binding:"required,min=1,max=100"`
+	types.PageParam
+	Name      string `form:"name"`
+	Path      string `form:"path"`
+	Component string `form:"component"`
+	Status    int8   `form:"status"`
+}
+
+func (req *MenuListRequest) ToModel() *model.MenuQuery {
+	return &model.MenuQuery{
+		Name:      req.Name,
+		Path:      req.Path,
+		Component: req.Component,
+		Status:    req.Status,
+		PageParam: types.PageParam{
+			Page:     req.Page,
+			PageSize: req.PageSize,
+		},
+	}
+}
+
+type BtnPermission struct {
+	Id    int    `json:"id"`
+	Code  string `json:"code"`
+	Title string `json:"title"`
+	I18N  string `json:"i18n"`
+	Type  string `json:"type"`
+}
+
+type MenuBase struct {
+	ParentId       uint64          `json:"parent_id"`
+	Name           string          `json:"name"`
+	Path           string          `json:"path"`
+	Meta           *types.MenuMeta `json:"meta"`
+	Component      string          `json:"component"`
+	Sort           int16           `json:"sort"`
+	Status         int8            `json:"status"`
+	BtnPermissions []BtnPermission `json:"btnPermission"`
+	Redirect       string          `json:"redirect"`
+	Remark         string          `json:"remark"`
+	Title          string          `json:"title"`
+}
+
+type CreateMenuRequest struct {
+	MenuBase
+	CreatedBy uint64 `json:"created_by"`
+}
+
+func (c *CreateMenuRequest) ToModel() *model.Menu {
+	return &model.Menu{
+		ParentID:  c.ParentId,
+		Name:      c.Name,
+		Path:      c.Path,
+		Meta:      c.Meta,
+		Component: c.Component,
+		Sort:      int16(c.Sort),
+		Status:    int8(c.Status),
+		CreatedBy: uint64(c.CreatedBy),
+		Remark:    c.Remark,
+		Redirect:  c.Redirect,
+	}
+}
+
+func (c *MenuBase) BtnPermissionsToModels() []*model.Menu {
+	var models []*model.Menu
+	for _, btn := range c.BtnPermissions {
+		models = append(models, &model.Menu{
+			Name:     btn.Code,
+			ParentID: c.ParentId,
+			Sort:     0,
+			Status:   1,
+			Meta: &types.MenuMeta{
+				Title: btn.Title,
+				I18n:  btn.I18N,
+				Type:  "B",
+			},
+		})
+	}
+	return models
+}
+
+type UpdateMenuRequest struct {
+	ID uint64 `json:"id" binding:"required"`
+	MenuBase
+	UpdatedBy int `json:"updated_by"`
+}
+
+func (c *UpdateMenuRequest) ToModel() *model.Menu {
+	return &model.Menu{
+		ID:        c.ID,
+		ParentID:  c.ParentId,
+		Name:      c.Name,
+		Path:      c.Path,
+		Meta:      c.Meta,
+		Component: c.Component,
+		Sort:      int16(c.Sort),
+		Status:    int8(c.Status),
+		UpdatedBy: uint64(c.UpdatedBy),
+		Remark:    c.Remark,
+		Redirect:  c.Redirect,
+	}
 }
