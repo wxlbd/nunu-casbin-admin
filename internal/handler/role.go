@@ -99,8 +99,7 @@ func (h *RoleHandler) List(c *gin.Context) {
 		ginx.ParamError(c)
 		return
 	}
-
-	roles, total, err := h.svc.Role().List(c, req.Page, req.PageSize)
+	roles, total, err := h.svc.Role().List(c, &req)
 	if err != nil {
 		ginx.ServerError(c, err)
 		return
@@ -118,8 +117,9 @@ func (h *RoleHandler) AssignMenus(c *gin.Context) {
 		ginx.ParamError(c)
 		return
 	}
-
-	if err := h.svc.Role().AssignMenus(c, req.RoleID, req.MenuIDs); err != nil {
+	param := c.Param("id")
+	req.RoleID, _ = strconv.ParseUint(param, 10, 64)
+	if err := h.svc.Role().AssignMenus(c, req.RoleID, req.Permissions); err != nil {
 		ginx.ServerError(c, err)
 		return
 	}
@@ -127,10 +127,10 @@ func (h *RoleHandler) AssignMenus(c *gin.Context) {
 	ginx.Success(c, nil)
 }
 
-// GetMenus 获取角色菜单
-func (h *RoleHandler) GetMenus(c *gin.Context) {
+// GetPermittedMenus 获取角色菜单
+func (h *RoleHandler) GetPermittedMenus(c *gin.Context) {
 	// 从查询参数获取角色ID
-	roleID := c.Query("role_id")
+	roleID := c.Param("id")
 	if roleID == "" {
 		ginx.ParamError(c)
 		return
