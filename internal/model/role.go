@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/wxlbd/nunu-casbin-admin/internal/types"
 	"time"
 )
 
@@ -19,4 +20,11 @@ type Role struct {
 // TableName 指定表名
 func (Role) TableName() string {
 	return "role"
+}
+
+type RoleQuery struct {
+	*types.PageParam
+	Name   string `json:"name"`
+	Code   string `json:"code"`
+	Status int8   `json:"status"`
 }
