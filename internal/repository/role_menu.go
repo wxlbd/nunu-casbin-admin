@@ -98,7 +98,7 @@ func (r *roleMenuRepository) BatchCreate(ctx context.Context, roleID uint64, men
 				"menu_id": menuID,
 			})
 		}
-		return tx.Create(roleMenus).Error
+		return tx.Model(&model.RoleMenus{}).Create(roleMenus).Error
 	})
 }
 
