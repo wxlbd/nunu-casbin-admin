@@ -143,15 +143,7 @@ func (h *UserHandler) List(c *gin.Context) {
 		ginx.Error(c, 400, "参数错误")
 		return
 	}
-
-	// 参数验证
-	if req.Page < 1 {
-		req.Page = 1
-	}
-	if req.PageSize < 1 || req.PageSize > 100 {
-		req.PageSize = 10
-	}
-
+	req.Normalize()
 	users, total, err := h.svc.User().List(c, req.ToModel())
 	if err != nil {
 		ginx.Error(c, 500, err.Error())
@@ -235,8 +227,8 @@ func (h *UserHandler) Detail(c *gin.Context) {
 	ginx.Success(c, dto.ToUserResponse(user))
 }
 
-// GetRoles 获取用户角色列表
-func (h *UserHandler) GetRoles(c *gin.Context) {
+// GetCurrentUserRoles 获取当前用户角色列表
+func (h *UserHandler) GetCurrentUserRoles(c *gin.Context) {
 	id := c.GetUint64("user_id")
 	if id == 0 {
 		ginx.ParamError(c)
@@ -251,4 +243,20 @@ func (h *UserHandler) GetRoles(c *gin.Context) {
 	}
 
 	ginx.Success(c, roles)
+}
+
+func (h *UserHandler) GerUserRoles(ctx *gin.Context) {
+	param := ctx.Param("id")
+
+	id, err := strconv.ParseUint(param, 10, 64)
+	if err != nil {
+		ginx.Error(ctx, 400, "参数错误")
+		return
+	}
+	roles, err := h.svc.User().GetUserRoles(ctx.Request.Context(), id)
+	if err != nil {
+		ginx.Error(ctx, 500, err.Error())
+		return
+	}
+	ginx.Success(ctx, roles)
 }
