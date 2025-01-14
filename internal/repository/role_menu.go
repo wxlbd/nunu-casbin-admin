@@ -15,6 +15,7 @@ type RoleMenuRepository interface {
 	FindRolesByMenuID(ctx context.Context, menuID uint64) ([]*model.Role, error)
 	BatchCreate(ctx context.Context, roleID uint64, menuIDs []uint64) error
 	FindMenusByRoleIDs(ctx context.Context, roleIDs ...uint64) ([]*model.Menu, error)
+	FindRolesByMenuIDs(ctx context.Context, menuIDs []uint64) ([]*model.Role, error)
 }
 
 type roleMenuRepository struct {
@@ -99,4 +100,13 @@ func (r *roleMenuRepository) BatchCreate(ctx context.Context, roleID uint64, men
 		}
 		return tx.Create(roleMenus).Error
 	})
+}
+
+func (r *roleMenuRepository) FindRolesByMenuIDs(ctx context.Context, menuIDs []uint64) ([]*model.Role, error) {
+	var roles []*model.Role
+	err := r.db.WithContext(ctx).
+		Joins("JOIN role_menus ON role_menus.role_id = role.id").
+		Where("role_menus.menu_id IN ?", menuIDs).
+		Find(&roles).Error
+	return roles, err
 }
