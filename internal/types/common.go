@@ -110,3 +110,37 @@ type PageParam struct {
 	Page     int `json:"page" form:"page" binding:"required,min=1"`
 	PageSize int `json:"pageSize" form:"page_size" binding:"required,min=1,max=100"`
 }
+
+// MenuMeta 菜单元数据
+type MenuMeta struct {
+	I18n             string `json:"i18n"`             // 国际化标识
+	Icon             string `json:"icon"`             // 图标
+	Type             string `json:"type"`             // 类型：M=菜单,B=按钮（按钮类型对应的就是后端API）
+	Affix            bool   `json:"affix"`            // 是否固定标签
+	Cache            bool   `json:"cache"`            // 是否缓存
+	Title            string `json:"title"`            // 标题
+	Hidden           bool   `json:"hidden"`           // 是否隐藏
+	Copyright        bool   `json:"copyright"`        // 是否有版权
+	ComponentPath    string `json:"componentPath"`    // 组件路径
+	ComponentSuffix  string `json:"componentSuffix"`  // 组件后缀
+	BreadcrumbEnable bool   `json:"breadcrumbEnable"` // 是否启用面包屑
+}
+
+// Scan 实现 sql.Scanner 接口，用于从数据库读取 JSON 数据到结构体
+func (m *MenuMeta) Scan(value interface{}) error {
+	if value == nil {
+		return nil
+	}
+
+	bytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("failed to unmarshal JSON value: value is not a byte slice")
+	}
+
+	return json.Unmarshal(bytes, m)
+}
+
+// Value 实现 driver.Valuer 接口，用于将结构体序列化为 JSON 存储到数据库
+func (m MenuMeta) Value() (driver.Value, error) {
+	return json.Marshal(m)
+}
