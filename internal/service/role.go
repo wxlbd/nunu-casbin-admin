@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
 	"strings"
 
 	"github.com/casbin/casbin/v2"
@@ -18,8 +19,8 @@ type RoleService interface {
 	Update(ctx context.Context, role *model.Role) error
 	Delete(ctx context.Context, id ...uint64) error
 	FindByID(ctx context.Context, id uint64) (*model.Role, error)
-	List(ctx context.Context, page, size int) ([]*model.Role, int64, error)
-	AssignMenus(ctx context.Context, roleID uint64, menuIDs []uint64) error
+	List(ctx context.Context, req *dto.RoleListRequest) ([]*model.Role, int64, error)
+	AssignMenus(ctx context.Context, roleID uint64, menus []string) error
 	GetRoleMenus(ctx context.Context, roleID uint64) ([]*model.Menu, error)
 }
 
@@ -86,11 +87,12 @@ func (s *roleService) FindByID(ctx context.Context, id uint64) (*model.Role, err
 	return s.repo.Role().FindByID(ctx, id)
 }
 
-func (s *roleService) List(ctx context.Context, page, size int) ([]*model.Role, int64, error) {
-	return s.repo.Role().List(ctx, page, size)
+func (s *roleService) List(ctx context.Context, req *dto.RoleListRequest) ([]*model.Role, int64, error) {
+	query := req.ToModel()
+	return s.repo.Role().List(ctx, query)
 }
 
-func (s *roleService) AssignMenus(ctx context.Context, roleID uint64, menuIDs []uint64) error {
+func (s *roleService) AssignMenus(ctx context.Context, roleID uint64, names []string) error {
 	// 开启事务
 	return s.repo.DB().Transaction(func(tx *gorm.DB) error {
 		// 1. 先删除原有的角色-菜单关联
@@ -99,7 +101,7 @@ func (s *roleService) AssignMenus(ctx context.Context, roleID uint64, menuIDs []
 		}
 
 		// 2. 获取所有按钮类型的菜单（即 API）
-		menus, err := s.repo.Menu().FindByIDs(ctx, menuIDs)
+		menus, err := s.repo.Menu().FindByName(ctx, names...)
 		if err != nil {
 			return err
 		}
@@ -116,8 +118,10 @@ func (s *roleService) AssignMenus(ctx context.Context, roleID uint64, menuIDs []
 			return err
 		}
 
+		var menuIDs []uint64
 		// 添加新的策略
 		for _, menu := range menus {
+			menuIDs = append(menuIDs, menu.ID)
 			if menu.Meta.Type == "B" { // 按钮类型
 				// 根据菜单名称生成 API 路径和方法
 				// 例如：permission:user:save -> POST /api/user
@@ -135,7 +139,7 @@ func (s *roleService) AssignMenus(ctx context.Context, roleID uint64, menuIDs []
 }
 
 // convertMenuToAPI 将菜单名称转换为 API 路径和方法
-// 示例: permission:user:save -> POST /api/permission/user
+// 示例: system:role:get:menus -> GET /api/system/role/:id/menus
 func convertMenuToAPI(menuName string) (path, method string) {
 	// 基础路径前缀
 	const apiPrefix = "/api"
@@ -146,53 +150,54 @@ func convertMenuToAPI(menuName string) (path, method string) {
 		return "", ""
 	}
 
-	// 获取模块和资源
-	module := parts[0]   // 例如: permission
-	resource := parts[1] // 例如: user
-	action := parts[2]   // 例如: save
+	// 获取模块、资源和动作
+	module := parts[0]   // 例如: system
+	resource := parts[1] // 例如: role
 
-	// 动作映射表
-	actionMap := map[string]struct {
-		method     string
-		pathSuffix string
-	}{
-		"create": {"POST", ""},
-		"save":   {"POST", ""},
-		"update": {"PUT", ""},
-		"delete": {"DELETE", "/:ids"},
-		"get":    {"GET", ""},
-		"detail": {"GET", "/:id"},
-		"list":   {"GET", ""},
-		"index":  {"GET", ""},
-
-		// 扩展的业务操作
-		"enable":  {"PATCH", "/enable"},
-		"disable": {"PATCH", "/disable"},
-		"assign":  {"POST", "/assign"},
-		"revoke":  {"POST", "/revoke"},
-		"upload":  {"POST", "/upload"},
-		"export":  {"GET", "/export"},
-		"import":  {"POST", "/import"},
-		"batch":   {"POST", "/batch"},
-		"tree":    {"GET", "/tree"},
-		"status":  {"PATCH", "/status"},
+	// 处理复合动作（如 get:menus）
+	var action, subResource string
+	if len(parts) >= 4 {
+		action = parts[2]      // 例如: get
+		subResource = parts[3] // 例如: menus
+	} else {
+		action = parts[2] // 例如: create
 	}
 
-	// 查找动作对应的方法和路径后缀
-	actionInfo, exists := actionMap[action]
-	if !exists {
+	// 动作映射表
+	actionMap := map[string]string{
+		"get":    "GET",
+		"set":    "POST",
+		"create": "POST",
+		"update": "PUT",
+		"delete": "DELETE",
+		"list":   "GET",
+	}
+
+	// 获取 HTTP 方法
+	method = actionMap[action]
+	if method == "" {
 		return "", ""
 	}
 
-	// 构建完整的 API 路径
-	path = fmt.Sprintf("%s/%s/%s%s",
-		apiPrefix,
-		module,
-		resource,
-		actionInfo.pathSuffix,
-	)
+	// 构建路径
+	if subResource != "" {
+		// 对于子资源路径：/api/system/role/:id/menus
+		path = fmt.Sprintf("%s/%s/%s/:id/%s",
+			apiPrefix,
+			module,
+			resource,
+			subResource,
+		)
+	} else {
+		// 对于普通路径：/api/system/role
+		path = fmt.Sprintf("%s/%s/%s",
+			apiPrefix,
+			module,
+			resource,
+		)
+	}
 
-	return path, actionInfo.method
+	return path, method
 }
 
 func (s *roleService) GetRoleMenus(ctx context.Context, roleID uint64) ([]*model.Menu, error) {
