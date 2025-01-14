@@ -4,25 +4,23 @@ import (
 	"context"
 	"errors"
 
+	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
+
 	"github.com/casbin/casbin/v2"
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/repository"
+	"github.com/wxlbd/nunu-casbin-admin/internal/types"
 )
 
 type MenuService interface {
-	Create(ctx context.Context, menu *model.Menu) error
-	Update(ctx context.Context, menu *model.Menu) error
-	Delete(ctx context.Context, id uint64) error
+	Create(ctx context.Context, req *dto.CreateMenuRequest) error
+	Update(ctx context.Context, req *dto.UpdateMenuRequest) error
+	Delete(ctx context.Context, id ...uint64) error
 	FindByID(ctx context.Context, id uint64) (*model.Menu, error)
-	List(ctx context.Context, page, size int) ([]*model.Menu, int64, error)
-	GetMenuTree(ctx context.Context) ([]*MenuTree, error)
-	GetUserMenus(ctx context.Context, userID uint64) ([]*MenuTree, error)
+	List(ctx context.Context, query *model.MenuQuery) ([]*model.Menu, int64, error)
+	GetMenuTree(ctx context.Context) ([]*model.MenuTree, error)
+	GetUserMenus(ctx context.Context, userID uint64) ([]*model.MenuTree, error)
 	GetAllMenus(ctx context.Context) ([]*model.Menu, error)
-}
-
-type MenuTree struct {
-	*model.Menu
-	Children []*MenuTree `json:"children"`
 }
 
 type menuService struct {
@@ -37,49 +35,72 @@ func NewMenuService(repo repository.Repository, enforcer *casbin.Enforcer) MenuS
 	}
 }
 
-func (s *menuService) Create(ctx context.Context, menu *model.Menu) error {
-	if err := s.repo.Menu().Create(ctx, menu); err != nil {
+func (s *menuService) Create(ctx context.Context, req *dto.CreateMenuRequest) error {
+	// 1. 转换请求为菜单模型
+	menu := req.ToModel()
+
+	// 2. 查询菜单名称是否已存在
+	if exist, _ := s.repo.Menu().FindByName(ctx, menu.Name); exist != nil {
+		return errors.New("菜单名称已存在")
+	}
+
+	id, err := s.repo.Menu().Create(ctx, menu)
+	if err != nil {
 		return err
 	}
-
-	// 如果是按钮类型，需要更新所有拥有该菜单的角色的权限策略
-	if menu.Meta.Type == "B" {
-		roles, err := s.repo.RoleMenu().FindRolesByMenuID(ctx, menu.ID)
-		if err != nil {
-			return err
-		}
-
-		path, method := convertMenuToAPI(menu.Name)
-		for _, role := range roles {
-			_, err = s.enforcer.AddPolicy(role.Code, path, method)
-			if err != nil {
-				return err
-			}
-		}
+	var menus []*model.Menu
+	if len(req.BtnPermissions) > 0 {
+		menus = append(menus, req.BtnPermissionsToModels()...)
 	}
+	for i, _ := range menus {
+		menus[i].ParentID = id
+	}
+	s.repo.Menu().BatchCreate(ctx, menus)
+	// 如果是按钮类型，需要更新所有拥有该菜单的角色的权限策略
+	//if menu.Meta.Type == "B" {
+	//	roles, err := s.repo.RoleMenu().FindRolesByMenuID(ctx, menu.ID)
+	//	if err != nil {
+	//		return err
+	//	}
+	//
+	//	path, method := convertMenuToAPI(menu.Name)
+	//	for _, role := range roles {
+	//		_, err = s.enforcer.AddPolicy(role.Code, path, method)
+	//		if err != nil {
+	//			return err
+	//		}
+	//	}
+	//}
 
 	return nil
 }
 
-func (s *menuService) Update(ctx context.Context, menu *model.Menu) error {
-	existMenu, err := s.repo.Menu().FindByID(ctx, menu.ID)
+func (s *menuService) Update(ctx context.Context, req *dto.UpdateMenuRequest) error {
+	// 1. 转换请求为菜单模型
+	menus := []*model.Menu{req.ToModel()}
+	if len(req.BtnPermissions) > 0 {
+		menus = append(menus, req.BtnPermissionsToModels()...)
+	}
+
+	// 2. 查询旧的菜单信息
+	oldMenu, err := s.repo.Menu().FindByID(ctx, req.ID)
 	if err != nil {
 		return err
 	}
-	if existMenu == nil {
+	if oldMenu == nil {
 		return errors.New("菜单不存在")
 	}
 
-	// 如果修改了菜单名称，需要检查新名称是否已存在
-	if menu.Name != existMenu.Name {
-		if exist, _ := s.repo.Menu().FindByName(ctx, menu.Name); exist != nil {
+	// 3. 如果修改了菜单名称，需要检查新名称是否已存在
+	if req.Name != oldMenu.Name {
+		if exist, _ := s.repo.Menu().FindByName(ctx, req.Name); exist != nil {
 			return errors.New("菜单名称已存在")
 		}
 	}
 
-	// 检查是否形成循环依赖
-	if menu.ParentID != 0 {
-		parent := menu.ParentID
+	// 4. 检查是否形成循环依赖
+	if req.ParentId != 0 {
+		parent := req.ParentId
 		for parent != 0 {
 			parentMenu, err := s.repo.Menu().FindByID(ctx, parent)
 			if err != nil {
@@ -88,51 +109,104 @@ func (s *menuService) Update(ctx context.Context, menu *model.Menu) error {
 			if parentMenu == nil {
 				return errors.New("父菜单不存在")
 			}
-			if parentMenu.ID == menu.ID {
+			if parentMenu.ID == req.ID {
 				return errors.New("不能将菜单的子菜单设为其父菜单")
 			}
 			parent = parentMenu.ParentID
 		}
 	}
 
-	return s.repo.Menu().Update(ctx, menu)
-}
+	// 5. 更新权限策略
+	// 5.1 获取所有需要更新的菜单ID（包括子菜单）
+	menuIDs := []uint64{req.ID}
+	for _, menu := range menus {
+		if menu.ID != 0 {
+			menuIDs = append(menuIDs, menu.ID)
+		}
+	}
 
-func (s *menuService) Delete(ctx context.Context, id uint64) error {
-	menu, err := s.repo.Menu().FindByID(ctx, id)
+	// 5.2 查询这些菜单的旧数据
+	oldMenus, err := s.repo.Menu().FindByIDs(ctx, menuIDs)
 	if err != nil {
 		return err
 	}
 
-	// 如果是按钮类型，需要删除相关的权限策略
-	if menu.Meta.Type == "B" {
-		roles, err := s.repo.RoleMenu().FindRolesByMenuID(ctx, id)
-		if err != nil {
-			return err
+	// 5.3 获取拥有这些菜单的所有角色
+	roles, err := s.repo.RoleMenu().FindRolesByMenuIDs(ctx, menuIDs)
+	if err != nil {
+		return err
+	}
+
+	// 5.4 更新权限策略
+	for _, role := range roles {
+		// 删除旧的权限策略
+		for _, oldMenu := range oldMenus {
+			if oldMenu.Meta != nil && oldMenu.Meta.Type == "B" {
+				oldPath, oldMethod := convertMenuToAPI(oldMenu.Name)
+				_, err = s.enforcer.RemovePolicy(role.Code, oldPath, oldMethod)
+				if err != nil {
+					return err
+				}
+			}
 		}
 
-		path, method := convertMenuToAPI(menu.Name)
-		for _, role := range roles {
-			_, err = s.enforcer.RemovePolicy(role.Code, path, method)
-			if err != nil {
-				return err
+		// 添加新的权限策略
+		for _, menu := range menus {
+			if menu.Meta != nil && menu.Meta.Type == "B" {
+				newPath, newMethod := convertMenuToAPI(menu.Name)
+				_, err = s.enforcer.AddPolicy(role.Code, newPath, newMethod)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
 
-	return s.repo.Menu().Delete(ctx, id)
+	// 6. 批量更新菜单
+	return s.repo.Menu().BatchUpdate(ctx, menus)
+}
+
+func (s *menuService) Delete(ctx context.Context, ids ...uint64) error {
+	menus, err := s.repo.Menu().FindByIDs(ctx, ids)
+	if err != nil {
+		return err
+	}
+	for _, menu := range menus {
+		// 如果是按钮类型，需要删除相关的权限策略
+		if menu.Meta.Type == "B" {
+			roles, err := s.repo.RoleMenu().FindRolesByMenuID(ctx, menu.ID)
+			if err != nil {
+				return err
+			}
+
+			path, method := convertMenuToAPI(menu.Name)
+			for _, role := range roles {
+				_, err = s.enforcer.RemovePolicy(role.Code, path, method)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return s.repo.Menu().Delete(ctx, ids...)
 }
 
 func (s *menuService) FindByID(ctx context.Context, id uint64) (*model.Menu, error) {
 	return s.repo.Menu().FindByID(ctx, id)
 }
 
-func (s *menuService) List(ctx context.Context, page, size int) ([]*model.Menu, int64, error) {
-	return s.repo.Menu().List(ctx, page, size)
+func (s *menuService) List(ctx context.Context, query *model.MenuQuery) ([]*model.Menu, int64, error) {
+	return s.repo.Menu().List(ctx, query)
 }
 
-func (s *menuService) GetMenuTree(ctx context.Context) ([]*MenuTree, error) {
-	menus, _, err := s.repo.Menu().List(ctx, 1, 1000) // 获取所有菜单
+func (s *menuService) GetMenuTree(ctx context.Context) ([]*model.MenuTree, error) {
+	menus, _, err := s.repo.Menu().List(ctx, &model.MenuQuery{
+		PageParam: types.PageParam{
+			Page:     1,
+			PageSize: 1000,
+		},
+	}) // 获取所有菜单
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +214,7 @@ func (s *menuService) GetMenuTree(ctx context.Context) ([]*MenuTree, error) {
 	return s.buildMenuTree(menus, 0), nil
 }
 
-func (s *menuService) GetUserMenus(ctx context.Context, userID uint64) ([]*MenuTree, error) {
+func (s *menuService) GetUserMenus(ctx context.Context, userID uint64) ([]*model.MenuTree, error) {
 	// 获取用户的所有角色
 	roles, err := s.repo.UserRole().FindRolesByUserID(ctx, userID)
 	if err != nil {
@@ -174,11 +248,11 @@ func (s *menuService) GetAllMenus(ctx context.Context) ([]*model.Menu, error) {
 }
 
 // 构建菜单树
-func (s *menuService) buildMenuTree(menus []*model.Menu, parentID uint64) []*MenuTree {
-	var trees []*MenuTree
+func (s *menuService) buildMenuTree(menus []*model.Menu, parentID uint64) []*model.MenuTree {
+	var trees []*model.MenuTree
 	for _, menu := range menus {
 		if menu.ParentID == parentID {
-			tree := &MenuTree{
+			tree := &model.MenuTree{
 				Menu:     menu,
 				Children: s.buildMenuTree(menus, menu.ID),
 			}
