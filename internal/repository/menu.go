@@ -15,7 +15,7 @@ type MenuRepository interface {
 	Delete(ctx context.Context, id ...uint64) error
 	FindByID(ctx context.Context, id uint64) (*model.Menu, error)
 	FindByIDs(ctx context.Context, ids []uint64) ([]*model.Menu, error)
-	FindByName(ctx context.Context, name string) (*model.Menu, error)
+	FindByName(ctx context.Context, name ...string) ([]*model.Menu, error)
 	List(ctx context.Context, query *model.MenuQuery) ([]*model.Menu, int64, error)
 	FindByParentID(ctx context.Context, parentID uint64) ([]*model.Menu, error)
 	FindByRoleID(ctx context.Context, roleID uint64) ([]*model.Menu, error)
@@ -140,13 +140,13 @@ func (r *menuRepository) FindByRoleID(ctx context.Context, roleID uint64) ([]*mo
 	return menus, nil
 }
 
-func (r *menuRepository) FindByName(ctx context.Context, name string) (*model.Menu, error) {
-	var menu model.Menu
-	err := r.db.WithContext(ctx).Where("name = ?", name).First(&menu).Error
+func (r *menuRepository) FindByName(ctx context.Context, names ...string) ([]*model.Menu, error) {
+	var menus []*model.Menu
+	err := r.db.WithContext(ctx).Model(&model.Menu{}).Where("name IN ?", names).Find(&menus).Error
 	if err != nil {
 		return nil, err
 	}
-	return &menu, nil
+	return menus, nil
 }
 
 func (r *menuRepository) FindByIDs(ctx context.Context, ids []uint64) ([]*model.Menu, error) {
