@@ -2,6 +2,7 @@ package dto
 
 import (
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
+	"github.com/wxlbd/nunu-casbin-admin/internal/types"
 	"time"
 )
 
@@ -46,8 +47,7 @@ type RoleIDRequest struct {
 
 // RoleListRequest 角色列表请求
 type RoleListRequest struct {
-	Page int `form:"page" binding:"required,min=1"`
-	Size int `form:"size" binding:"required,min=1,max=100"`
+	types.PageParam
 }
 
 // AssignMenusRequest 分配菜单请求
