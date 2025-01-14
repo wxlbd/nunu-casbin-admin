@@ -41,7 +41,7 @@ func NewServerHTTP(
 			jwtAuth.GET("/user/current", handler.User().Current)
 			jwtAuth.GET("/me/menus", handler.Menu().GetUserMenus)
 			jwtAuth.GET("/menu/tree", handler.Menu().GetMenuTree)
-			jwtAuth.GET("user/roles", handler.User().GetRoles)
+			jwtAuth.GET("user/roles", handler.User().GetCurrentUserRoles)
 		}
 
 		// 需要完整权限控制的接口
@@ -59,6 +59,7 @@ func NewServerHTTP(
 				userGroup.PUT("/:id", handler.User().Update)                // system:user:update
 				userGroup.DELETE("/:ids", handler.User().Delete)            // system:user:delete
 				userGroup.GET("/:id", handler.User().Detail)                // system:user:detail
+				userGroup.GET("/:id/roles", handler.User().GerUserRoles)    // system:user:get:roles
 				userGroup.PATCH("/password", handler.User().UpdatePassword) // system:user:password
 				userGroup.POST("/assign", handler.User().AssignRoles)       // system:user:assign
 			}
@@ -66,13 +67,13 @@ func NewServerHTTP(
 			// 角色管理 system:role:xxx
 			roleGroup := authorized.Group("/system/role")
 			{
-				roleGroup.GET("", handler.Role().List)                // system:role:list
-				roleGroup.POST("", handler.Role().Create)             // system:role:create
-				roleGroup.PUT("/:id", handler.Role().Update)          // system:role:update
-				roleGroup.DELETE("/:id", handler.Role().Delete)       // system:role:delete
-				roleGroup.GET("/:id", handler.Role().Detail)          // system:role:detail
-				roleGroup.GET("/menus", handler.Role().GetMenus)      // system:role:menus
-				roleGroup.POST("/assign", handler.Role().AssignMenus) // system:role:assign
+				roleGroup.GET("", handler.Role().List)                              // system:role:list
+				roleGroup.POST("", handler.Role().Create)                           // system:role:create
+				roleGroup.PUT("/:id", handler.Role().Update)                        // system:role:update
+				roleGroup.DELETE("/:ids", handler.Role().Delete)                    // system:role:delete
+				roleGroup.GET("/:id", handler.Role().Detail)                        // system:role:detail
+				roleGroup.GET("/:id/permissions", handler.Role().GetPermittedMenus) // system:role:get:permissions
+				roleGroup.PUT("/:id/permissions", handler.Role().AssignMenus)       // system:role:assign
 			}
 
 			// 菜单管理 system:menu:xxx
@@ -81,7 +82,7 @@ func NewServerHTTP(
 				//menuGroup.GET("", handler.Menu().List)             // system:menu:list
 				menuGroup.POST("", handler.Menu().Create)          // system:menu:create
 				menuGroup.PUT("/:id", handler.Menu().Update)       // system:menu:update
-				menuGroup.DELETE("/:id", handler.Menu().Delete)    // system:menu:delete
+				menuGroup.DELETE("/:ids", handler.Menu().Delete)   // system:menu:delete
 				menuGroup.GET("/tree", handler.Menu().GetMenuTree) // system:menu:tree
 			}
 		}
