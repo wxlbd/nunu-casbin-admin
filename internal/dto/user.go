@@ -129,7 +129,7 @@ type RefreshTokenRequest struct {
 
 // UserListRequest 用户列表请求
 type UserListRequest struct {
-	types.PageParam
+	*types.PageParam
 	Username string `form:"username"`
 	Nickname string `form:"nickname"`
 	Phone    string `form:"phone"`
