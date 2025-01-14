@@ -14,7 +14,7 @@ type RoleRepository interface {
 	Delete(ctx context.Context, id ...uint64) error
 	FindByID(ctx context.Context, id uint64) (*model.Role, error)
 	FindByCode(ctx context.Context, code string) (*model.Role, error)
-	List(ctx context.Context, page, size int) ([]*model.Role, int64, error)
+	List(ctx context.Context, query *model.RoleQuery) ([]*model.Role, int64, error)
 	// FindByIDs 根据角色ID列表查询角色
 	FindByIDs(ctx context.Context, ids []uint64) ([]*model.Role, error)
 }
@@ -72,17 +72,24 @@ func (r *roleRepository) FindByCode(ctx context.Context, code string) (*model.Ro
 	return &role, nil
 }
 
-func (r *roleRepository) List(ctx context.Context, page, size int) ([]*model.Role, int64, error) {
+func (r *roleRepository) List(ctx context.Context, query *model.RoleQuery) ([]*model.Role, int64, error) {
 	var roles []*model.Role
 	var total int64
-
-	err := r.db.WithContext(ctx).Model(&model.Role{}).Count(&total).Error
+	db := r.db.WithContext(ctx).Model(&model.Role{})
+	if query.Name != "" {
+		db = db.Where("name LIKE ?", "%"+query.Name+"%")
+	}
+	if query.Code != "" {
+		db = db.Where("code LIKE ?", "%"+query.Code+"%")
+	}
+	if query.Status != 0 {
+		db = db.Where("status = ?", query.Status)
+	}
+	err := db.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
-
-	offset := (page - 1) * size
-	err = r.db.WithContext(ctx).Offset(offset).Limit(size).Find(&roles).Error
+	err = db.Offset(query.GetOffset()).Limit(query.PageSize).Find(&roles).Error
 	if err != nil {
 		return nil, 0, err
 	}
