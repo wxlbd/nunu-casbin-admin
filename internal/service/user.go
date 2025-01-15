@@ -3,12 +3,13 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
+
+	"gorm.io/gorm"
 
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/repository"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/jwtx"
-
-	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -21,7 +22,7 @@ type UserService interface {
 	FindByUsername(ctx context.Context, username string) (*model.User, error)
 	List(ctx context.Context, query *model.UserQuery) ([]*model.User, int64, error)
 	UpdatePassword(ctx context.Context, id uint64, oldPassword, newPassword string) error
-	AssignRoles(ctx context.Context, userID uint64, roleIDs []uint64) error
+	AssignRoles(ctx context.Context, userID uint64, roleCodes []string) error
 	Login(ctx context.Context, username, password string) (accessToken, refreshToken string, err error)
 	RefreshToken(ctx context.Context, refreshToken string) (newAccessToken, newRefreshToken string, err error)
 	Logout(ctx context.Context, token string) error
@@ -116,15 +117,44 @@ func (s *userService) UpdatePassword(ctx context.Context, id uint64, oldPassword
 	return s.repo.User().Update(ctx, user)
 }
 
-func (s *userService) AssignRoles(ctx context.Context, userID uint64, roleIDs []uint64) error {
-	// 开启事务
-	// 先删除用户所有角色，再重新分配
-	for _, roleID := range roleIDs {
-		if err := s.repo.UserRole().Create(ctx, userID, roleID); err != nil {
+func (s *userService) AssignRoles(ctx context.Context, userID uint64, roleCodes []string) error {
+	// 1. 查找角色ID
+	roles, err := s.repo.Role().FindByCodes(ctx, roleCodes...)
+	if err != nil {
+		return err
+	}
+
+	// 获取角色ID列表
+	roleIDs := make([]uint64, 0, len(roles))
+	for _, role := range roles {
+		roleIDs = append(roleIDs, role.ID)
+	}
+
+	// 2. 在事务中执行删除和插入操作
+	return s.repo.DB().Transaction(func(tx *gorm.DB) error {
+		// 创建事务仓储
+		txRepo := s.repo.WithTx(tx)
+
+		// 2.1 删除原有的用户-角色关系
+		if err := txRepo.UserRole().DeleteByUserID(ctx, userID); err != nil {
 			return err
 		}
-	}
-	return nil
+		if len(roleIDs) == 0 {
+			return nil
+		}
+		// 2.2 插入新的用户-角色关系
+		userRoles := make([]*model.UserRoles, 0, len(roleIDs))
+		for _, roleID := range roleIDs {
+			userRoles = append(userRoles, &model.UserRoles{
+				UserID: userID,
+				RoleID: roleID,
+			})
+		}
+		if err := tx.Create(&userRoles).Error; err != nil {
+			return err
+		}
+		return nil
+	})
 }
 
 func (s *userService) Login(ctx context.Context, username, password string) (accessToken, refreshToken string, err error) {
