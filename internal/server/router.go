@@ -27,63 +27,65 @@ func NewServerHTTP(
 		middleware.CORSMiddleware(),
 		middleware.RequestLogger(logger),
 	)
-
-	// 管理后台接口
-	admin := r.Group("/admin/v1")
+	api := r.Group("api")
 	{
+		auth := api.Group("auth")
 		// 完全公开的接口
-		admin.POST("/login", handler.User().Login)
-		admin.POST("/refresh-token", handler.User().RefreshToken)
+		auth.POST("/login", handler.User().Login)
+		auth.POST("/refresh-token", handler.User().RefreshToken)
 
 		// 需要JWT认证的接口
-		jwtAuth := admin.Group("").Use(middleware.JWTAuth(jwt))
+		profile := api.Group("profile").Use(middleware.JWTAuth(jwt))
 		{
-			jwtAuth.GET("/user/current", handler.User().Current)
-			jwtAuth.GET("/me/menus", handler.Menu().GetUserMenus)
-			jwtAuth.GET("/menu/tree", handler.Menu().GetMenuTree)
-			jwtAuth.GET("user/roles", handler.User().GetCurrentUserRoles)
+			profile.GET("", handler.User().Current)
+			profile.GET("menus", handler.Menu().GetUserMenus)
+			// profile.GET("/menu/tree", handler.Menu().GetMenuTree)
+			profile.GET("roles", handler.User().GetCurrentUserRoles)
 		}
 
 		// 需要完整权限控制的接口
-		authorized := admin.Group("")
+		authorized := api.Group("")
 		authorized.Use(
 			middleware.JWTAuth(jwt),
 			middleware.CasbinMiddleware(enforcer, logger, svc),
 		)
+		// 权限控制
 		{
+			permission := authorized.Group("permission")
+
 			// 用户管理 system:user:xxx
-			userGroup := authorized.Group("/system/user")
+			userGroup := permission.Group("user")
 			{
-				userGroup.GET("", handler.User().List)                      // system:user:list
-				userGroup.POST("", handler.User().Create)                   // system:user:create
-				userGroup.PUT("/:id", handler.User().Update)                // system:user:update
-				userGroup.DELETE("/:ids", handler.User().Delete)            // system:user:delete
-				userGroup.GET("/:id", handler.User().Detail)                // system:user:detail
-				userGroup.GET("/:id/roles", handler.User().GerUserRoles)    // system:user:get:roles
-				userGroup.PATCH("/password", handler.User().UpdatePassword) // system:user:password
-				userGroup.POST("/assign", handler.User().AssignRoles)       // system:user:assign
+				userGroup.GET("", handler.User().List)                         // permission:user:list
+				userGroup.POST("", handler.User().Create)                      // permission:user:create
+				userGroup.PUT("/:id", handler.User().Update)                   // permission:user:update
+				userGroup.DELETE("/:ids", handler.User().Delete)               // permission:user:delete
+				userGroup.GET("/:id", handler.User().Detail)                   // permission:user:detail
+				userGroup.GET("/:id/roles", handler.User().GerUserRoles)       // permission:user:get:roles
+				userGroup.PATCH(":id/password", handler.User().UpdatePassword) // permission:user:set:password
+				userGroup.PUT(":id/roles", handler.User().AssignRoles)         // permission:user:set:roles
 			}
 
-			// 角色管理 system:role:xxx
-			roleGroup := authorized.Group("/system/role")
+			// 角色管理 permission:role:xxx
+			roleGroup := permission.Group("role")
 			{
-				roleGroup.GET("", handler.Role().List)                              // system:role:list
-				roleGroup.POST("", handler.Role().Create)                           // system:role:create
-				roleGroup.PUT("/:id", handler.Role().Update)                        // system:role:update
-				roleGroup.DELETE("/:ids", handler.Role().Delete)                    // system:role:delete
-				roleGroup.GET("/:id", handler.Role().Detail)                        // system:role:detail
-				roleGroup.GET("/:id/permissions", handler.Role().GetPermittedMenus) // system:role:get:permissions
-				roleGroup.PUT("/:id/permissions", handler.Role().AssignMenus)       // system:role:assign
+				roleGroup.GET("", handler.Role().List)                              // permission:role:list
+				roleGroup.POST("", handler.Role().Create)                           // permission:role:create
+				roleGroup.PUT("/:id", handler.Role().Update)                        // permission:role:update
+				roleGroup.DELETE("/:ids", handler.Role().Delete)                    // permission:role:delete
+				roleGroup.GET("/:id", handler.Role().Detail)                        // permission:role:detail
+				roleGroup.GET("/:id/permissions", handler.Role().GetPermittedMenus) // permission:role:get:permissions
+				roleGroup.PUT("/:id/permissions", handler.Role().AssignMenus)       // permission:role:assign
 			}
 
-			// 菜单管理 system:menu:xxx
-			menuGroup := authorized.Group("/system/menu")
+			// 菜单管理 permission:menu:xxx
+			menuGroup := permission.Group("menu")
 			{
-				//menuGroup.GET("", handler.Menu().List)             // system:menu:list
-				menuGroup.POST("", handler.Menu().Create)          // system:menu:create
-				menuGroup.PUT("/:id", handler.Menu().Update)       // system:menu:update
-				menuGroup.DELETE("/:ids", handler.Menu().Delete)   // system:menu:delete
-				menuGroup.GET("/tree", handler.Menu().GetMenuTree) // system:menu:tree
+				//menuGroup.GET("", handler.Menu().List)             // permission:menu:list
+				menuGroup.POST("", handler.Menu().Create)          // permission:menu:create
+				menuGroup.PUT("/:id", handler.Menu().Update)       // permission:menu:update
+				menuGroup.DELETE("/:ids", handler.Menu().Delete)   // permission:menu:delete
+				menuGroup.GET("/tree", handler.Menu().GetMenuTree) // permission:menu:tree
 			}
 		}
 	}
