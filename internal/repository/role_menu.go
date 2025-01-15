@@ -8,6 +8,7 @@ import (
 )
 
 type RoleMenuRepository interface {
+	WithTx(tx *gorm.DB) RoleMenuRepository
 	Create(ctx context.Context, roleID, menuID uint64) error
 	Delete(ctx context.Context, roleID, menuID uint64) error
 	DeleteByRoleID(ctx context.Context, roleID uint64) error
@@ -25,6 +26,12 @@ type roleMenuRepository struct {
 func NewRoleMenuRepository(db *gorm.DB) RoleMenuRepository {
 	return &roleMenuRepository{
 		db: db,
+	}
+}
+
+func (r *roleMenuRepository) WithTx(tx *gorm.DB) RoleMenuRepository {
+	return &roleMenuRepository{
+		db: tx,
 	}
 }
 
