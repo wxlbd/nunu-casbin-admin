@@ -10,6 +10,7 @@ import (
 )
 
 type UserRepository interface {
+	WithTx(tx *gorm.DB) UserRepository
 	Create(ctx context.Context, user *model.User) error
 	Update(ctx context.Context, user *model.User) error
 	Delete(ctx context.Context, ids ...uint64) error
@@ -25,6 +26,12 @@ type userRepository struct {
 func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{
 		db: db,
+	}
+}
+
+func (r *userRepository) WithTx(tx *gorm.DB) UserRepository {
+	return &userRepository{
+		db: tx,
 	}
 }
 
