@@ -10,6 +10,7 @@ import (
 )
 
 type MenuRepository interface {
+	WithTx(tx *gorm.DB) MenuRepository
 	Create(ctx context.Context, menu *model.Menu) (uint64, error)
 	Update(ctx context.Context, menu *model.Menu) error
 	Delete(ctx context.Context, id ...uint64) error
@@ -39,6 +40,12 @@ func (r *menuRepository) BatchUpdate(ctx context.Context, menus []*model.Menu) e
 func NewMenuRepository(db *gorm.DB) MenuRepository {
 	return &menuRepository{
 		db: db,
+	}
+}
+
+func (r *menuRepository) WithTx(tx *gorm.DB) MenuRepository {
+	return &menuRepository{
+		db: tx,
 	}
 }
 
