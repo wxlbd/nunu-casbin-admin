@@ -2,7 +2,8 @@ package service
 
 import (
 	"context"
-	"errors"
+
+	"github.com/wxlbd/nunu-casbin-admin/pkg/errors"
 
 	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
 
@@ -41,7 +42,7 @@ func (s *menuService) Create(ctx context.Context, req *dto.CreateMenuRequest) er
 
 	// 2. 查询菜单名称是否已存在
 	if ms, _ := s.repo.Menu().FindByName(ctx, menu.Name); len(ms) > 0 {
-		return errors.New("菜单名称已存在")
+		return errors.WithMsg(errors.AlreadyExists, "菜单名称已存在")
 	}
 
 	id, err := s.repo.Menu().Create(ctx, menu)
@@ -52,27 +53,10 @@ func (s *menuService) Create(ctx context.Context, req *dto.CreateMenuRequest) er
 	if len(req.BtnPermissions) > 0 {
 		menus = append(menus, req.BtnPermissionsToModels()...)
 	}
-	for i, _ := range menus {
+	for i := range menus {
 		menus[i].ParentID = id
 	}
-	s.repo.Menu().BatchCreate(ctx, menus)
-	// 如果是按钮类型，需要更新所有拥有该菜单的角色的权限策略
-	//if menu.Meta.Type == "B" {
-	//	roles, err := s.repo.RoleMenu().FindRolesByMenuID(ctx, menu.ID)
-	//	if err != nil {
-	//		return err
-	//	}
-	//
-	//	path, method := convertMenuToAPI(menu.Name)
-	//	for _, role := range roles {
-	//		_, err = s.enforcer.AddPolicy(role.Code, path, method)
-	//		if err != nil {
-	//			return err
-	//		}
-	//	}
-	//}
-
-	return nil
+	return s.repo.Menu().BatchCreate(ctx, menus)
 }
 
 func (s *menuService) Update(ctx context.Context, req *dto.UpdateMenuRequest) error {
@@ -88,13 +72,13 @@ func (s *menuService) Update(ctx context.Context, req *dto.UpdateMenuRequest) er
 		return err
 	}
 	if oldMenu == nil {
-		return errors.New("菜单不存在")
+		return errors.WithMsg(errors.NotFound, "菜单不存在")
 	}
 
 	// 3. 如果修改了菜单名称，需要检查新名称是否已存在
 	if req.Name != oldMenu.Name {
-		if exist, _ := s.repo.Menu().FindByName(ctx, req.Name); exist != nil {
-			return errors.New("菜单名称已存在")
+		if ms, _ := s.repo.Menu().FindByName(ctx, req.Name); len(ms) > 0 {
+			return errors.WithMsg(errors.AlreadyExists, "菜单名称已存在")
 		}
 	}
 
@@ -107,10 +91,10 @@ func (s *menuService) Update(ctx context.Context, req *dto.UpdateMenuRequest) er
 				return err
 			}
 			if parentMenu == nil {
-				return errors.New("父菜单不存在")
+				return errors.WithMsg(errors.NotFound, "父菜单不存在")
 			}
 			if parentMenu.ID == req.ID {
-				return errors.New("不能将菜单的子菜单设为其父菜单")
+				return errors.WithMsg(errors.InvalidParam, "菜单形成循环依赖")
 			}
 			parent = parentMenu.ParentID
 		}
