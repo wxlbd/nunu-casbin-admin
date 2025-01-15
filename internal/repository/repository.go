@@ -9,6 +9,7 @@ type Repository interface {
 	UserRole() UserRoleRepository
 	RoleMenu() RoleMenuRepository
 	DB() *gorm.DB
+	WithTx(tx *gorm.DB) Repository
 }
 
 type repository struct {
@@ -28,6 +29,17 @@ func NewRepository(db *gorm.DB) Repository {
 		menuRepo:     NewMenuRepository(db),
 		userRoleRepo: NewUserRoleRepository(db),
 		roleMenuRepo: NewRoleMenuRepository(db),
+	}
+}
+
+func (r *repository) WithTx(tx *gorm.DB) Repository {
+	return &repository{
+		db:           tx,
+		userRepo:     r.userRepo,
+		roleRepo:     r.roleRepo,
+		menuRepo:     r.menuRepo,
+		userRoleRepo: r.userRoleRepo,
+		roleMenuRepo: r.roleMenuRepo,
 	}
 }
 
