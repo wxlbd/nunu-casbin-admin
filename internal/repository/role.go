@@ -9,11 +9,12 @@ import (
 )
 
 type RoleRepository interface {
+	WithTx(tx *gorm.DB) RoleRepository
 	Create(ctx context.Context, role *model.Role) error
 	Update(ctx context.Context, role *model.Role) error
 	Delete(ctx context.Context, id ...uint64) error
 	FindByID(ctx context.Context, id uint64) (*model.Role, error)
-	FindByCode(ctx context.Context, code string) (*model.Role, error)
+	FindByCodes(ctx context.Context, code ...string) ([]*model.Role, error)
 	List(ctx context.Context, query *model.RoleQuery) ([]*model.Role, int64, error)
 	// FindByIDs 根据角色ID列表查询角色
 	FindByIDs(ctx context.Context, ids []uint64) ([]*model.Role, error)
@@ -39,6 +40,12 @@ func NewRoleRepository(db *gorm.DB) RoleRepository {
 	}
 }
 
+func (r *roleRepository) WithTx(tx *gorm.DB) RoleRepository {
+	return &roleRepository{
+		db: tx,
+	}
+}
+
 func (r *roleRepository) Create(ctx context.Context, role *model.Role) error {
 	return r.db.WithContext(ctx).Create(role).Error
 }
@@ -60,16 +67,15 @@ func (r *roleRepository) FindByID(ctx context.Context, id uint64) (*model.Role, 
 	return &role, nil
 }
 
-func (r *roleRepository) FindByCode(ctx context.Context, code string) (*model.Role, error) {
-	var role model.Role
-	err := r.db.WithContext(ctx).Where("code = ?", code).First(&role).Error
-	if err != nil {
+func (r *roleRepository) FindByCodes(ctx context.Context, codes ...string) ([]*model.Role, error) {
+	var roles []*model.Role
+	if err := r.db.WithContext(ctx).Where("code IN ?", codes).Find(&roles).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, err
 	}
-	return &role, nil
+	return roles, nil
 }
 
 func (r *roleRepository) List(ctx context.Context, query *model.RoleQuery) ([]*model.Role, int64, error) {
