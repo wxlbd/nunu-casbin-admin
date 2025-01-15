@@ -66,7 +66,7 @@ func (req *UpdateUserRequest) ToModel() *model.User {
 		Phone:    req.Phone,
 		Email:    req.Email,
 		Status:   req.Status,
-		//UpdatedBy: updatedBy,
+		// UpdatedBy: updatedBy,
 	}
 }
 
@@ -171,5 +171,5 @@ type UserListResponse struct {
 
 // UserAssignRolesRequest 用户分配角色
 type UserAssignRolesRequest struct {
-	RoleIDs []uint64 `json:"role_ids"`
+	RoleCodes []string `json:"role_codes"`
 }
