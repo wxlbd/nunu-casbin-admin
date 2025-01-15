@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
 	"strings"
+
+	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
 
 	"github.com/casbin/casbin/v2"
 
@@ -37,13 +38,15 @@ func NewRoleService(repo repository.Repository, enforcer *casbin.Enforcer) RoleS
 }
 
 func (s *roleService) Create(ctx context.Context, role *model.Role) error {
-	// 检查角色代码是否已存在
-	existRole, _ := s.repo.Role().FindByCode(ctx, role.Code)
-	if existRole != nil {
+	if s.IsCodeExists(ctx, role.Code) {
 		return errors.New("角色代码已存在")
 	}
-
 	return s.repo.Role().Create(ctx, role)
+}
+
+func (s *roleService) IsCodeExists(ctx context.Context, code string) bool {
+	roles, _ := s.repo.Role().FindByCodes(ctx, code)
+	return len(roles) > 0
 }
 
 func (s *roleService) Update(ctx context.Context, role *model.Role) error {
@@ -57,7 +60,7 @@ func (s *roleService) Update(ctx context.Context, role *model.Role) error {
 
 	// 如果修改了角色代码，需要检查新代码是否已存在
 	if role.Code != existRole.Code {
-		if exist, _ := s.repo.Role().FindByCode(ctx, role.Code); exist != nil {
+		if s.IsCodeExists(ctx, role.Code) {
 			return errors.New("角色代码已存在")
 		}
 	}
