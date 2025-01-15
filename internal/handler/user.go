@@ -155,17 +155,18 @@ func (h *UserHandler) List(c *gin.Context) {
 
 // AssignRoles 分配角色
 func (h *UserHandler) AssignRoles(c *gin.Context) {
-	var req struct {
-		UserID  uint64   `json:"user_id" binding:"required"`
-		RoleIDs []uint64 `json:"role_ids" binding:"required"`
-	}
+	var req dto.UserAssignRolesRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		ginx.Error(c, 400, "参数错误")
 		return
 	}
-
-	if err := h.svc.User().AssignRoles(c, req.UserID, req.RoleIDs); err != nil {
+	userID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		ginx.Error(c, 400, "参数错误")
+		return
+	}
+	if err := h.svc.User().AssignRoles(c, userID, req.RoleIDs); err != nil {
 		ginx.Error(c, 500, err.Error())
 		return
 	}
@@ -246,9 +247,7 @@ func (h *UserHandler) GetCurrentUserRoles(c *gin.Context) {
 }
 
 func (h *UserHandler) GerUserRoles(ctx *gin.Context) {
-	param := ctx.Param("id")
-
-	id, err := strconv.ParseUint(param, 10, 64)
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if err != nil {
 		ginx.Error(ctx, 400, "参数错误")
 		return
