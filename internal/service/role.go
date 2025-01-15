@@ -164,28 +164,47 @@ func convertMenuToAPI(menuName string) (path, method string) {
 	}
 
 	// 动作映射表
-	actionMap := map[string]string{
-		"get":    "GET",
-		"set":    "POST",
-		"create": "POST",
-		"update": "PUT",
-		"delete": "DELETE",
-		"list":   "GET",
+	actionMap := map[string]struct {
+		method     string
+		pathSuffix string
+	}{
+		"create": {"POST", ""},
+		"save":   {"POST", ""},
+		"update": {"PUT", ":id"},
+		"delete": {"DELETE", ":ids"},
+		"get":    {"GET", ":id"},
+		"detail": {"GET", ":id"},
+		"list":   {"GET", ""},
+		"index":  {"GET", ""},
+
+		// 扩展的业务操作
+		"enable":  {"PATCH", "enable"},
+		"disable": {"PATCH", "disable"},
+		"assign":  {"POST", "assign"},
+		"revoke":  {"POST", "revoke"},
+		"upload":  {"POST", "upload"},
+		"export":  {"GET", "export"},
+		"import":  {"POST", "import"},
+		"batch":   {"POST", "batch"},
+		"tree":    {"GET", "tree"},
+		"status":  {"PATCH", "status"},
+		"set":     {"PUT", ":id"},
 	}
 
 	// 获取 HTTP 方法
-	method = actionMap[action]
-	if method == "" {
+	item, ok := actionMap[action]
+	if !ok {
 		return "", ""
 	}
 
 	// 构建路径
 	if subResource != "" {
 		// 对于子资源路径：/api/system/role/:id/menus
-		path = fmt.Sprintf("%s/%s/%s/:id/%s",
+		path = fmt.Sprintf("%s/%s/%s/%s/%s",
 			apiPrefix,
 			module,
 			resource,
+			item.pathSuffix,
 			subResource,
 		)
 	} else {
@@ -195,9 +214,11 @@ func convertMenuToAPI(menuName string) (path, method string) {
 			module,
 			resource,
 		)
+		if item.pathSuffix != "" {
+			path = fmt.Sprintf("%s/%s", path, item.pathSuffix)
+		}
 	}
-
-	return path, method
+	return path, item.method
 }
 
 func (s *roleService) GetRoleMenus(ctx context.Context, roleID uint64) ([]*model.Menu, error) {
