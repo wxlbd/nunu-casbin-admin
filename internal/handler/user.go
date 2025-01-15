@@ -28,7 +28,7 @@ func NewUserHandler(svc service.Service, cfg *config.Config) *UserHandler {
 func (h *UserHandler) Login(c *gin.Context) {
 	var req dto.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ginx.ParamError(c)
+		_ = c.Error(err)
 		return
 	}
 
