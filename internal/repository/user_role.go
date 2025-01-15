@@ -2,14 +2,17 @@ package repository
 
 import (
 	"context"
+
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 
 	"gorm.io/gorm"
 )
 
 type UserRoleRepository interface {
+	WithTx(tx *gorm.DB) UserRoleRepository
 	Create(ctx context.Context, userID, roleID uint64) error
 	Delete(ctx context.Context, userID, roleID uint64) error
+	DeleteByUserID(ctx context.Context, userID uint64) error
 	FindRolesByUserID(ctx context.Context, userID uint64) ([]*model.Role, error)
 	FindUsersByRoleID(ctx context.Context, roleID uint64) ([]*model.User, error)
 }
@@ -22,6 +25,18 @@ func NewUserRoleRepository(db *gorm.DB) UserRoleRepository {
 	return &userRoleRepository{
 		db: db,
 	}
+}
+
+func (r *userRoleRepository) WithTx(tx *gorm.DB) UserRoleRepository {
+	return &userRoleRepository{
+		db: tx,
+	}
+}
+
+func (r *userRoleRepository) DeleteByUserID(ctx context.Context, userID uint64) error {
+	return r.db.WithContext(ctx).
+		Where("user_id = ?", userID).
+		Delete(&model.UserRoles{}).Error
 }
 
 func (r *userRoleRepository) Create(ctx context.Context, userID, roleID uint64) error {
