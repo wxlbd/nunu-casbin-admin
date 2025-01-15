@@ -26,6 +26,7 @@ func NewServerHTTP(
 	r.Use(
 		middleware.CORSMiddleware(),
 		middleware.RequestLogger(logger),
+		middleware.ErrorHandler(),
 	)
 	api := r.Group("api")
 	{
