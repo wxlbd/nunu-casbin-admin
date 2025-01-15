@@ -4,12 +4,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/ginx"
-
 	"github.com/gin-gonic/gin"
+	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/service"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/ginx"
 )
 
 type RoleHandler struct {
@@ -53,7 +52,6 @@ func (h *RoleHandler) Update(c *gin.Context) {
 		ginx.ParamError(c)
 		return
 	}
-
 	role := &model.Role{
 		ID:     req.ID,
 		Name:   req.Name,
