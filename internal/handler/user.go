@@ -166,7 +166,7 @@ func (h *UserHandler) AssignRoles(c *gin.Context) {
 		ginx.Error(c, 400, "参数错误")
 		return
 	}
-	if err := h.svc.User().AssignRoles(c, userID, req.RoleIDs); err != nil {
+	if err := h.svc.User().AssignRoles(c, userID, req.RoleCodes); err != nil {
 		ginx.Error(c, 500, err.Error())
 		return
 	}
