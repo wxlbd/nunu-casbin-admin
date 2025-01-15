@@ -69,19 +69,19 @@ func NewServerHTTP(
 			// 角色管理 permission:role:xxx
 			roleGroup := permission.Group("role")
 			{
-				roleGroup.GET("", handler.Role().List)                              // permission:role:list
-				roleGroup.POST("", handler.Role().Create)                           // permission:role:create
-				roleGroup.PUT("/:id", handler.Role().Update)                        // permission:role:update
-				roleGroup.DELETE("/:ids", handler.Role().Delete)                    // permission:role:delete
-				roleGroup.GET("/:id", handler.Role().Detail)                        // permission:role:detail
-				roleGroup.GET("/:id/permissions", handler.Role().GetPermittedMenus) // permission:role:get:permissions
-				roleGroup.PUT("/:id/permissions", handler.Role().AssignMenus)       // permission:role:assign
+				roleGroup.GET("", handler.Role().List)                        // permission:role:list
+				roleGroup.POST("", handler.Role().Create)                     // permission:role:create
+				roleGroup.PUT("/:id", handler.Role().Update)                  // permission:role:update
+				roleGroup.DELETE("/:ids", handler.Role().Delete)              // permission:role:delete
+				roleGroup.GET("/:id", handler.Role().Detail)                  // permission:role:detail
+				roleGroup.GET("/:id/menus", handler.Role().GetPermittedMenus) // permission:role:get:menus
+				roleGroup.PUT("/:id/menus", handler.Role().AssignMenus)       // permission:role:set:menus
 			}
 
 			// 菜单管理 permission:menu:xxx
 			menuGroup := permission.Group("menu")
 			{
-				//menuGroup.GET("", handler.Menu().List)             // permission:menu:list
+				// menuGroup.GET("", handler.Menu().List)             // permission:menu:list
 				menuGroup.POST("", handler.Menu().Create)          // permission:menu:create
 				menuGroup.PUT("/:id", handler.Menu().Update)       // permission:menu:update
 				menuGroup.DELETE("/:ids", handler.Menu().Delete)   // permission:menu:delete
