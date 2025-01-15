@@ -149,12 +149,6 @@ func (req *UserListRequest) ToModel() *model.UserQuery {
 	}
 }
 
-// AssignRolesRequest 分配角色请求
-type AssignRolesRequest struct {
-	UserID  uint64   `json:"user_id" binding:"required"`
-	RoleIDs []uint64 `json:"role_ids" binding:"required"`
-}
-
 // UpdatePasswordRequest 修改密码请求
 type UpdatePasswordRequest struct {
 	ID          uint64 `json:"id" binding:"required"`
@@ -173,4 +167,9 @@ type LoginResponse struct {
 type UserListResponse struct {
 	List  []*UserResponse `json:"list"`
 	Total int64           `json:"total"`
+}
+
+// UserAssignRolesRequest 用户分配角色
+type UserAssignRolesRequest struct {
+	RoleIDs []uint64 `json:"role_ids"`
 }
