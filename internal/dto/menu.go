@@ -135,7 +135,7 @@ func (req *MenuListRequest) ToModel() *model.MenuQuery {
 }
 
 type BtnPermission struct {
-	Id    int    `json:"id"`
+	ID    uint64 `json:"id"`
 	Code  string `json:"code"`
 	Title string `json:"title"`
 	I18N  string `json:"i18n"`
@@ -143,6 +143,7 @@ type BtnPermission struct {
 }
 
 type MenuBase struct {
+	ID             uint64          `json:"id"`
 	ParentId       uint64          `json:"parent_id"`
 	Name           string          `json:"name"`
 	Path           string          `json:"path"`
@@ -168,9 +169,9 @@ func (c *CreateMenuRequest) ToModel() *model.Menu {
 		Path:      c.Path,
 		Meta:      c.Meta,
 		Component: c.Component,
-		Sort:      int16(c.Sort),
-		Status:    int8(c.Status),
-		CreatedBy: uint64(c.CreatedBy),
+		Sort:      c.Sort,
+		Status:    c.Status,
+		CreatedBy: c.CreatedBy,
 		Remark:    c.Remark,
 		Redirect:  c.Redirect,
 	}
@@ -180,8 +181,9 @@ func (c *MenuBase) BtnPermissionsToModels() []*model.Menu {
 	var models []*model.Menu
 	for _, btn := range c.BtnPermissions {
 		models = append(models, &model.Menu{
+			ID:       btn.ID,
 			Name:     btn.Code,
-			ParentID: c.ParentId,
+			ParentID: c.ID,
 			Sort:     0,
 			Status:   1,
 			Meta: &types.MenuMeta{
@@ -195,7 +197,6 @@ func (c *MenuBase) BtnPermissionsToModels() []*model.Menu {
 }
 
 type UpdateMenuRequest struct {
-	ID uint64 `json:"id" binding:"required"`
 	MenuBase
 	UpdatedBy int `json:"updated_by"`
 }
@@ -208,8 +209,8 @@ func (c *UpdateMenuRequest) ToModel() *model.Menu {
 		Path:      c.Path,
 		Meta:      c.Meta,
 		Component: c.Component,
-		Sort:      int16(c.Sort),
-		Status:    int8(c.Status),
+		Sort:      c.Sort,
+		Status:    c.Status,
 		UpdatedBy: uint64(c.UpdatedBy),
 		Remark:    c.Remark,
 		Redirect:  c.Redirect,
