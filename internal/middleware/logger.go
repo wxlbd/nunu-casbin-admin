@@ -85,12 +85,16 @@ func RequestLogger(logger *log.Logger) gin.HandlerFunc {
 		if w.body.Len() > 0 {
 			var prettyJSON bytes.Buffer
 			if err := json.Indent(&prettyJSON, w.body.Bytes(), "", "  "); err == nil {
-				fields = append(fields, zap.String("response", prettyJSON.String()))
+				var m map[string]any
+				if err := json.Unmarshal(prettyJSON.Bytes(), &m); err != nil {
+					fields = append(fields, zap.String("response", w.body.String()))
+				} else {
+					fields = append(fields, zap.Any("response", m))
+				}
 			} else {
 				fields = append(fields, zap.String("response", w.body.String()))
 			}
 		}
-
 		// 记录日志
 		if c.Writer.Status() >= 500 {
 			logger.Error("Request failed", fields...)
