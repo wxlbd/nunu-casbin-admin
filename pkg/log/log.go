@@ -61,7 +61,7 @@ func initZap(conf *config.LogConfig) *Logger {
 			EncodeLevel:    zapcore.LowercaseColorLevelEncoder,
 			EncodeTime:     timeEncoder,
 			EncodeDuration: zapcore.SecondsDurationEncoder,
-			EncodeCaller:   zapcore.FullCallerEncoder,
+			EncodeCaller:   zapcore.ShortCallerEncoder,
 		})
 	} else {
 		encoder = zapcore.NewJSONEncoder(zapcore.EncoderConfig{
