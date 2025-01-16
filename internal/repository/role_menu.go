@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/wxlbd/nunu-casbin-admin/internal/model"
+	"github.com/wxlbd/gin-casbin-admin/internal/model"
 	"gorm.io/gorm"
 )
 
@@ -65,6 +65,7 @@ func (r *roleMenuRepository) FindMenusByRoleID(ctx context.Context, roleID uint6
 	}
 	return menus, nil
 }
+
 func (r *roleMenuRepository) FindMenusByRoleIDs(ctx context.Context, roleIDs ...uint64) ([]*model.Menu, error) {
 	var menus []*model.Menu
 	err := r.db.WithContext(ctx).

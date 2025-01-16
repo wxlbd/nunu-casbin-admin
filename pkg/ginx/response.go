@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
-	cerrors "github.com/wxlbd/nunu-casbin-admin/pkg/errors"
+	cerrors "github.com/wxlbd/gin-casbin-admin/pkg/errors"
 )
 
 const (

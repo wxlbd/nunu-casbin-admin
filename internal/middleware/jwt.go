@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	"github.com/wxlbd/nunu-casbin-admin/pkg/jwtx"
 	"strings"
+
+	"github.com/wxlbd/gin-casbin-admin/pkg/jwtx"
 
 	"github.com/gin-gonic/gin"
 )

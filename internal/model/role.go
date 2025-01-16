@@ -1,8 +1,9 @@
 package model
 
 import (
-	"github.com/wxlbd/nunu-casbin-admin/internal/types"
 	"time"
+
+	"github.com/wxlbd/gin-casbin-admin/internal/types"
 )
 
 // Role 角色模型

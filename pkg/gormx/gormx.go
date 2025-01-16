@@ -1,14 +1,15 @@
 package gormx
 
 import (
+	"time"
+
 	"github.com/glebarez/sqlite"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/log"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/zapgorm2"
+	"github.com/wxlbd/gin-casbin-admin/pkg/config"
+	"github.com/wxlbd/gin-casbin-admin/pkg/log"
+	"github.com/wxlbd/gin-casbin-admin/pkg/zapgorm2"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"time"
 )
 
 func NewDB(conf *config.Config, l *log.Logger) *gorm.DB {

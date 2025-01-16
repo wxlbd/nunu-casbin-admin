@@ -3,14 +3,14 @@ package service
 import (
 	"context"
 
-	"github.com/wxlbd/nunu-casbin-admin/pkg/errors"
+	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
 
-	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
+	"github.com/wxlbd/gin-casbin-admin/internal/dto"
 
 	"github.com/casbin/casbin/v2"
-	"github.com/wxlbd/nunu-casbin-admin/internal/model"
-	"github.com/wxlbd/nunu-casbin-admin/internal/repository"
-	"github.com/wxlbd/nunu-casbin-admin/internal/types"
+	"github.com/wxlbd/gin-casbin-admin/internal/model"
+	"github.com/wxlbd/gin-casbin-admin/internal/repository"
+	"github.com/wxlbd/gin-casbin-admin/internal/types"
 )
 
 type MenuService interface {

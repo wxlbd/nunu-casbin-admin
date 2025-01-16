@@ -1,4 +1,4 @@
-module github.com/wxlbd/nunu-casbin-admin
+module github.com/wxlbd/gin-casbin-admin
 
 go 1.23
 

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/log"
+	"github.com/wxlbd/gin-casbin-admin/pkg/log"
 	"go.uber.org/zap"
 )
 

@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/errors"
+	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
 )
 
 // ErrorHandler 错误处理中间件

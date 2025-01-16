@@ -3,14 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/wxlbd/nunu-casbin-admin/cmd/server/wire"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/log"
+
+	"github.com/wxlbd/gin-casbin-admin/cmd/server/wire"
+	"github.com/wxlbd/gin-casbin-admin/pkg/config"
+	"github.com/wxlbd/gin-casbin-admin/pkg/log"
 	"go.uber.org/zap"
 )
 
 func main() {
-	var envConf = flag.String("conf", "configs/config.yaml", "config path, eg: -conf ./configs/config.yaml")
+	envConf := flag.String("conf", "configs/config.yaml", "config path, eg: -conf ./configs/config.yaml")
 	flag.Parse()
 	conf, err := config.NewConfig(*envConf)
 	if err != nil {

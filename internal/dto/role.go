@@ -1,9 +1,10 @@
 package dto
 
 import (
-	"github.com/wxlbd/nunu-casbin-admin/internal/model"
-	"github.com/wxlbd/nunu-casbin-admin/internal/types"
 	"time"
+
+	"github.com/wxlbd/gin-casbin-admin/internal/model"
+	"github.com/wxlbd/gin-casbin-admin/internal/types"
 )
 
 func ToRoleResponse(role *model.Role) *RoleResponse {

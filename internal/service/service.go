@@ -3,10 +3,10 @@ package service
 import (
 	"github.com/casbin/casbin/v2"
 	"github.com/redis/go-redis/v9"
-	"github.com/wxlbd/nunu-casbin-admin/internal/repository"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/jwtx"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/log"
+	"github.com/wxlbd/gin-casbin-admin/internal/repository"
+	"github.com/wxlbd/gin-casbin-admin/pkg/config"
+	"github.com/wxlbd/gin-casbin-admin/pkg/jwtx"
+	"github.com/wxlbd/gin-casbin-admin/pkg/log"
 )
 
 type Service interface {

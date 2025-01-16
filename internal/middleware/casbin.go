@@ -1,12 +1,13 @@
 package middleware
 
 import (
+	"net/http"
+
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
-	"github.com/wxlbd/nunu-casbin-admin/internal/service"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/log"
+	"github.com/wxlbd/gin-casbin-admin/internal/service"
+	"github.com/wxlbd/gin-casbin-admin/pkg/log"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 func CasbinMiddleware(enforcer *casbin.Enforcer, log *log.Logger, svc service.Service) gin.HandlerFunc {

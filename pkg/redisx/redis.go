@@ -3,8 +3,9 @@ package redisx
 import (
 	"context"
 	"fmt"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
 	"time"
+
+	"github.com/wxlbd/gin-casbin-admin/pkg/config"
 
 	"github.com/redis/go-redis/v9"
 )

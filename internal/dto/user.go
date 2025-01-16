@@ -1,8 +1,8 @@
 package dto
 
 import (
-	"github.com/wxlbd/nunu-casbin-admin/internal/model"
-	"github.com/wxlbd/nunu-casbin-admin/internal/types"
+	"github.com/wxlbd/gin-casbin-admin/internal/model"
+	"github.com/wxlbd/gin-casbin-admin/internal/types"
 )
 
 // UserBase 基础字段

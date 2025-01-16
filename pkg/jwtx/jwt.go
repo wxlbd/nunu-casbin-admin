@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
 	"log"
 	"sync"
 	"time"
+
+	"github.com/wxlbd/gin-casbin-admin/pkg/config"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/redis/go-redis/v9"
@@ -84,15 +85,15 @@ func (j *JWT) GenerateToken(userID uint64, username string) (accessToken, refres
 // 该方法首先检查令牌是否在黑名单中（对于非刷新令牌而言），
 // 然后使用相应的密钥解析令牌，最后验证令牌的有效性。
 //
-//	ctx context.Context: 上下文对象，用于传递请求范围的配置、超时设置等。
-//	tokenString string: 待解析的JWT令牌字符串。
-//	isRefreshToken bool: 指示令牌是否为刷新令牌的布尔值。
+//		ctx context.Context: 上下文对象，用于传递请求范围的配置、超时设置等。
+//		tokenString string: 待解析的JWT令牌字符串。
+//		isRefreshToken bool: 指示令牌是否为刷新令牌的布尔值。
 //
-//   isRefreshToken bool: 指示令牌是否为刷新令牌的布尔值。
+//	  isRefreshToken bool: 指示令牌是否为刷新令牌的布尔值。
 //
-//	*Claims: 如果令牌有效，返回一个包含令牌声明的指针。
-//	error: 如果解析过程中发生错误或令牌无效，返回一个错误。
-//   error: 如果解析过程中发生错误或令牌无效，返回一个错误。
+//		*Claims: 如果令牌有效，返回一个包含令牌声明的指针。
+//		error: 如果解析过程中发生错误或令牌无效，返回一个错误。
+//	  error: 如果解析过程中发生错误或令牌无效，返回一个错误。
 func (j *JWT) ParseToken(ctx context.Context, tokenString string, isRefreshToken bool) (*Claims, error) {
 	// 检查是否在黑名单中
 	if !isRefreshToken {
@@ -115,7 +116,6 @@ func (j *JWT) ParseToken(ctx context.Context, tokenString string, isRefreshToken
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -132,13 +132,13 @@ func (j *JWT) ParseToken(ctx context.Context, tokenString string, isRefreshToken
 // RefreshToken 刷新访问令牌和刷新令牌。
 // 该方法通过验证现有的刷新令牌来生成新的访问令牌和刷新令牌。
 //
-//	ctx - 上下文，用于传递请求范围的 deadline、取消信号等。
-//	refreshToken - 需要刷新的刷新令牌字符串。
+//		ctx - 上下文，用于传递请求范围的 deadline、取消信号等。
+//		refreshToken - 需要刷新的刷新令牌字符串。
 //
-//   refreshToken - 需要刷新的刷新令牌字符串。
+//	  refreshToken - 需要刷新的刷新令牌字符串。
 //
-//	两个字符串分别代表新生成的访问令牌和刷新令牌，以及一个错误对象，如果过程中发生错误则返回该错误。
-//   两个字符串分别代表新生成的访问令牌和刷新令牌，以及一个错误对象，如果过程中发生错误则返回该错误。
+//		两个字符串分别代表新生成的访问令牌和刷新令牌，以及一个错误对象，如果过程中发生错误则返回该错误。
+//	  两个字符串分别代表新生成的访问令牌和刷新令牌，以及一个错误对象，如果过程中发生错误则返回该错误。
 func (j *JWT) RefreshToken(ctx context.Context, refreshToken string) (string, string, error) {
 	// 解析并验证刷新令牌，true 表示该令牌是刷新令牌。
 	claims, err := j.ParseToken(ctx, refreshToken, true)
@@ -164,14 +164,14 @@ func (j *JWT) getRenewalKey(userID uint64) string {
 // AddToBlacklist 将指定的令牌添加到黑名单中。
 // 此函数旨在防止已使用的令牌再次被验证和接受。
 //
-//	ctx - 上下文，用于传递请求范围的 deadline、取消信号等。
-//	tokenStr - 需要添加到黑名单的令牌字符串。
-//	claims - 包含令牌声明的结构体指针，用于获取令牌的过期时间和用户ID。
+//		ctx - 上下文，用于传递请求范围的 deadline、取消信号等。
+//		tokenStr - 需要添加到黑名单的令牌字符串。
+//		claims - 包含令牌声明的结构体指针，用于获取令牌的过期时间和用户ID。
 //
-//   claims - 包含令牌声明的结构体指针，用于获取令牌的过期时间和用户ID。
+//	  claims - 包含令牌声明的结构体指针，用于获取令牌的过期时间和用户ID。
 //
-//	如果操作成功，则返回 nil；否则返回错误。
-//   如果操作成功，则返回 nil；否则返回错误。
+//		如果操作成功，则返回 nil；否则返回错误。
+//	  如果操作成功，则返回 nil；否则返回错误。
 func (j *JWT) AddToBlacklist(ctx context.Context, tokenStr string, claims *Claims) error {
 	// 计算令牌的过期时间与当前时间的差值。
 	expiration := time.Until(claims.ExpiresAt.Time)
@@ -196,14 +196,14 @@ func (j *JWT) AddToBlacklist(ctx context.Context, tokenStr string, claims *Claim
 // IsInBlacklist 检查给定的token是否在黑名单中。
 // 该方法使用Redis来存储黑名单中的token，以实现高效的查询。
 //
-//	ctx context.Context: 上下文，用于传递请求范围的 deadline、取消信号等。
-//	tokenStr string: 需要检查的token字符串。
+//		ctx context.Context: 上下文，用于传递请求范围的 deadline、取消信号等。
+//		tokenStr string: 需要检查的token字符串。
 //
-//   tokenStr string: 需要检查的token字符串。
+//	  tokenStr string: 需要检查的token字符串。
 //
-//	bool: 如果token在黑名单中，则返回true；否则返回false。
-//	error: 如果在检查过程中发生错误，则返回该错误。
-//   error: 如果在检查过程中发生错误，则返回该错误。
+//		bool: 如果token在黑名单中，则返回true；否则返回false。
+//		error: 如果在检查过程中发生错误，则返回该错误。
+//	  error: 如果在检查过程中发生错误，则返回该错误。
 func (j *JWT) IsInBlacklist(ctx context.Context, tokenStr string) (bool, error) {
 	// 使用Redis的Exists命令检查黑名单键是否存在。
 	i, err := j.redis.Exists(ctx, j.getBlacklistKey(tokenStr)).Result()
@@ -214,16 +214,16 @@ func (j *JWT) IsInBlacklist(ctx context.Context, tokenStr string) (bool, error) 
 // CheckAndRenewToken 检查访问令牌的有效性，并在需要时续发新的令牌。
 // 该方法主要解决了在高并发场景下，如何安全地续发令牌，同时防止令牌被重复续发的问题。
 //
-//	ctx - 上下文，用于传递请求范围的上下文信息。
-//	tokenStr - 当前的访问令牌字符串。
-//	claims - 包含令牌声明的指针，用于获取令牌的过期时间和用户信息。
+//		ctx - 上下文，用于传递请求范围的上下文信息。
+//		tokenStr - 当前的访问令牌字符串。
+//		claims - 包含令牌声明的指针，用于获取令牌的过期时间和用户信息。
 //
-//   claims - 包含令牌声明的指针，用于获取令牌的过期时间和用户信息。
+//	  claims - 包含令牌声明的指针，用于获取令牌的过期时间和用户信息。
 //
-//	newAccessToken - 新生成的访问令牌，如果不需要续发，则为空字符串。
-//	needRenew - 布尔值，指示是否需要续发令牌。
-//	err - 错误对象，如果在检查或续发令牌过程中遇到错误，则返回该错误。
-//   err - 错误对象，如果在检查或续发令牌过程中遇到错误，则返回该错误。
+//		newAccessToken - 新生成的访问令牌，如果不需要续发，则为空字符串。
+//		needRenew - 布尔值，指示是否需要续发令牌。
+//		err - 错误对象，如果在检查或续发令牌过程中遇到错误，则返回该错误。
+//	  err - 错误对象，如果在检查或续发令牌过程中遇到错误，则返回该错误。
 func (j *JWT) CheckAndRenewToken(ctx context.Context, tokenStr string, claims *Claims) (newAccessToken string, needRenew bool, err error) {
 	// 使用互斥锁确保并发安全
 	j.renewLock.Lock()
@@ -278,13 +278,13 @@ func (j *JWT) CheckAndRenewToken(ctx context.Context, tokenStr string, claims *C
 // generateAccessToken 生成访问令牌（AccessToken）。
 // 该方法根据用户ID和用户名创建JWT令牌，包含令牌过期时间、签发时间和签发者等信息。
 //
-//	userID - 用户ID，用于标识令牌的拥有者。
-//	username - 用户名，用于在令牌中标识用户。
+//		userID - 用户ID，用于标识令牌的拥有者。
+//		username - 用户名，用于在令牌中标识用户。
 //
-//   username - 用户名，用于在令牌中标识用户。
+//	  username - 用户名，用于在令牌中标识用户。
 //
-//	生成的JWT令牌字符串和可能发生的错误。
-//   生成的JWT令牌字符串和可能发生的错误。
+//		生成的JWT令牌字符串和可能发生的错误。
+//	  生成的JWT令牌字符串和可能发生的错误。
 func (j *JWT) generateAccessToken(userID uint64, username string) (string, error) {
 	// 创建Claims结构体，包含用户ID、用户名和令牌的注册声明。
 	claims := Claims{

@@ -3,12 +3,12 @@ package server
 import (
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
-	"github.com/wxlbd/nunu-casbin-admin/internal/handler"
-	"github.com/wxlbd/nunu-casbin-admin/internal/middleware"
-	"github.com/wxlbd/nunu-casbin-admin/internal/service"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/jwtx"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/log"
+	"github.com/wxlbd/gin-casbin-admin/internal/handler"
+	"github.com/wxlbd/gin-casbin-admin/internal/middleware"
+	"github.com/wxlbd/gin-casbin-admin/internal/service"
+	"github.com/wxlbd/gin-casbin-admin/pkg/config"
+	"github.com/wxlbd/gin-casbin-admin/pkg/jwtx"
+	"github.com/wxlbd/gin-casbin-admin/pkg/log"
 )
 
 func NewServerHTTP(

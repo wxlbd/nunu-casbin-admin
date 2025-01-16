@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"github.com/wxlbd/nunu-casbin-admin/internal/service"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
+	"github.com/wxlbd/gin-casbin-admin/internal/service"
+	"github.com/wxlbd/gin-casbin-admin/pkg/config"
 )
 
 type Handler struct {

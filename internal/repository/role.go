@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/wxlbd/nunu-casbin-admin/internal/model"
+	"github.com/wxlbd/gin-casbin-admin/internal/model"
 	"gorm.io/gorm"
 )
 

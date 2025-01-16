@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/wxlbd/nunu-casbin-admin/internal/types"
+	"github.com/wxlbd/gin-casbin-admin/internal/types"
 )
 
 // Menu 菜单模型

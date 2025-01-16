@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/wxlbd/nunu-casbin-admin/internal/model"
-	"github.com/wxlbd/nunu-casbin-admin/internal/types"
+	"github.com/wxlbd/gin-casbin-admin/internal/model"
+	"github.com/wxlbd/gin-casbin-admin/internal/types"
 	"gorm.io/gorm"
 )
 

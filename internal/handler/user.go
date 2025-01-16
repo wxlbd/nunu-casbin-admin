@@ -4,14 +4,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/wxlbd/nunu-casbin-admin/pkg/errors"
+	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
 
 	"github.com/gin-gonic/gin"
-	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
-	"github.com/wxlbd/nunu-casbin-admin/internal/model"
-	"github.com/wxlbd/nunu-casbin-admin/internal/service"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
-	"github.com/wxlbd/nunu-casbin-admin/pkg/ginx"
+	"github.com/wxlbd/gin-casbin-admin/internal/dto"
+	"github.com/wxlbd/gin-casbin-admin/internal/model"
+	"github.com/wxlbd/gin-casbin-admin/internal/service"
+	"github.com/wxlbd/gin-casbin-admin/pkg/config"
+	"github.com/wxlbd/gin-casbin-admin/pkg/ginx"
 )
 
 type UserHandler struct {
