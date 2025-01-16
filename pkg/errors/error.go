@@ -21,7 +21,7 @@ func New(code ErrorCode, message string) *Error {
 	return &Error{
 		Code:    int(code),
 		Message: message,
-		Status:  http.StatusBadRequest, // 默认400
+		Status:  http.StatusOK, // 默认200
 	}
 }
 
