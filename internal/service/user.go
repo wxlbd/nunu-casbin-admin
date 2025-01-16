@@ -2,16 +2,16 @@ package service
 
 import (
 	"context"
-	"errors"
 	"time"
-
-	"gorm.io/gorm"
 
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/repository"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/errors"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/jwtx"
-
+	"github.com/wxlbd/nunu-casbin-admin/pkg/log"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type UserService interface {
@@ -30,14 +30,16 @@ type UserService interface {
 }
 
 type userService struct {
-	repo repository.Repository
-	jwt  *jwtx.JWT
+	repo   repository.Repository
+	jwt    *jwtx.JWT
+	logger *log.Logger
 }
 
-func NewUserService(repo repository.Repository, jwt *jwtx.JWT) UserService {
+func NewUserService(logger *log.Logger, repo repository.Repository, jwt *jwtx.JWT) UserService {
 	return &userService{
-		repo: repo,
-		jwt:  jwt,
+		repo:   repo,
+		jwt:    jwt,
+		logger: logger,
 	}
 }
 
@@ -45,7 +47,7 @@ func (s *userService) Create(ctx context.Context, user *model.User) error {
 	// 检查用户名是否已存在
 	existUser, _ := s.repo.User().FindByUsername(ctx, user.Username)
 	if existUser != nil {
-		return errors.New("用户名已存在")
+		return errors.WithMsg(errors.AlreadyExists, "用户名已存在")
 	}
 
 	// 密码加密
@@ -61,16 +63,18 @@ func (s *userService) Create(ctx context.Context, user *model.User) error {
 func (s *userService) Update(ctx context.Context, user *model.User) error {
 	existUser, err := s.repo.User().FindByID(ctx, user.ID)
 	if err != nil {
-		return err
+		// 记录错误日志
+		s.logger.Error("查询用户失败", zap.Error(err))
+		return errors.ErrDatabase
 	}
 	if existUser == nil {
-		return errors.New("用户不存在")
+		return errors.WithMsg(errors.NotFound, "用户不存在")
 	}
 
 	// 如果修改了用户名，需要检查新用户名是否已存在
 	if user.Username != existUser.Username {
 		if exist, _ := s.repo.User().FindByUsername(ctx, user.Username); exist != nil {
-			return errors.New("用户名已存在")
+			return errors.WithMsg(errors.AlreadyExists, "用户名已存在")
 		}
 	}
 
@@ -99,18 +103,18 @@ func (s *userService) UpdatePassword(ctx context.Context, id uint64, oldPassword
 		return err
 	}
 	if user == nil {
-		return errors.New("用户不存在")
+		return errors.WithMsg(errors.NotFound, "用户不存在")
 	}
 
 	// 验证旧密码
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword)); err != nil {
-		return errors.New("旧密码错误")
+		return errors.WithMsg(errors.Unauthorized, "旧密码错误")
 	}
 
 	// 加密新密码
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return errors.WithMsg(errors.ServerError, "密码加密失败")
 	}
 
 	user.Password = string(hashedPassword)
@@ -121,7 +125,7 @@ func (s *userService) AssignRoles(ctx context.Context, userID uint64, roleCodes 
 	// 1. 查找角色ID
 	roles, err := s.repo.Role().FindByCodes(ctx, roleCodes...)
 	if err != nil {
-		return err
+		return errors.ErrDatabase
 	}
 
 	// 获取角色ID列表
@@ -160,15 +164,18 @@ func (s *userService) AssignRoles(ctx context.Context, userID uint64, roleCodes 
 func (s *userService) Login(ctx context.Context, username, password string) (accessToken, refreshToken string, err error) {
 	user, err := s.repo.User().FindByUsername(ctx, username)
 	if err != nil {
+		// 记录错误日志
+		s.logger.Error("查询用户失败", zap.Error(err))
 		return "", "", err
 	}
 	if user == nil {
-		return "", "", errors.New("用户不存在")
+		return "", "", errors.WithMsg(errors.NotFound, "用户不存在")
 	}
 
 	// 验证密码
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return "", "", errors.New("密码错误")
+		s.logger.Warn("密码错误", zap.Error(err))
+		return "", "", errors.WithMsg(errors.Unauthorized, "密码错误")
 	}
 
 	// 生成 token
@@ -208,7 +215,7 @@ func (s *userService) GetUserRoles(ctx context.Context, userID uint64) ([]*model
 		return nil, err
 	}
 	if user == nil {
-		return nil, errors.New("用户不存在")
+		return nil, errors.WithMsg(errors.NotFound, "用户不存在")
 	}
 
 	// 获取用户的角色列表
