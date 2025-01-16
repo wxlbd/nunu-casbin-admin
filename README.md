@@ -1,4 +1,4 @@
-# Nunu-Casbin-Admin
+# Gin-Casbin-Admin
 
 一个基于 Go 语言开发的现代化后台管理系统，集成了 RBAC 权限管理、JWT 认证等功能。
 
