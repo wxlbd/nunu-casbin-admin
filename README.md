@@ -2,88 +2,113 @@
 
 一个基于 Go 语言开发的现代化后台管理系统，集成了 RBAC 权限管理、JWT 认证等功能。
 
-## 特性
+## 核心特性
 
-- 基于 Casbin 的 RBAC 权限管理
-- JWT Token 认证和自动续期
-- 基于 Gin 的 RESTful API
-- 统一的错误处理和响应格式
-- 支持多种数据库（MySQL、PostgreSQL、SQLite）
-- 完整的用户、角色、菜单管理
-- 优雅的项目结构和代码组织
+- **权限管理**
+  - 基于 Casbin 的 RBAC 权限控制
+  - 动态权限分配
+  - 细粒度的 API 权限管理
+  - 按钮级别的权限控制
+
+- **用户认证**
+  - JWT Token 认证
+  - Token 自动续期
+  - 多端登录控制
+  - 密码加密存储
+
+- **系统功能**
+  - RESTful API 设计
+  - 统一的错误处理
+  - 请求响应日志记录
+  - 数据库事务支持
+
+- **项目特点**
+  - 清晰的项目结构
+  - 完善的日志系统
+  - 统一的响应格式
+  - 多数据库支持
 
 ## 技术栈
 
-- **框架**: [Gin](https://github.com/gin-gonic/gin)
-- **ORM**: [GORM](https://gorm.io/)
-- **权限**: [Casbin](https://casbin.org/)
-- **认证**: [JWT](https://github.com/golang-jwt/jwt)
-- **缓存**: [Redis](https://github.com/redis/go-redis)
-- **配置**: [Viper](https://github.com/spf13/viper)
-- **日志**: [Zap](https://github.com/uber-go/zap)
-- **依赖注入**: [Wire](https://github.com/google/wire)
+- **Web 框架**: [Gin](https://github.com/gin-gonic/gin) - 高性能 Web 框架
+- **ORM**: [GORM](https://gorm.io/) - 优秀的 ORM 库
+- **权限**: [Casbin](https://casbin.org/) - 灵活的访问控制框架
+- **认证**: [JWT](https://github.com/golang-jwt/jwt) - JSON Web Token
+- **缓存**: [Redis](https://github.com/redis/go-redis) - 高性能缓存
+- **配置**: [Viper](https://github.com/spf13/viper) - 配置管理
+- **日志**: [Zap](https://github.com/uber-go/zap) - 高性能日志库
+- **依赖注入**: [Wire](https://github.com/google/wire) - 编译时依赖注入
 
 ## 项目结构
 
 ```plaintext
 .
 ├── cmd/                    # 应用程序入口
-│   └── server/             # HTTP 服务器
-├── configs/                # 配置文件目录
-│   ├── config.yaml         # 应用配置
-│   └── casbin/             # Casbin 配置
-├── internal/               # 内部代码
-│   ├── dto/                # 数据传输对象
-│   ├── handler/            # HTTP 处理器
-│   │   ├── request/        # 请求结构
-│   │   └── response/       # 响应结构
-│   ├── middleware/         # 中间件
-│   ├── model/              # 数据模型
-│   ├── repository/         # 数据访问层
-│   └── service/            # 业务逻辑层
-├── pkg/                    # 公共包
-│   ├── config/             # 配置管理
-│   ├── helper/             # 辅助工具
-│   ├── http/               # HTTP 客户端
-│   ├── jwtx/               # JWT 工具
-│   ├── log/                # 日志工具
-│   └── utils/              # 通用工具
-└── storage/                # 存储目录
-    └── logs/               # 日志文件
+│   └── server/            # HTTP 服务器启动
+├── configs/               # 配置文件
+│   ├── config.yaml       # 主配置文件
+│   └── casbin/          # Casbin 规则配置
+├── internal/             # 内部代码
+│   ├── dto/             # 数据传输对象
+│   ├── handler/         # HTTP 处理器
+│   ├── middleware/      # 中间件
+│   ├── model/          # 数据模型
+│   ├── repository/     # 数据访问层
+│   ├── server/         # 服务器配置
+│   └── service/        # 业务逻辑层
+└── pkg/                # 公共工具包
+    ├── config/         # 配置管理
+    ├── errors/         # 错误处理
+    ├── ginx/          # Gin 扩展
+    ├── jwtx/          # JWT 工具
+    ├── log/           # 日志工具
+    └── utils/         # 通用工具
 ```
 
-## 核心功能
+## API 文档
+
+### 认证接口
+- `POST /api/auth/login` - 用户登录
+- `POST /api/auth/refresh-token` - 刷新令牌
+
+### 个人中心
+- `GET /api/profile` - 获取当前用户信息
+- `GET /api/profile/menus` - 获取用户菜单
+- `GET /api/profile/roles` - 获取当前用户角色
 
 ### 用户管理
-- 用户 CRUD
-- 密码加密存储
-- 登录历史记录
-- 用户状态管理
+- `GET /api/permission/user` - 获取用户列表
+- `POST /api/permission/user` - 创建用户
+- `PUT /api/permission/user/:id` - 更新用户
+- `DELETE /api/permission/user/:ids` - 删除用户
+- `GET /api/permission/user/:id` - 获取用户详情
+- `GET /api/permission/user/:id/roles` - 获取用户角色
+- `PATCH /api/permission/user/:id/password` - 修改用户密码
+- `PUT /api/permission/user/:id/roles` - 分配用户角色
 
 ### 角色管理
-- 角色 CRUD
-- 角色-菜单分配
-- 角色-API权限控制
+- `GET /api/permission/role` - 获取角色列表
+- `POST /api/permission/role` - 创建角色
+- `PUT /api/permission/role/:id` - 更新角色
+- `DELETE /api/permission/role/:ids` - 删除角色
+- `GET /api/permission/role/:id` - 获取角色详情
+- `GET /api/permission/role/:id/menus` - 获取角色菜单
+- `PUT /api/permission/role/:id/menus` - 分配角色菜单
 
 ### 菜单管理
-- 菜单 CRUD
-- 菜单树形结构
-- 按钮级权限控制
-
-### 权限控制
-- 基于 Casbin 的 RBAC
-- 细粒度的 API 权限控制
-- 动态权限分配
+- `POST /api/permission/menu` - 创建菜单
+- `PUT /api/permission/menu/:id` - 更新菜单
+- `DELETE /api/permission/menu/:ids` - 删除菜单
+- `GET /api/permission/menu/tree` - 获取菜单树
 
 ## 快速开始
 
 ### 环境要求
-
 - Go 1.20+
 - MySQL 5.7+ / PostgreSQL 10+ / SQLite 3
 - Redis 6.0+
 
-### 安装
+### 安装步骤
 
 1. 克隆项目
 ```bash
@@ -96,16 +121,18 @@ cd nunu-casbin-admin
 go mod download
 ```
 
-3. 配置数据库
+3. 配置环境
 ```bash
-# 编辑 configs/config.yaml
 cp configs/config.yaml.example configs/config.yaml
+# 修改配置文件中的数据库和Redis连接信息
 ```
 
 4. 初始化数据库
 ```bash
 # 导入数据库结构
-mysql -u root -p your_database < mineadmin.sql
+mysql -u root -p your_database < scripts/schema.sql
+# 导入初始数据
+mysql -u root -p your_database < scripts/data.sql
 ```
 
 5. 运行项目
@@ -113,37 +140,29 @@ mysql -u root -p your_database < mineadmin.sql
 go run cmd/server/main.go
 ```
 
-## API 文档
+## 开发指南
 
-### 认证相关
-- POST /admin/v1/login - 用户登录
-- POST /admin/v1/refresh-token - 刷新令牌
+### 错误处理
+使用统一的错误处理包 `pkg/errors`：
+```go
+if err != nil {
+    return errors.WithMsg(errors.InvalidParam, "参数错误")
+}
+```
 
-### 用户管理
-- GET /admin/v1/user - 获取用户列表
-- POST /admin/v1/user - 创建用户
-- PUT /admin/v1/user/:id - 更新用户
-- DELETE /admin/v1/user/:id - 删除用户
+### 响应格式
+使用 `pkg/ginx` 包处理响应：
+```go
+ginx.Success(c, data)
+ginx.Error(c, code, message)
+```
 
-### 角色管理
-- GET /admin/v1/role - 获取角色列表
-- POST /admin/v1/role - 创建角色
-- PUT /admin/v1/role/:id - 更新角色
-- DELETE /admin/v1/role/:id - 删除角色
-
-### 菜单管理
-- GET /admin/v1/menu/tree - 获取菜单树
-- POST /admin/v1/menu - 创建菜单
-- PUT /admin/v1/menu/:id - 更新菜单
-- DELETE /admin/v1/menu/:id - 删除菜单
-
-## 贡献指南
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m 'Add some amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 提交 Pull Request
+### 日志记录
+使用 `pkg/log` 包记录日志：
+```go
+logger.Info("操作成功", zap.String("user", username))
+logger.Error("操作失败", zap.Error(err))
+```
 
 ## 许可证
 
