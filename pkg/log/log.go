@@ -1,13 +1,14 @@
 package log
 
 import (
+	"os"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"os"
-	"time"
 )
 
 const LoggerKey = "zapLogger"
@@ -26,7 +27,7 @@ func initZap(conf *config.LogConfig) *Logger {
 	// 日志级别 DEBUG,ERROR, INFO
 	lv := conf.LogLevel
 	var level zapcore.Level
-	//debug<info<warn<error<fatal<panic
+	// debug<info<warn<error<fatal<panic
 	switch lv {
 	case "debug":
 		level = zap.DebugLevel
@@ -79,21 +80,20 @@ func initZap(conf *config.LogConfig) *Logger {
 		})
 	}
 	core := zapcore.NewCore(
-		encoder,                                                                         // 编码器配置
+		encoder, // 编码器配置
 		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(&hook)), // 打印到控制台和文件
-		level,                                                                           // 日志级别
+		level, // 日志级别
 	)
 	if conf.LogLevel == "debug" {
 		return &Logger{zap.New(core, zap.Development(), zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))}
 	}
 	return &Logger{zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))}
-
 }
 
 // 自定义时间编码器
 func timeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-	//enc.AppendString(t.Format("2006-01-02 15:04:05"))
-	enc.AppendString(t.Format("2006-01-02 15:04:05.000000000"))
+	// enc.AppendString(t.Format("2006-01-02 15:04:05"))
+	enc.AppendString(t.Format("2006-01-02 15:04:05.000"))
 }
 
 // NewContext 给指定的context添加字段
