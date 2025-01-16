@@ -2,14 +2,13 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/errors"
 
 	"github.com/casbin/casbin/v2"
-
+	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/repository"
 	"gorm.io/gorm"
@@ -39,7 +38,7 @@ func NewRoleService(repo repository.Repository, enforcer *casbin.Enforcer) RoleS
 
 func (s *roleService) Create(ctx context.Context, role *model.Role) error {
 	if s.IsCodeExists(ctx, role.Code) {
-		return errors.New("角色代码已存在")
+		return errors.WithMsg(errors.AlreadyExists, "角色代码已存在")
 	}
 	return s.repo.Role().Create(ctx, role)
 }
@@ -55,13 +54,13 @@ func (s *roleService) Update(ctx context.Context, role *model.Role) error {
 		return err
 	}
 	if existRole == nil {
-		return errors.New("角色不存在")
+		return errors.WithMsg(errors.NotFound, "角色不存在")
 	}
 
 	// 如果修改了角色代码，需要检查新代码是否已存在
 	if role.Code != existRole.Code {
 		if s.IsCodeExists(ctx, role.Code) {
-			return errors.New("角色代码已存在")
+			return errors.WithMsg(errors.AlreadyExists, "角色代码已存在")
 		}
 	}
 
@@ -74,7 +73,7 @@ func (s *roleService) Delete(ctx context.Context, ids ...uint64) error {
 		return err
 	}
 	if len(roles) == 0 {
-		return errors.New("角色不存在")
+		return errors.WithMsg(errors.NotFound, "角色不存在")
 	}
 	// 删除该角色的所有权限策略
 	for _, role := range roles {
@@ -231,7 +230,7 @@ func (s *roleService) GetRoleMenus(ctx context.Context, roleID uint64) ([]*model
 		return nil, err
 	}
 	if role == nil {
-		return nil, errors.New("角色不存在")
+		return nil, errors.WithMsg(errors.NotFound, "角色不存在")
 	}
 
 	// 获取角色的菜单列表
