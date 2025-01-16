@@ -44,25 +44,25 @@
 ```plaintext
 .
 ├── cmd/                    # 应用程序入口
-│   └── server/            # HTTP 服务器启动
-├── configs/               # 配置文件
-│   ├── config.yaml       # 主配置文件
-│   └── casbin/          # Casbin 规则配置
-├── internal/             # 内部代码
-│   ├── dto/             # 数据传输对象
-│   ├── handler/         # HTTP 处理器
-│   ├── middleware/      # 中间件
-│   ├── model/          # 数据模型
-│   ├── repository/     # 数据访问层
-│   ├── server/         # 服务器配置
-│   └── service/        # 业务逻辑层
-└── pkg/                # 公共工具包
-    ├── config/         # 配置管理
-    ├── errors/         # 错误处理
-    ├── ginx/          # Gin 扩展
-    ├── jwtx/          # JWT 工具
-    ├── log/           # 日志工具
-    └── utils/         # 通用工具
+│   └── server/             # HTTP 服务器启动
+├── configs/                # 配置文件
+│   ├── config.yaml         # 主配置文件
+│   └── casbin/             # Casbin 规则配置
+├── internal/               # 内部代码
+│   ├── dto/                # 数据传输对象
+│   ├── handler/            # HTTP 处理器
+│   ├── middleware/         # 中间件
+│   ├── model/              # 数据模型
+│   ├── repository/         # 数据访问层
+│   ├── server/             # 服务器配置
+│   └── service/            # 业务逻辑层
+└── pkg/                    # 公共工具包
+    ├── config/             # 配置管理
+    ├── errors/             # 错误处理
+    ├── ginx/               # Gin 扩展
+    ├── jwtx/               # JWT 工具
+    ├── log/                # 日志工具
+    └── utils/              # 通用工具
 ```
 
 ## API 文档
