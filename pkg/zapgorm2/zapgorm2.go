@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	gormlogger "gorm.io/gorm/logger"
 )
@@ -97,9 +97,7 @@ func (l Logger) Trace(ctx context.Context, begin time.Time, fc func() (string, i
 	}
 }
 
-var (
-	gormPackage = filepath.Join("gorm.io", "gorm")
-)
+var gormPackage = filepath.Join("gorm.io", "gorm")
 
 func (l Logger) logger(ctx context.Context) *zap.Logger {
 	logger := l.ZapLogger
