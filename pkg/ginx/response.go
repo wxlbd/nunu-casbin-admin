@@ -1,6 +1,11 @@
 package ginx
 
-import "github.com/gin-gonic/gin"
+import (
+	"errors"
+
+	"github.com/gin-gonic/gin"
+	cerrors "github.com/wxlbd/nunu-casbin-admin/pkg/errors"
+)
 
 const (
 	SUCCESS = 200
@@ -23,9 +28,13 @@ func Success(c *gin.Context, data any) {
 }
 
 // Error 错误响应
-func Error(c *gin.Context, code int, message string) {
-	c.JSON(code, Response{
-		Code:    code,
+func Error(c *gin.Context, businessCode int, message string, httpCode ...int) {
+	hc := 200
+	if len(httpCode) > 0 {
+		hc = httpCode[0]
+	}
+	c.JSON(hc, Response{
+		Code:    businessCode,
 		Message: message,
 	})
 }
@@ -47,5 +56,10 @@ func Forbidden(c *gin.Context) {
 
 // ServerError 服务器错误响应
 func ServerError(c *gin.Context, err error) {
+	var customErr *cerrors.Error
+	if errors.As(err, &customErr) {
+		Error(c, customErr.Code, customErr.Message)
+		return
+	}
 	Error(c, 500, err.Error())
 }
