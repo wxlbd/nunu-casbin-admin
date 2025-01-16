@@ -1,13 +1,16 @@
 package handler
 
 import (
+	"strconv"
+	"strings"
+
+	"github.com/wxlbd/nunu-casbin-admin/pkg/errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/service"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/ginx"
-	"strconv"
-	"strings"
 )
 
 type MenuHandler struct {
@@ -24,7 +27,7 @@ func NewMenuHandler(svc service.Service) *MenuHandler {
 func (h *MenuHandler) Create(c *gin.Context) {
 	var req dto.CreateMenuRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ginx.ParamError(c)
+		ginx.ParamError(c, err)
 		return
 	}
 
@@ -40,7 +43,7 @@ func (h *MenuHandler) Create(c *gin.Context) {
 func (h *MenuHandler) Update(c *gin.Context) {
 	var req dto.UpdateMenuRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ginx.ParamError(c)
+		ginx.ParamError(c, err)
 		return
 	}
 	if err := h.svc.Menu().Update(c, &req); err != nil {
@@ -87,7 +90,7 @@ func (h *MenuHandler) GetMenuTree(c *gin.Context) {
 func (h *MenuHandler) GetUserMenus(c *gin.Context) {
 	userID := c.GetUint64("user_id")
 	if userID == 0 {
-		ginx.Unauthorized(c)
+		ginx.ServerError(c, errors.WithMsg(errors.Unauthorized, "用户未登录"))
 		return
 	}
 

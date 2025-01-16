@@ -8,6 +8,7 @@ import (
 	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
 	"github.com/wxlbd/nunu-casbin-admin/internal/service"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/errors"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/ginx"
 )
 
@@ -25,7 +26,7 @@ func NewRoleHandler(svc service.Service) *RoleHandler {
 func (h *RoleHandler) Create(c *gin.Context) {
 	var req dto.RoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ginx.ParamError(c)
+		ginx.ParamError(c, err)
 		return
 	}
 
@@ -49,7 +50,7 @@ func (h *RoleHandler) Create(c *gin.Context) {
 func (h *RoleHandler) Update(c *gin.Context) {
 	var req dto.RoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ginx.ParamError(c)
+		ginx.ParamError(c, err)
 		return
 	}
 	role := &model.Role{
@@ -94,7 +95,7 @@ func (h *RoleHandler) Delete(c *gin.Context) {
 func (h *RoleHandler) List(c *gin.Context) {
 	var req dto.RoleListRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		ginx.ParamError(c)
+		ginx.ParamError(c, err)
 		return
 	}
 	roles, total, err := h.svc.Role().List(c, &req)
@@ -112,7 +113,7 @@ func (h *RoleHandler) List(c *gin.Context) {
 func (h *RoleHandler) AssignMenus(c *gin.Context) {
 	var req dto.AssignMenusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ginx.ParamError(c)
+		ginx.ParamError(c, err)
 		return
 	}
 	param := c.Param("id")
@@ -130,14 +131,14 @@ func (h *RoleHandler) GetPermittedMenus(c *gin.Context) {
 	// 从查询参数获取角色ID
 	roleID := c.Param("id")
 	if roleID == "" {
-		ginx.ParamError(c)
+		ginx.ParamError(c, errors.WithMsg(errors.InvalidParam, "角色ID不能为空"))
 		return
 	}
 
 	// 转换为 uint64
 	id, err := strconv.ParseUint(roleID, 10, 64)
 	if err != nil {
-		ginx.ParamError(c)
+		ginx.ParamError(c, errors.WithMsg(errors.InvalidParam, "无效的角色ID"))
 		return
 	}
 
@@ -156,12 +157,12 @@ func (h *RoleHandler) Detail(ctx *gin.Context) {
 
 	id, err := strconv.ParseUint(param, 10, 64)
 	if err != nil {
-		ginx.Error(ctx, 400, "参数错误")
+		ginx.ParamError(ctx, errors.WithMsg(errors.InvalidParam, "无效的角色ID"))
 		return
 	}
 	role, err := h.svc.Role().FindByID(ctx.Request.Context(), id)
 	if err != nil {
-		ginx.Error(ctx, 500, err.Error())
+		ginx.ServerError(ctx, err)
 		return
 	}
 	ginx.Success(ctx, dto.ToRoleResponse(role))

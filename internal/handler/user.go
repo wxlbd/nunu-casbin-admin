@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/wxlbd/nunu-casbin-admin/pkg/errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/wxlbd/nunu-casbin-admin/internal/dto"
 	"github.com/wxlbd/nunu-casbin-admin/internal/model"
@@ -28,13 +30,13 @@ func NewUserHandler(svc service.Service, cfg *config.Config) *UserHandler {
 func (h *UserHandler) Login(c *gin.Context) {
 	var req dto.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		_ = c.Error(err)
+		ginx.ParamError(c, err)
 		return
 	}
 
 	accessToken, refreshToken, err := h.svc.User().Login(c, req.Username, req.Password)
 	if err != nil {
-		ginx.Unauthorized(c)
+		ginx.ServerError(c, err)
 		return
 	}
 
@@ -49,7 +51,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 func (h *UserHandler) RefreshToken(c *gin.Context) {
 	var req dto.RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ginx.ParamError(c)
+		ginx.ParamError(c, err)
 		return
 	}
 
@@ -69,8 +71,9 @@ func (h *UserHandler) RefreshToken(c *gin.Context) {
 // Logout 用户登出
 func (h *UserHandler) Logout(c *gin.Context) {
 	token := c.GetHeader("Authorization")
+	// 未登录或非法访问直接返回
 	if token == "" || len(token) <= 7 || token[:7] != "Bearer " {
-		ginx.Error(c, 400, "无效的token")
+		ginx.Success(c, nil)
 		return
 	}
 
@@ -87,12 +90,12 @@ func (h *UserHandler) Logout(c *gin.Context) {
 func (h *UserHandler) Create(c *gin.Context) {
 	var user model.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		ginx.Error(c, 400, "参数错误")
+		ginx.ParamError(c, err)
 		return
 	}
 
 	if err := h.svc.User().Create(c, &user); err != nil {
-		ginx.Error(c, 500, err.Error())
+		ginx.ServerError(c, err)
 		return
 	}
 
@@ -103,12 +106,12 @@ func (h *UserHandler) Create(c *gin.Context) {
 func (h *UserHandler) Update(c *gin.Context) {
 	var user dto.UpdateUserRequest
 	if err := c.ShouldBindJSON(&user); err != nil {
-		ginx.Error(c, 400, "参数错误")
+		ginx.ParamError(c, err)
 		return
 	}
 
 	if err := h.svc.User().Update(c, user.ToModel()); err != nil {
-		ginx.Error(c, 500, err.Error())
+		ginx.ServerError(c, err)
 		return
 	}
 
@@ -123,7 +126,7 @@ func (h *UserHandler) Delete(c *gin.Context) {
 	for _, s := range str {
 		id, err := strconv.ParseUint(s, 10, 64)
 		if err != nil {
-			ginx.Error(c, 400, "参数错误")
+			ginx.ParamError(c, errors.WithMsg(errors.InvalidParam, "无效的用户ID"))
 			return
 		}
 		ids = append(ids, id)
@@ -140,13 +143,13 @@ func (h *UserHandler) Delete(c *gin.Context) {
 func (h *UserHandler) List(c *gin.Context) {
 	var req dto.UserListRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		ginx.Error(c, 400, "参数错误")
+		ginx.ParamError(c, err)
 		return
 	}
 	req.Normalize()
 	users, total, err := h.svc.User().List(c, req.ToModel())
 	if err != nil {
-		ginx.Error(c, 500, err.Error())
+		ginx.ServerError(c, err)
 		return
 	}
 
@@ -158,16 +161,16 @@ func (h *UserHandler) AssignRoles(c *gin.Context) {
 	var req dto.UserAssignRolesRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ginx.Error(c, 400, "参数错误")
+		ginx.ParamError(c, err)
 		return
 	}
 	userID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		ginx.Error(c, 400, "参数错误")
+		ginx.ParamError(c, errors.WithMsg(errors.InvalidParam, "无效的用户ID"))
 		return
 	}
 	if err := h.svc.User().AssignRoles(c, userID, req.RoleCodes); err != nil {
-		ginx.Error(c, 500, err.Error())
+		ginx.ServerError(c, err)
 		return
 	}
 
@@ -179,12 +182,12 @@ func (h *UserHandler) UpdatePassword(c *gin.Context) {
 	var req dto.UpdatePasswordRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ginx.Error(c, 400, "参数错误")
+		ginx.ParamError(c, err)
 		return
 	}
 
 	if err := h.svc.User().UpdatePassword(c, req.ID, req.OldPassword, req.NewPassword); err != nil {
-		ginx.Error(c, 500, err.Error())
+		ginx.ServerError(c, err)
 		return
 	}
 
@@ -195,17 +198,17 @@ func (h *UserHandler) UpdatePassword(c *gin.Context) {
 func (h *UserHandler) Current(c *gin.Context) {
 	userId, exists := c.Get("user_id")
 	if !exists {
-		ginx.Error(c, 500, "获取用户信息失败")
+		ginx.ParamError(c, errors.WithMsg(errors.InvalidParam, "无效的用户ID"))
 		return
 	}
 	id, ok := userId.(uint64)
 	if !ok {
-		ginx.Error(c, 500, "获取用户信息失败")
+		ginx.ParamError(c, errors.WithMsg(errors.InvalidParam, "无效的用户ID"))
 		return
 	}
 	user, err := h.svc.User().FindByID(c.Request.Context(), id)
 	if err != nil {
-		ginx.Error(c, 500, err.Error())
+		ginx.ServerError(c, err)
 		return
 	}
 	ginx.Success(c, dto.ToUserResponse(user))
@@ -217,12 +220,12 @@ func (h *UserHandler) Detail(c *gin.Context) {
 
 	id, err := strconv.ParseUint(param, 10, 64)
 	if err != nil {
-		ginx.Error(c, 400, "参数错误")
+		ginx.ParamError(c, errors.WithMsg(errors.InvalidParam, "无效的用户ID"))
 		return
 	}
 	user, err := h.svc.User().FindByID(c.Request.Context(), id)
 	if err != nil {
-		ginx.Error(c, 500, err.Error())
+		ginx.ServerError(c, err)
 		return
 	}
 	ginx.Success(c, dto.ToUserResponse(user))
@@ -232,7 +235,7 @@ func (h *UserHandler) Detail(c *gin.Context) {
 func (h *UserHandler) GetCurrentUserRoles(c *gin.Context) {
 	id := c.GetUint64("user_id")
 	if id == 0 {
-		ginx.ParamError(c)
+		ginx.ParamError(c, errors.WithMsg(errors.InvalidParam, "无效的用户ID"))
 		return
 	}
 
@@ -249,12 +252,12 @@ func (h *UserHandler) GetCurrentUserRoles(c *gin.Context) {
 func (h *UserHandler) GerUserRoles(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ginx.Error(ctx, 400, "参数错误")
+		ginx.ParamError(ctx, errors.WithMsg(errors.InvalidParam, "无效的用户ID"))
 		return
 	}
 	roles, err := h.svc.User().GetUserRoles(ctx.Request.Context(), id)
 	if err != nil {
-		ginx.Error(ctx, 500, err.Error())
+		ginx.ServerError(ctx, err)
 		return
 	}
 	ginx.Success(ctx, roles)
