@@ -6,6 +6,7 @@ import (
 	"github.com/wxlbd/nunu-casbin-admin/internal/repository"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/config"
 	"github.com/wxlbd/nunu-casbin-admin/pkg/jwtx"
+	"github.com/wxlbd/nunu-casbin-admin/pkg/log"
 )
 
 type Service interface {
@@ -22,14 +23,13 @@ type service struct {
 	jwt     *jwtx.JWT
 }
 
-func NewService(repo repository.Repository, cfg *config.Config, rdb *redis.Client, j *jwtx.JWT, enforcer *casbin.Enforcer) (Service, error) {
-
+func NewService(logger *log.Logger, repo repository.Repository, cfg *config.Config, rdb *redis.Client, j *jwtx.JWT, enforcer *casbin.Enforcer) (Service, error) {
 	svc := &service{
 		repo: repo,
 		jwt:  j,
 	}
 
-	svc.userSvc = NewUserService(repo, j)
+	svc.userSvc = NewUserService(logger, repo, j)
 	svc.roleSvc = NewRoleService(repo, enforcer)
 	svc.menuSvc = NewMenuService(repo, enforcer)
 
