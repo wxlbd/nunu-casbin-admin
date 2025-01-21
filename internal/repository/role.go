@@ -4,22 +4,11 @@ import (
 	"context"
 	"errors"
 
+	"github.com/wxlbd/gin-casbin-admin/internal/service"
+
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
 	"gorm.io/gorm"
 )
-
-type RoleRepository interface {
-	WithTx(tx *Query) RoleRepository
-	Create(ctx context.Context, role *model.Role) error
-	Update(ctx context.Context, role *model.Role) error
-	Delete(ctx context.Context, ids ...uint64) error
-	FindByID(ctx context.Context, id uint64) (*model.Role, error)
-	FindByCode(ctx context.Context, code string) (*model.Role, error)
-	List(ctx context.Context, query *model.RoleQuery) ([]*model.Role, int64, error)
-	// FindByIDs 根据角色ID列表查询角色
-	FindByIDs(ctx context.Context, ids []uint64) ([]*model.Role, error)
-	FindByCodes(ctx context.Context, codes ...string) ([]*model.Role, error)
-}
 
 type roleRepository struct {
 	query *Query
@@ -42,11 +31,11 @@ func (r *roleRepository) FindByIDs(ctx context.Context, ids []uint64) ([]*model.
 	return roles, nil
 }
 
-func NewRoleRepository(query *Query) RoleRepository {
+func NewRoleRepository(query *Query) service.RoleRepository {
 	return &roleRepository{query: query}
 }
 
-func (r *roleRepository) WithTx(tx *Query) RoleRepository {
+func (r *roleRepository) WithTx(tx *Query) service.RoleRepository {
 	return &roleRepository{query: tx}
 }
 

@@ -5,7 +5,6 @@ import (
 
 	"github.com/wxlbd/gin-casbin-admin/internal/dto"
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
-	"github.com/wxlbd/gin-casbin-admin/internal/repository"
 	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
 	"github.com/wxlbd/gin-casbin-admin/pkg/log"
 )
@@ -29,12 +28,12 @@ type DictService interface {
 
 type dictService struct {
 	log      *log.Logger
-	repo     repository.Repository
-	typeRepo repository.DictTypeRepository
-	dataRepo repository.DictDataRepository
+	repo     Repository
+	typeRepo DictTypeRepository
+	dataRepo DictDataRepository
 }
 
-func NewDictService(logger *log.Logger, repo repository.Repository) DictService {
+func NewDictService(logger *log.Logger, repo Repository) DictService {
 	return &dictService{
 		log:      logger,
 		repo:     repo,

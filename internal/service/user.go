@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
-	"github.com/wxlbd/gin-casbin-admin/internal/repository"
 	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
 	"github.com/wxlbd/gin-casbin-admin/pkg/jwtx"
 	"github.com/wxlbd/gin-casbin-admin/pkg/log"
@@ -29,12 +28,12 @@ type UserService interface {
 }
 
 type userService struct {
-	repo   repository.Repository
+	repo   Repository
 	jwt    *jwtx.JWT
 	logger *log.Logger
 }
 
-func NewUserService(logger *log.Logger, repo repository.Repository, jwt *jwtx.JWT) UserService {
+func NewUserService(logger *log.Logger, repo Repository, jwt *jwtx.JWT) UserService {
 	return &userService{
 		repo:   repo,
 		jwt:    jwt,
@@ -128,7 +127,7 @@ func (s *userService) AssignRoles(ctx context.Context, userID uint64, roleCodes 
 	for _, role := range roles {
 		roleIDs = append(roleIDs, role.ID)
 	}
-	return s.repo.Transaction(func(r repository.Repository) error {
+	return s.repo.Transaction(func(r Repository) error {
 		// 2.1 删除原有的用户-角色关系
 		if err := r.UserRole().DeleteByUserID(ctx, userID); err != nil {
 			return err

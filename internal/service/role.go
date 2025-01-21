@@ -12,7 +12,6 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/wxlbd/gin-casbin-admin/internal/dto"
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
-	"github.com/wxlbd/gin-casbin-admin/internal/repository"
 )
 
 type RoleService interface {
@@ -26,11 +25,11 @@ type RoleService interface {
 }
 
 type roleService struct {
-	repo     repository.Repository
+	repo     Repository
 	enforcer *casbin.Enforcer
 }
 
-func NewRoleService(repo repository.Repository, enforcer *casbin.Enforcer) RoleService {
+func NewRoleService(repo Repository, enforcer *casbin.Enforcer) RoleService {
 	return &roleService{
 		repo:     repo,
 		enforcer: enforcer,
@@ -107,7 +106,7 @@ func (s *roleService) AssignMenus(ctx context.Context, roleID uint64, names []st
 	if err != nil {
 		return err
 	}
-	return s.repo.Transaction(func(r repository.Repository) error {
+	return s.repo.Transaction(func(r Repository) error {
 		// 获取事务中的 gorm.DB
 		tx := r.DB()
 		adapter, err := gormadapter.NewAdapterByDB(tx)

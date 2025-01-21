@@ -4,27 +4,8 @@ import (
 	"context"
 
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
+	"github.com/wxlbd/gin-casbin-admin/internal/service"
 )
-
-type DictTypeRepository interface {
-	WithTx(tx *Query) DictTypeRepository
-	Create(ctx context.Context, dict *model.DictType) error
-	Update(ctx context.Context, dict *model.DictType) error
-	Delete(ctx context.Context, ids ...int64) error
-	FindByID(ctx context.Context, id int64) (*model.DictType, error)
-	FindByCode(ctx context.Context, code string) (*model.DictType, error)
-	List(ctx context.Context, query *model.DictTypeQuery) ([]*model.DictType, int64, error)
-}
-
-type DictDataRepository interface {
-	WithTx(tx *Query) DictDataRepository
-	Create(ctx context.Context, data *model.DictDatum) error
-	Update(ctx context.Context, data *model.DictDatum) error
-	Delete(ctx context.Context, ids ...int64) error
-	FindByID(ctx context.Context, id int64) (*model.DictDatum, error)
-	FindByTypeCode(ctx context.Context, typeCode string) ([]*model.DictDatum, error)
-	List(ctx context.Context, query *model.DictDataQuery) ([]*model.DictDatum, int64, error)
-}
 
 type dictTypeRepository struct {
 	query *Query
@@ -34,18 +15,15 @@ type dictDataRepository struct {
 	query *Query
 }
 
-func NewDictTypeRepository(query *Query) DictTypeRepository {
+func NewDictTypeRepository(query *Query) service.DictTypeRepository {
 	return &dictTypeRepository{query: query}
 }
 
-func NewDictDataRepository(query *Query) DictDataRepository {
+func NewDictDataRepository(query *Query) service.DictDataRepository {
 	return &dictDataRepository{query: query}
 }
 
 // DictType Repository 实现
-func (r *dictTypeRepository) WithTx(tx *Query) DictTypeRepository {
-	return &dictTypeRepository{query: tx}
-}
 
 func (r *dictTypeRepository) Create(ctx context.Context, dict *model.DictType) error {
 	return r.query.WithContext(ctx).DictType.Create(dict)
@@ -91,9 +69,6 @@ func (r *dictTypeRepository) List(ctx context.Context, query *model.DictTypeQuer
 }
 
 // DictData Repository 实现
-func (r *dictDataRepository) WithTx(tx *Query) DictDataRepository {
-	return &dictDataRepository{query: tx}
-}
 
 func (r *dictDataRepository) Create(ctx context.Context, data *model.DictDatum) error {
 	return r.query.WithContext(ctx).DictDatum.Create(data)

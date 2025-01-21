@@ -3,7 +3,6 @@ package service
 import (
 	"github.com/casbin/casbin/v2"
 	"github.com/redis/go-redis/v9"
-	"github.com/wxlbd/gin-casbin-admin/internal/repository"
 	"github.com/wxlbd/gin-casbin-admin/pkg/config"
 	"github.com/wxlbd/gin-casbin-admin/pkg/jwtx"
 	"github.com/wxlbd/gin-casbin-admin/pkg/log"
@@ -17,7 +16,7 @@ type Service interface {
 }
 
 type service struct {
-	repo    repository.Repository
+	repo    Repository
 	userSvc UserService
 	roleSvc RoleService
 	menuSvc MenuService
@@ -25,7 +24,7 @@ type service struct {
 	jwt     *jwtx.JWT
 }
 
-func NewService(logger *log.Logger, repo repository.Repository, cfg *config.Config, rdb *redis.Client, j *jwtx.JWT, enforcer *casbin.Enforcer) (Service, error) {
+func NewService(logger *log.Logger, repo Repository, cfg *config.Config, rdb *redis.Client, j *jwtx.JWT, enforcer *casbin.Enforcer) (Service, error) {
 	svc := &service{
 		repo: repo,
 		jwt:  j,

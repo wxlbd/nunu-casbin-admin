@@ -1,34 +1,22 @@
 package repository
 
 import (
+	"github.com/wxlbd/gin-casbin-admin/internal/service"
 	"gorm.io/gorm"
 )
 
-type Repository interface {
-	User() UserRepository
-	Role() RoleRepository
-	Menu() MenuRepository
-	UserRole() UserRoleRepository
-	RoleMenu() RoleMenuRepository
-	DictType() DictTypeRepository
-	DictData() DictDataRepository
-	Transaction(fn func(Repository) error) error
-	// DB 获取当前仓储使用的gorm.DB
-	DB() *gorm.DB
-}
-
 type repository struct {
 	query        *Query
-	userRepo     UserRepository
-	roleRepo     RoleRepository
-	menuRepo     MenuRepository
-	userRoleRepo UserRoleRepository
-	roleMenuRepo RoleMenuRepository
-	dictTypeRepo DictTypeRepository
-	dictDataRepo DictDataRepository
+	userRepo     service.UserRepository
+	roleRepo     service.RoleRepository
+	menuRepo     service.MenuRepository
+	userRoleRepo service.UserRoleRepository
+	roleMenuRepo service.RoleMenuRepository
+	dictTypeRepo service.DictTypeRepository
+	dictDataRepo service.DictDataRepository
 }
 
-func NewRepository(db *gorm.DB) Repository {
+func NewRepository(db *gorm.DB) service.Repository {
 	SetDefault(db)
 	return &repository{
 		query:        Q,
@@ -42,7 +30,7 @@ func NewRepository(db *gorm.DB) Repository {
 	}
 }
 
-func (r *repository) Transaction(fn func(Repository) error) error {
+func (r *repository) Transaction(fn func(service.Repository) error) error {
 	return r.query.Transaction(func(tx *Query) error {
 		return fn(r.clone(tx))
 	})
@@ -69,30 +57,30 @@ func (r *repository) Query() *Query {
 	return r.query
 }
 
-func (r *repository) User() UserRepository {
+func (r *repository) User() service.UserRepository {
 	return r.userRepo
 }
 
-func (r *repository) Role() RoleRepository {
+func (r *repository) Role() service.RoleRepository {
 	return r.roleRepo
 }
 
-func (r *repository) Menu() MenuRepository {
+func (r *repository) Menu() service.MenuRepository {
 	return r.menuRepo
 }
 
-func (r *repository) UserRole() UserRoleRepository {
+func (r *repository) UserRole() service.UserRoleRepository {
 	return r.userRoleRepo
 }
 
-func (r *repository) RoleMenu() RoleMenuRepository {
+func (r *repository) RoleMenu() service.RoleMenuRepository {
 	return r.roleMenuRepo
 }
 
-func (r *repository) DictType() DictTypeRepository {
+func (r *repository) DictType() service.DictTypeRepository {
 	return r.dictTypeRepo
 }
 
-func (r *repository) DictData() DictDataRepository {
+func (r *repository) DictData() service.DictDataRepository {
 	return r.dictDataRepo
 }

@@ -3,35 +3,21 @@ package repository
 import (
 	"context"
 
+	"github.com/wxlbd/gin-casbin-admin/internal/service"
+
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
 	"github.com/wxlbd/gin-casbin-admin/internal/types"
 )
-
-type MenuRepository interface {
-	WithTx(tx *Query) MenuRepository
-	Create(ctx context.Context, menu *model.Menu) error
-	BatchCreate(ctx context.Context, menus []*model.Menu) error
-	Update(ctx context.Context, menu *model.Menu) error
-	BatchUpdate(ctx context.Context, menus []*model.Menu) error
-	Delete(ctx context.Context, ids ...uint64) error
-	FindByID(ctx context.Context, id uint64) (*model.Menu, error)
-	FindByIDs(ctx context.Context, ids []uint64) ([]*model.Menu, error)
-	FindByNames(ctx context.Context, names ...string) ([]*model.Menu, error)
-	FindAll(ctx context.Context) ([]*model.Menu, error)
-	List(ctx context.Context, query *model.MenuQuery) ([]*model.Menu, int64, error)
-	FindByParentID(ctx context.Context, parentID uint64) ([]*model.Menu, error)
-	FindByRoleID(ctx context.Context, roleID uint64) ([]*model.Menu, error)
-}
 
 type menuRepository struct {
 	query *Query
 }
 
-func NewMenuRepository(query *Query) MenuRepository {
+func NewMenuRepository(query *Query) service.MenuRepository {
 	return &menuRepository{query: query}
 }
 
-func (r *menuRepository) WithTx(tx *Query) MenuRepository {
+func (r *menuRepository) WithTx(tx *Query) service.MenuRepository {
 	return &menuRepository{query: tx}
 }
 

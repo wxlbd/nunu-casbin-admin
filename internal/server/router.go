@@ -95,22 +95,22 @@ func NewServerHTTP(
 				// 字典类型管理
 				dictType := dict.Group("type")
 				{
-					dictType.POST("", handler.Dict().CreateDictType)        // permission:dict:type:create
-					dictType.PUT("/:id", handler.Dict().UpdateDictType)     // permission:dict:type:update
-					dictType.DELETE("/:ids", handler.Dict().DeleteDictType) // permission:dict:type:delete
-					dictType.GET("/:id", handler.Dict().GetDictType)        // permission:dict:type:detail
-					dictType.GET("", handler.Dict().ListDictType)           // permission:dict:type:list
+					dictType.POST("", handler.Dict().CreateDictType)        // system:dict:type:create
+					dictType.PUT("/:id", handler.Dict().UpdateDictType)     // system:dict:type:update
+					dictType.DELETE("/:ids", handler.Dict().DeleteDictType) // system:dict:type:delete
+					dictType.GET("/:id", handler.Dict().GetDictType)        // system:dict:type:detail
+					dictType.GET("", handler.Dict().ListDictType)           // system:dict:type:list
 				}
 
 				// 字典数据管理
 				dictData := dict.Group("data")
 				{
-					dictData.POST("", handler.Dict().CreateDictData)              // permission:dict:data:create
-					dictData.PUT("/:id", handler.Dict().UpdateDictData)           // permission:dict:data:update
-					dictData.DELETE("/:ids", handler.Dict().DeleteDictData)       // permission:dict:data:delete
-					dictData.GET("/:id", handler.Dict().GetDictData)              // permission:dict:data:detail
-					dictData.GET("", handler.Dict().ListDictData)                 // permission:dict:data:list
-					dictData.GET("/type/:type", handler.Dict().GetDictDataByType) // permission:dict:data:list:type
+					dictData.POST("", handler.Dict().CreateDictData)              // system:dict:data:create
+					dictData.PUT("/:id", handler.Dict().UpdateDictData)           // system:dict:data:update
+					dictData.DELETE("/:ids", handler.Dict().DeleteDictData)       // system:dict:data:delete
+					dictData.GET("/:id", handler.Dict().GetDictData)              // system:dict:data:detail
+					dictData.GET("", handler.Dict().ListDictData)                 // system:dict:data:list
+					dictData.GET("/type/:type", handler.Dict().GetDictDataByType) // system:dict:data:list:type
 				}
 			}
 		}

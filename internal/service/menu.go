@@ -9,7 +9,6 @@ import (
 
 	"github.com/casbin/casbin/v2"
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
-	"github.com/wxlbd/gin-casbin-admin/internal/repository"
 	"github.com/wxlbd/gin-casbin-admin/internal/types"
 )
 
@@ -25,11 +24,11 @@ type MenuService interface {
 }
 
 type menuService struct {
-	repo     repository.Repository
+	repo     Repository
 	enforcer *casbin.Enforcer
 }
 
-func NewMenuService(repo repository.Repository, enforcer *casbin.Enforcer) MenuService {
+func NewMenuService(repo Repository, enforcer *casbin.Enforcer) MenuService {
 	return &menuService{
 		repo:     repo,
 		enforcer: enforcer,
