@@ -81,19 +81,15 @@ func (r *menuRepository) List(ctx context.Context, query *model.MenuQuery) ([]*m
 	}
 	// 构建查询条件
 	if query.Name != "" {
-		// db = db.Where("name LIKE ?", "%"+query.Name+"%")
 		db = db.Where(Menu.Name.Like("%" + query.Name + "%"))
 	}
 	if query.Path != "" {
-		// db = db.Where("path LIKE ?", "%"+query.Path+"%")
 		db = db.Where(Menu.Path.Like("%" + query.Path + "%"))
 	}
 	if query.Component != "" {
-		// db = db.Where("component LIKE ?", "%"+query.Component+"%")
 		db = db.Where(Menu.Component.Like("%" + query.Component + "%"))
 	}
 	if query.Status != 0 {
-		// db = db.Where("status = ?", query.Status)
 		db = db.Where(Menu.Status.Eq(query.Status))
 	}
 
