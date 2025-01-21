@@ -11,7 +11,6 @@ import (
 	"github.com/wxlbd/gin-casbin-admin/pkg/log"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 type UserService interface {
@@ -44,19 +43,15 @@ func NewUserService(logger *log.Logger, repo repository.Repository, jwt *jwtx.JW
 }
 
 func (s *userService) Create(ctx context.Context, user *model.User) error {
-	// 检查用户名是否已存在
-	existUser, _ := s.repo.User().FindByUsername(ctx, user.Username)
-	if existUser != nil {
-		return errors.WithMsg(errors.AlreadyExists, "用户名已存在")
-	}
-
-	// 密码加密
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	// 检查用户名是否存在
+	existUser, err := s.repo.User().FindByUsername(ctx, user.Username)
 	if err != nil {
 		return err
 	}
-	user.Password = string(hashedPassword)
-	user.LoginTime = time.Unix(0, 0)
+	if existUser != nil {
+		return errors.WithMsg(errors.AlreadyExists, "用户名已存在")
+	}
+	// 创建用户
 	return s.repo.User().Create(ctx, user)
 }
 
@@ -133,14 +128,9 @@ func (s *userService) AssignRoles(ctx context.Context, userID uint64, roleCodes 
 	for _, role := range roles {
 		roleIDs = append(roleIDs, role.ID)
 	}
-
-	// 2. 在事务中执行删除和插入操作
-	return s.repo.DB().Transaction(func(tx *gorm.DB) error {
-		// 创建事务仓储
-		txRepo := s.repo.WithTx(tx)
-
+	return s.repo.Transaction(func(r repository.Repository) error {
 		// 2.1 删除原有的用户-角色关系
-		if err := txRepo.UserRole().DeleteByUserID(ctx, userID); err != nil {
+		if err := r.UserRole().DeleteByUserID(ctx, userID); err != nil {
 			return err
 		}
 		if len(roleIDs) == 0 {
@@ -149,15 +139,9 @@ func (s *userService) AssignRoles(ctx context.Context, userID uint64, roleCodes 
 		// 2.2 插入新的用户-角色关系
 		userRoles := make([]*model.UserRoles, 0, len(roleIDs))
 		for _, roleID := range roleIDs {
-			userRoles = append(userRoles, &model.UserRoles{
-				UserID: userID,
-				RoleID: roleID,
-			})
+			userRoles = append(userRoles, &model.UserRoles{UserID: userID, RoleID: roleID})
 		}
-		if err := tx.Create(&userRoles).Error; err != nil {
-			return err
-		}
-		return nil
+		return r.UserRole().Create(ctx, userRoles...)
 	})
 }
 

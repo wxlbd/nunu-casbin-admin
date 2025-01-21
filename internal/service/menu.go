@@ -41,11 +41,11 @@ func (s *menuService) Create(ctx context.Context, req *dto.CreateMenuRequest) er
 	menu := req.ToModel()
 
 	// 2. 查询菜单名称是否已存在
-	if ms, _ := s.repo.Menu().FindByName(ctx, menu.Name); len(ms) > 0 {
+	if ms, _ := s.repo.Menu().FindByNames(ctx, menu.Name); len(ms) > 0 {
 		return errors.WithMsg(errors.AlreadyExists, "菜单名称已存在")
 	}
 
-	id, err := s.repo.Menu().Create(ctx, menu)
+	err := s.repo.Menu().Create(ctx, menu)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (s *menuService) Create(ctx context.Context, req *dto.CreateMenuRequest) er
 		menus = append(menus, req.BtnPermissionsToModels()...)
 	}
 	for i := range menus {
-		menus[i].ParentID = id
+		menus[i].ParentID = menu.ID
 	}
 	return s.repo.Menu().BatchCreate(ctx, menus)
 }
@@ -77,7 +77,7 @@ func (s *menuService) Update(ctx context.Context, req *dto.UpdateMenuRequest) er
 
 	// 3. 如果修改了菜单名称，需要检查新名称是否已存在
 	if req.Name != oldMenu.Name {
-		if ms, _ := s.repo.Menu().FindByName(ctx, req.Name); len(ms) > 0 {
+		if ms, _ := s.repo.Menu().FindByNames(ctx, req.Name); len(ms) > 0 {
 			return errors.WithMsg(errors.AlreadyExists, "菜单名称已存在")
 		}
 	}
