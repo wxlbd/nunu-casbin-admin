@@ -88,6 +88,31 @@ func NewServerHTTP(
 				menuGroup.DELETE("/:ids", handler.Menu().Delete)   // permission:menu:delete
 				menuGroup.GET("/tree", handler.Menu().GetMenuTree) // permission:menu:tree
 			}
+			sys := authorized.Group("system")
+			// 字典管理
+			dict := sys.Group("dict")
+			{
+				// 字典类型管理
+				dictType := dict.Group("type")
+				{
+					dictType.POST("", handler.Dict().CreateDictType)        // permission:dict:type:create
+					dictType.PUT("/:id", handler.Dict().UpdateDictType)     // permission:dict:type:update
+					dictType.DELETE("/:ids", handler.Dict().DeleteDictType) // permission:dict:type:delete
+					dictType.GET("/:id", handler.Dict().GetDictType)        // permission:dict:type:detail
+					dictType.GET("", handler.Dict().ListDictType)           // permission:dict:type:list
+				}
+
+				// 字典数据管理
+				dictData := dict.Group("data")
+				{
+					dictData.POST("", handler.Dict().CreateDictData)              // permission:dict:data:create
+					dictData.PUT("/:id", handler.Dict().UpdateDictData)           // permission:dict:data:update
+					dictData.DELETE("/:ids", handler.Dict().DeleteDictData)       // permission:dict:data:delete
+					dictData.GET("/:id", handler.Dict().GetDictData)              // permission:dict:data:detail
+					dictData.GET("", handler.Dict().ListDictData)                 // permission:dict:data:list
+					dictData.GET("/type/:type", handler.Dict().GetDictDataByType) // permission:dict:data:list:type
+				}
+			}
 		}
 	}
 

@@ -10,6 +10,8 @@ type Repository interface {
 	Menu() MenuRepository
 	UserRole() UserRoleRepository
 	RoleMenu() RoleMenuRepository
+	DictType() DictTypeRepository
+	DictData() DictDataRepository
 	Transaction(fn func(Repository) error) error
 	// DB 获取当前仓储使用的gorm.DB
 	DB() *gorm.DB
@@ -22,6 +24,8 @@ type repository struct {
 	menuRepo     MenuRepository
 	userRoleRepo UserRoleRepository
 	roleMenuRepo RoleMenuRepository
+	dictTypeRepo DictTypeRepository
+	dictDataRepo DictDataRepository
 }
 
 func NewRepository(db *gorm.DB) Repository {
@@ -33,6 +37,8 @@ func NewRepository(db *gorm.DB) Repository {
 		menuRepo:     NewMenuRepository(Q),
 		userRoleRepo: NewUserRoleRepository(Q),
 		roleMenuRepo: NewRoleMenuRepository(Q),
+		dictTypeRepo: NewDictTypeRepository(Q),
+		dictDataRepo: NewDictDataRepository(Q),
 	}
 }
 
@@ -54,6 +60,8 @@ func (r *repository) clone(tx *Query) *repository {
 		menuRepo:     NewMenuRepository(tx),
 		userRoleRepo: NewUserRoleRepository(tx),
 		roleMenuRepo: NewRoleMenuRepository(tx),
+		dictTypeRepo: NewDictTypeRepository(tx),
+		dictDataRepo: NewDictDataRepository(tx),
 	}
 }
 
@@ -79,4 +87,12 @@ func (r *repository) UserRole() UserRoleRepository {
 
 func (r *repository) RoleMenu() RoleMenuRepository {
 	return r.roleMenuRepo
+}
+
+func (r *repository) DictType() DictTypeRepository {
+	return r.dictTypeRepo
+}
+
+func (r *repository) DictData() DictDataRepository {
+	return r.dictDataRepo
 }

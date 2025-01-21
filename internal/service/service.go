@@ -13,6 +13,7 @@ type Service interface {
 	User() UserService
 	Role() RoleService
 	Menu() MenuService
+	Dict() DictService
 }
 
 type service struct {
@@ -20,6 +21,7 @@ type service struct {
 	userSvc UserService
 	roleSvc RoleService
 	menuSvc MenuService
+	dict    DictService
 	jwt     *jwtx.JWT
 }
 
@@ -32,6 +34,7 @@ func NewService(logger *log.Logger, repo repository.Repository, cfg *config.Conf
 	svc.userSvc = NewUserService(logger, repo, j)
 	svc.roleSvc = NewRoleService(repo, enforcer)
 	svc.menuSvc = NewMenuService(repo, enforcer)
+	svc.dict = NewDictService(logger, repo)
 
 	return svc, nil
 }
@@ -46,4 +49,8 @@ func (s *service) Role() RoleService {
 
 func (s *service) Menu() MenuService {
 	return s.menuSvc
+}
+
+func (s *service) Dict() DictService {
+	return s.dict
 }

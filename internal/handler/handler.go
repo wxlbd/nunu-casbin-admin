@@ -9,6 +9,7 @@ type Handler struct {
 	user *UserHandler
 	role *RoleHandler
 	menu *MenuHandler
+	dict *DictHandler
 	cfg  *config.Config
 }
 
@@ -18,6 +19,7 @@ func NewHandler(svc service.Service, cfg *config.Config) *Handler {
 		user: NewUserHandler(svc, cfg),
 		role: NewRoleHandler(svc),
 		menu: NewMenuHandler(svc),
+		dict: NewDictHandler(svc.Dict()),
 	}
 }
 
@@ -31,4 +33,8 @@ func (h *Handler) Role() *RoleHandler {
 
 func (h *Handler) Menu() *MenuHandler {
 	return h.menu
+}
+
+func (h *Handler) Dict() *DictHandler {
+	return h.dict
 }
