@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	gormadapter "github.com/casbin/gorm-adapter/v3"
+
 	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/wxlbd/gin-casbin-admin/internal/dto"
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
 	"github.com/wxlbd/gin-casbin-admin/internal/repository"
-	"gorm.io/gorm"
 )
 
 type RoleService interface {
@@ -95,48 +96,55 @@ func (s *roleService) List(ctx context.Context, req *dto.RoleListRequest) ([]*mo
 }
 
 func (s *roleService) AssignMenus(ctx context.Context, roleID uint64, names []string) error {
-	// 开启事务
-	return s.repo.DB().Transaction(func(tx *gorm.DB) error {
-		// 1. 先删除原有的角色-菜单关联
-		if err := s.repo.RoleMenu().DeleteByRoleID(ctx, roleID); err != nil {
+	// 2. 获取所有按钮类型的菜单（即 API）
+	menus, err := s.repo.Menu().FindByNames(ctx, names...)
+	if err != nil {
+		return err
+	}
+
+	// 3. 更新 Casbin 策略
+	role, err := s.repo.Role().FindByID(ctx, roleID)
+	if err != nil {
+		return err
+	}
+	return s.repo.Transaction(func(r repository.Repository) error {
+		// 获取事务中的 gorm.DB
+		tx := r.DB()
+		adapter, err := gormadapter.NewAdapterByDB(tx)
+		if err != nil {
 			return err
 		}
-
-		// 2. 获取所有按钮类型的菜单（即 API）
-		menus, err := s.repo.Menu().FindByName(ctx, names...)
+		// 创建一个使用相同事务的 Casbin 适配器
+		txEnforcer, err := casbin.NewEnforcer(s.enforcer.GetModel(), adapter)
 		if err != nil {
 			return err
 		}
 
-		// 3. 更新 Casbin 策略
-		role, err := s.repo.Role().FindByID(ctx, roleID)
-		if err != nil {
-			return err
-		}
-
-		// 先删除该角色的所有策略
-		_, err = s.enforcer.DeletePermissionsForUser(role.Code)
-		if err != nil {
+		// 删除角色菜单关联
+		if err := r.RoleMenu().DeleteByRoleID(ctx, roleID); err != nil {
 			return err
 		}
 
 		var menuIDs []uint64
-		// 添加新的策略
+		// 使用事务中的 enforcer 删除旧的权限
+		if _, err := txEnforcer.DeletePermissionsForUser(role.Code); err != nil {
+			return err
+		}
+
+		// 添加新的权限
 		for _, menu := range menus {
 			menuIDs = append(menuIDs, menu.ID)
-			if menu.Meta.Type == "B" { // 按钮类型
-				// 根据菜单名称生成 API 路径和方法
-				// 例如：permission:user:save -> POST /api/user
+			if menu.Meta.Type == "B" {
 				path, method := convertMenuToAPI(menu.Name)
-				_, err = s.enforcer.AddPolicy(role.Code, path, method)
+				_, err = txEnforcer.AddPolicy(role.Code, path, method)
 				if err != nil {
 					return err
 				}
 			}
 		}
 
-		// 4. 创建新的角色-菜单关联
-		return s.repo.RoleMenu().BatchCreate(ctx, roleID, menuIDs)
+		// 创建新的角色菜单关联
+		return r.RoleMenu().BatchCreate(ctx, roleID, menuIDs)
 	})
 }
 

@@ -1,6 +1,8 @@
 package repository
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Repository interface {
 	User() UserRepository
@@ -8,12 +10,13 @@ type Repository interface {
 	Menu() MenuRepository
 	UserRole() UserRoleRepository
 	RoleMenu() RoleMenuRepository
+	Transaction(fn func(Repository) error) error
+	// DB 获取当前仓储使用的gorm.DB
 	DB() *gorm.DB
-	WithTx(tx *gorm.DB) Repository
 }
 
 type repository struct {
-	db           *gorm.DB
+	query        *Query
 	userRepo     UserRepository
 	roleRepo     RoleRepository
 	menuRepo     MenuRepository
@@ -22,25 +25,40 @@ type repository struct {
 }
 
 func NewRepository(db *gorm.DB) Repository {
+	SetDefault(db)
 	return &repository{
-		db:           db,
-		userRepo:     NewUserRepository(db),
-		roleRepo:     NewRoleRepository(db),
-		menuRepo:     NewMenuRepository(db),
-		userRoleRepo: NewUserRoleRepository(db),
-		roleMenuRepo: NewRoleMenuRepository(db),
+		query:        Q,
+		userRepo:     NewUserRepository(Q),
+		roleRepo:     NewRoleRepository(Q),
+		menuRepo:     NewMenuRepository(Q),
+		userRoleRepo: NewUserRoleRepository(Q),
+		roleMenuRepo: NewRoleMenuRepository(Q),
 	}
 }
 
-func (r *repository) WithTx(tx *gorm.DB) Repository {
+func (r *repository) Transaction(fn func(Repository) error) error {
+	return r.query.Transaction(func(tx *Query) error {
+		return fn(r.clone(tx))
+	})
+}
+
+func (r *repository) DB() *gorm.DB {
+	return r.query.db
+}
+
+func (r *repository) clone(tx *Query) *repository {
 	return &repository{
-		db:           tx,
-		userRepo:     r.userRepo,
-		roleRepo:     r.roleRepo,
-		menuRepo:     r.menuRepo,
-		userRoleRepo: r.userRoleRepo,
-		roleMenuRepo: r.roleMenuRepo,
+		query:        tx,
+		userRepo:     NewUserRepository(tx),
+		roleRepo:     NewRoleRepository(tx),
+		menuRepo:     NewMenuRepository(tx),
+		userRoleRepo: NewUserRoleRepository(tx),
+		roleMenuRepo: NewRoleMenuRepository(tx),
 	}
+}
+
+func (r *repository) Query() *Query {
+	return r.query
 }
 
 func (r *repository) User() UserRepository {
@@ -61,8 +79,4 @@ func (r *repository) UserRole() UserRoleRepository {
 
 func (r *repository) RoleMenu() RoleMenuRepository {
 	return r.roleMenuRepo
-}
-
-func (r *repository) DB() *gorm.DB {
-	return r.db
 }

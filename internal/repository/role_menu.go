@@ -4,11 +4,10 @@ import (
 	"context"
 
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
-	"gorm.io/gorm"
 )
 
 type RoleMenuRepository interface {
-	WithTx(tx *gorm.DB) RoleMenuRepository
+	WithTx(tx *Query) RoleMenuRepository
 	Create(ctx context.Context, roleID, menuID uint64) error
 	Delete(ctx context.Context, roleID, menuID uint64) error
 	DeleteByRoleID(ctx context.Context, roleID uint64) error
@@ -20,58 +19,37 @@ type RoleMenuRepository interface {
 }
 
 type roleMenuRepository struct {
-	db *gorm.DB
+	query *Query
 }
 
-func NewRoleMenuRepository(db *gorm.DB) RoleMenuRepository {
-	return &roleMenuRepository{
-		db: db,
-	}
+func NewRoleMenuRepository(query *Query) RoleMenuRepository {
+	return &roleMenuRepository{query: query}
 }
 
-func (r *roleMenuRepository) WithTx(tx *gorm.DB) RoleMenuRepository {
-	return &roleMenuRepository{
-		db: tx,
-	}
+func (r *roleMenuRepository) WithTx(tx *Query) RoleMenuRepository {
+	return &roleMenuRepository{query: tx}
 }
 
 func (r *roleMenuRepository) Create(ctx context.Context, roleID, menuID uint64) error {
-	return r.db.WithContext(ctx).Create(map[string]interface{}{
-		"role_id": roleID,
-		"menu_id": menuID,
-	}).Error
+	return r.query.WithContext(ctx).RoleMenus.Create(&model.RoleMenus{
+		RoleID: roleID,
+		MenuID: menuID,
+	})
 }
 
 func (r *roleMenuRepository) Delete(ctx context.Context, roleID, menuID uint64) error {
-	return r.db.WithContext(ctx).
-		Where("role_id = ? AND menu_id = ?", roleID, menuID).
-		Delete(&model.RoleMenus{}).Error
+	_, err := r.query.WithContext(ctx).RoleMenus.Where(r.query.RoleMenus.RoleID.Eq(roleID),
+		r.query.RoleMenus.MenuID.Eq(menuID)).Delete()
+	return err
 }
 
 func (r *roleMenuRepository) DeleteByRoleID(ctx context.Context, roleID uint64) error {
-	return r.db.WithContext(ctx).
-		Where("role_id = ?", roleID).
-		Delete(&model.RoleMenus{}).Error
+	_, err := r.query.WithContext(ctx).RoleMenus.Where(r.query.RoleMenus.RoleID.Eq(roleID)).Delete()
+	return err
 }
 
 func (r *roleMenuRepository) FindMenusByRoleID(ctx context.Context, roleID uint64) ([]*model.Menu, error) {
-	var menus []*model.Menu
-	err := r.db.WithContext(ctx).
-		Joins("JOIN role_menus ON role_menus.menu_id = menu.id").
-		Where("role_menus.role_id = ?", roleID).
-		Find(&menus).Error
-	if err != nil {
-		return nil, err
-	}
-	return menus, nil
-}
-
-func (r *roleMenuRepository) FindMenusByRoleIDs(ctx context.Context, roleIDs ...uint64) ([]*model.Menu, error) {
-	var menus []*model.Menu
-	err := r.db.WithContext(ctx).
-		Joins("JOIN role_menus ON role_menus.menu_id = menu.id").
-		Where("role_menus.role_id IN ?", roleIDs).
-		Find(&menus).Error
+	menus, err := r.query.WithContext(ctx).Menu.LeftJoin(r.query.RoleMenus, r.query.RoleMenus.MenuID.EqCol(r.query.Menu.ID)).Where(r.query.RoleMenus.RoleID.Eq(roleID)).Find()
 	if err != nil {
 		return nil, err
 	}
@@ -79,11 +57,7 @@ func (r *roleMenuRepository) FindMenusByRoleIDs(ctx context.Context, roleIDs ...
 }
 
 func (r *roleMenuRepository) FindRolesByMenuID(ctx context.Context, menuID uint64) ([]*model.Role, error) {
-	var roles []*model.Role
-	err := r.db.WithContext(ctx).
-		Joins("JOIN role_menus ON role_menus.role_id = role.id").
-		Where("role_menus.menu_id = ?", menuID).
-		Find(&roles).Error
+	roles, err := r.query.WithContext(ctx).Role.LeftJoin(r.query.RoleMenus, r.query.RoleMenus.RoleID.EqCol(r.query.Role.ID)).Where(r.query.RoleMenus.MenuID.Eq(menuID)).Find()
 	if err != nil {
 		return nil, err
 	}
@@ -91,30 +65,36 @@ func (r *roleMenuRepository) FindRolesByMenuID(ctx context.Context, menuID uint6
 }
 
 func (r *roleMenuRepository) BatchCreate(ctx context.Context, roleID uint64, menuIDs []uint64) error {
-	// 开启事务
-	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	return r.query.Transaction(func(tx *Query) error {
 		// 先删除原有的关联
-		if err := tx.Where("role_id = ?", roleID).Delete(&model.RoleMenus{}).Error; err != nil {
+		if _, err := tx.RoleMenus.Where(tx.RoleMenus.RoleID.Eq(roleID)).Delete(); err != nil {
 			return err
 		}
 
 		// 批量创建新的关联
-		var roleMenus []map[string]interface{}
+		var roleMenus []*model.RoleMenus
 		for _, menuID := range menuIDs {
-			roleMenus = append(roleMenus, map[string]interface{}{
-				"role_id": roleID,
-				"menu_id": menuID,
+			roleMenus = append(roleMenus, &model.RoleMenus{
+				RoleID: roleID,
+				MenuID: menuID,
 			})
 		}
-		return tx.Model(&model.RoleMenus{}).Create(roleMenus).Error
+		return tx.RoleMenus.Create(roleMenus...)
 	})
 }
 
+func (r *roleMenuRepository) FindMenusByRoleIDs(ctx context.Context, roleIDs ...uint64) ([]*model.Menu, error) {
+	menus, err := r.query.WithContext(ctx).Menu.LeftJoin(r.query.RoleMenus, r.query.RoleMenus.MenuID.EqCol(r.query.Menu.ID)).Where(r.query.RoleMenus.RoleID.In(roleIDs...)).Find()
+	if err != nil {
+		return nil, err
+	}
+	return menus, nil
+}
+
 func (r *roleMenuRepository) FindRolesByMenuIDs(ctx context.Context, menuIDs []uint64) ([]*model.Role, error) {
-	var roles []*model.Role
-	err := r.db.WithContext(ctx).
-		Joins("JOIN role_menus ON role_menus.role_id = role.id").
-		Where("role_menus.menu_id IN ?", menuIDs).
-		Find(&roles).Error
-	return roles, err
+	roles, err := r.query.WithContext(ctx).Role.LeftJoin(r.query.RoleMenus, r.query.RoleMenus.RoleID.EqCol(r.query.Role.ID)).Where(r.query.RoleMenus.MenuID.In(menuIDs...)).Find()
+	if err != nil {
+		return nil, err
+	}
+	return roles, nil
 }
