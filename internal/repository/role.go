@@ -9,93 +9,96 @@ import (
 )
 
 type RoleRepository interface {
-	WithTx(tx *gorm.DB) RoleRepository
+	WithTx(tx *Query) RoleRepository
 	Create(ctx context.Context, role *model.Role) error
 	Update(ctx context.Context, role *model.Role) error
-	Delete(ctx context.Context, id ...uint64) error
+	Delete(ctx context.Context, ids ...uint64) error
 	FindByID(ctx context.Context, id uint64) (*model.Role, error)
-	FindByCodes(ctx context.Context, code ...string) ([]*model.Role, error)
+	FindByCode(ctx context.Context, code string) (*model.Role, error)
 	List(ctx context.Context, query *model.RoleQuery) ([]*model.Role, int64, error)
 	// FindByIDs 根据角色ID列表查询角色
 	FindByIDs(ctx context.Context, ids []uint64) ([]*model.Role, error)
+	FindByCodes(ctx context.Context, codes ...string) ([]*model.Role, error)
 }
 
 type roleRepository struct {
-	db *gorm.DB
+	query *Query
 }
 
-// FindByIDs implements RoleRepository.
-func (r *roleRepository) FindByIDs(ctx context.Context, ids []uint64) ([]*model.Role, error) {
-	var roles []*model.Role
-	err := r.db.WithContext(ctx).Where("id IN (?)", ids).Find(&roles).Error
+func (r *roleRepository) FindByCodes(ctx context.Context, codes ...string) ([]*model.Role, error) {
+	roles, err := r.query.WithContext(ctx).Role.Where(r.query.Role.Code.In(codes...)).Find()
 	if err != nil {
 		return nil, err
 	}
 	return roles, nil
 }
 
-func NewRoleRepository(db *gorm.DB) RoleRepository {
-	return &roleRepository{
-		db: db,
-	}
-}
-
-func (r *roleRepository) WithTx(tx *gorm.DB) RoleRepository {
-	return &roleRepository{
-		db: tx,
-	}
-}
-
-func (r *roleRepository) Create(ctx context.Context, role *model.Role) error {
-	return r.db.WithContext(ctx).Create(role).Error
-}
-
-func (r *roleRepository) Update(ctx context.Context, role *model.Role) error {
-	return r.db.WithContext(ctx).Updates(role).Error
-}
-
-func (r *roleRepository) Delete(ctx context.Context, id ...uint64) error {
-	return r.db.WithContext(ctx).Delete(&model.Role{}, id).Error
-}
-
-func (r *roleRepository) FindByID(ctx context.Context, id uint64) (*model.Role, error) {
-	var role model.Role
-	err := r.db.WithContext(ctx).First(&role, id).Error
+// FindByIDs implements RoleRepository.
+func (r *roleRepository) FindByIDs(ctx context.Context, ids []uint64) ([]*model.Role, error) {
+	roles, err := r.query.WithContext(ctx).Role.Where(r.query.Role.ID.In(ids...)).Find()
 	if err != nil {
 		return nil, err
 	}
-	return &role, nil
+	return roles, nil
 }
 
-func (r *roleRepository) FindByCodes(ctx context.Context, codes ...string) ([]*model.Role, error) {
-	var roles []*model.Role
-	if err := r.db.WithContext(ctx).Where("code IN ?", codes).Find(&roles).Error; err != nil {
+func NewRoleRepository(query *Query) RoleRepository {
+	return &roleRepository{query: query}
+}
+
+func (r *roleRepository) WithTx(tx *Query) RoleRepository {
+	return &roleRepository{query: tx}
+}
+
+func (r *roleRepository) Create(ctx context.Context, role *model.Role) error {
+	return r.query.WithContext(ctx).Role.Create(role)
+}
+
+func (r *roleRepository) Update(ctx context.Context, role *model.Role) error {
+	_, err := r.query.WithContext(ctx).Role.Updates(role)
+	return err
+}
+
+func (r *roleRepository) Delete(ctx context.Context, ids ...uint64) error {
+	_, err := r.query.WithContext(ctx).Role.Where(r.query.Role.ID.In(ids...)).Delete()
+	return err
+}
+
+func (r *roleRepository) FindByID(ctx context.Context, id uint64) (*model.Role, error) {
+	role, err := r.query.WithContext(ctx).Role.Where(r.query.Role.ID.Eq(id)).First()
+	if err != nil {
+		return nil, err
+	}
+	return role, nil
+}
+
+func (r *roleRepository) FindByCode(ctx context.Context, code string) (*model.Role, error) {
+	role, err := r.query.WithContext(ctx).Role.Where(r.query.Role.Code.Eq(code)).First()
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, err
 	}
-	return roles, nil
+	return role, nil
 }
 
 func (r *roleRepository) List(ctx context.Context, query *model.RoleQuery) ([]*model.Role, int64, error) {
-	var roles []*model.Role
-	var total int64
-	db := r.db.WithContext(ctx).Model(&model.Role{})
+	db := r.query.WithContext(ctx).Role
 	if query.Name != "" {
-		db = db.Where("name LIKE ?", "%"+query.Name+"%")
+		db = db.Where(r.query.Role.Name.Like("%" + query.Name + "%"))
 	}
 	if query.Code != "" {
-		db = db.Where("code LIKE ?", "%"+query.Code+"%")
+		db = db.Where(r.query.Role.Code.Like("%" + query.Code + "%"))
 	}
 	if query.Status != 0 {
-		db = db.Where("status = ?", query.Status)
+		db = db.Where(r.query.Role.Status.Eq(query.Status))
 	}
-	err := db.Count(&total).Error
+	total, err := db.Count()
 	if err != nil {
 		return nil, 0, err
 	}
-	err = db.Offset(query.GetOffset()).Limit(query.PageSize).Find(&roles).Error
+	roles, err := db.Offset(query.GetOffset()).Limit(query.PageSize).Find()
 	if err != nil {
 		return nil, 0, err
 	}
