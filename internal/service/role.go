@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/wxlbd/gin-casbin-admin/internal/handler"
+
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 
 	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
@@ -14,22 +16,12 @@ import (
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
 )
 
-type RoleService interface {
-	Create(ctx context.Context, role *model.Role) error
-	Update(ctx context.Context, role *model.Role) error
-	Delete(ctx context.Context, id ...uint64) error
-	FindByID(ctx context.Context, id uint64) (*model.Role, error)
-	List(ctx context.Context, req *dto.RoleListRequest) ([]*model.Role, int64, error)
-	AssignMenus(ctx context.Context, roleID uint64, menus []string) error
-	GetRoleMenus(ctx context.Context, roleID uint64) ([]*model.Menu, error)
-}
-
 type roleService struct {
 	repo     Repository
 	enforcer *casbin.Enforcer
 }
 
-func NewRoleService(repo Repository, enforcer *casbin.Enforcer) RoleService {
+func NewRoleService(repo Repository, enforcer *casbin.Enforcer) handler.RoleService {
 	return &roleService{
 		repo:     repo,
 		enforcer: enforcer,

@@ -3,28 +3,13 @@ package service
 import (
 	"context"
 
+	"github.com/wxlbd/gin-casbin-admin/internal/handler"
+
 	"github.com/wxlbd/gin-casbin-admin/internal/dto"
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
 	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
 	"github.com/wxlbd/gin-casbin-admin/pkg/log"
 )
-
-type DictService interface {
-	// CreateDictType DictType
-	CreateDictType(ctx context.Context, req *dto.DictTypeRequest) error
-	UpdateDictType(ctx context.Context, req *dto.DictTypeRequest) error
-	DeleteDictType(ctx context.Context, ids ...int64) error
-	GetDictType(ctx context.Context, id int64) (*model.DictType, error)
-	ListDictType(ctx context.Context, query *model.DictTypeQuery) ([]*model.DictType, int64, error)
-
-	// CreateDictData DictData
-	CreateDictData(ctx context.Context, req *dto.DictDataRequest) error
-	UpdateDictData(ctx context.Context, req *dto.DictDataRequest) error
-	DeleteDictData(ctx context.Context, ids ...int64) error
-	GetDictData(ctx context.Context, id int64) (*model.DictDatum, error)
-	ListDictData(ctx context.Context, query *model.DictDataQuery) ([]*model.DictDatum, int64, error)
-	GetDictDataByType(ctx context.Context, typeCode string) ([]*model.DictDatum, error)
-}
 
 type dictService struct {
 	log      *log.Logger
@@ -33,7 +18,7 @@ type dictService struct {
 	dataRepo DictDataRepository
 }
 
-func NewDictService(logger *log.Logger, repo Repository) DictService {
+func NewDictService(logger *log.Logger, repo Repository) handler.DictService {
 	return &dictService{
 		log:      logger,
 		repo:     repo,

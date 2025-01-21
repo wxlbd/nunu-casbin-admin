@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/wxlbd/gin-casbin-admin/internal/handler"
 	"github.com/wxlbd/gin-casbin-admin/internal/middleware"
-	"github.com/wxlbd/gin-casbin-admin/internal/service"
 	"github.com/wxlbd/gin-casbin-admin/pkg/config"
 	"github.com/wxlbd/gin-casbin-admin/pkg/jwtx"
 	"github.com/wxlbd/gin-casbin-admin/pkg/log"
@@ -17,7 +16,7 @@ func NewServerHTTP(
 	jwt *jwtx.JWT,
 	handler *handler.Handler,
 	enforcer *casbin.Enforcer,
-	svc service.Service,
+	svc handler.Service,
 ) *gin.Engine {
 	if cfg.Server.Mode == "release" {
 		gin.SetMode(gin.ReleaseMode)

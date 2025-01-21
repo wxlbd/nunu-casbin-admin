@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"github.com/wxlbd/gin-casbin-admin/internal/service"
 	"github.com/wxlbd/gin-casbin-admin/pkg/config"
 )
 
@@ -13,7 +12,7 @@ type Handler struct {
 	cfg  *config.Config
 }
 
-func NewHandler(svc service.Service, cfg *config.Config) *Handler {
+func NewHandler(svc Service, cfg *config.Config) *Handler {
 	return &Handler{
 		cfg:  cfg,
 		user: NewUserHandler(svc, cfg),

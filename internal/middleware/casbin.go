@@ -3,14 +3,15 @@ package middleware
 import (
 	"net/http"
 
+	"github.com/wxlbd/gin-casbin-admin/internal/handler"
+
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
-	"github.com/wxlbd/gin-casbin-admin/internal/service"
 	"github.com/wxlbd/gin-casbin-admin/pkg/log"
 	"go.uber.org/zap"
 )
 
-func CasbinMiddleware(enforcer *casbin.Enforcer, log *log.Logger, svc service.Service) gin.HandlerFunc {
+func CasbinMiddleware(enforcer *casbin.Enforcer, log *log.Logger, svc handler.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 获取当前登录用户
 		userID := c.GetUint64("user_id")

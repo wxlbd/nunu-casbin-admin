@@ -7,16 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/wxlbd/gin-casbin-admin/internal/dto"
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
-	"github.com/wxlbd/gin-casbin-admin/internal/service"
 	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
 	"github.com/wxlbd/gin-casbin-admin/pkg/ginx"
 )
 
 type DictHandler struct {
-	svc service.DictService
+	svc DictService
 }
 
-func NewDictHandler(svc service.DictService) *DictHandler {
+func NewDictHandler(svc DictService) *DictHandler {
 	return &DictHandler{
 		svc: svc,
 	}

@@ -7,16 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/wxlbd/gin-casbin-admin/internal/dto"
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
-	"github.com/wxlbd/gin-casbin-admin/internal/service"
 	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
 	"github.com/wxlbd/gin-casbin-admin/pkg/ginx"
 )
 
 type RoleHandler struct {
-	svc service.Service
+	svc Service
 }
 
-func NewRoleHandler(svc service.Service) *RoleHandler {
+func NewRoleHandler(svc Service) *RoleHandler {
 	return &RoleHandler{
 		svc: svc,
 	}

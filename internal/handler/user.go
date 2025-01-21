@@ -9,17 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/wxlbd/gin-casbin-admin/internal/dto"
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
-	"github.com/wxlbd/gin-casbin-admin/internal/service"
 	"github.com/wxlbd/gin-casbin-admin/pkg/config"
 	"github.com/wxlbd/gin-casbin-admin/pkg/ginx"
 )
 
 type UserHandler struct {
-	svc service.Service
+	svc Service
 	cfg *config.Config
 }
 
-func NewUserHandler(svc service.Service, cfg *config.Config) *UserHandler {
+func NewUserHandler(svc Service, cfg *config.Config) *UserHandler {
 	return &UserHandler{
 		svc: svc,
 		cfg: cfg,

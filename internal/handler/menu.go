@@ -9,15 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/wxlbd/gin-casbin-admin/internal/dto"
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
-	"github.com/wxlbd/gin-casbin-admin/internal/service"
 	"github.com/wxlbd/gin-casbin-admin/pkg/ginx"
 )
 
 type MenuHandler struct {
-	svc service.Service
+	svc Service
 }
 
-func NewMenuHandler(svc service.Service) *MenuHandler {
+func NewMenuHandler(svc Service) *MenuHandler {
 	return &MenuHandler{
 		svc: svc,
 	}
