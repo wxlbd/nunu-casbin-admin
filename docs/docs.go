@@ -24,6 +24,47 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/captcha": {
+            "get": {
+                "description": "生成图片验证码",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "认证管理"
+                ],
+                "summary": "生成验证码",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/ginx.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.CaptchaResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/ginx.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "用户登录并获取访问令牌",
@@ -2084,6 +2125,19 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CaptchaResponse": {
+            "type": "object",
+            "properties": {
+                "captcha_id": {
+                    "description": "验证码ID",
+                    "type": "string"
+                },
+                "captcha_image": {
+                    "description": "Base64编码的验证码图片",
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateMenuRequest": {
             "type": "object",
             "properties": {
@@ -2297,10 +2351,20 @@ const docTemplate = `{
         "dto.LoginRequest": {
             "type": "object",
             "required": [
+                "captcha_id",
+                "captcha_val",
                 "password",
                 "username"
             ],
             "properties": {
+                "captcha_id": {
+                    "description": "验证码ID",
+                    "type": "string"
+                },
+                "captcha_val": {
+                    "description": "验证码值",
+                    "type": "string"
+                },
                 "password": {
                     "type": "string"
                 },

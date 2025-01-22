@@ -11,6 +11,8 @@ import (
 	"github.com/wxlbd/gin-casbin-admin/pkg/log"
 )
 
+var _ handler.DictService = (*dictService)(nil)
+
 type dictService struct {
 	log      *log.Logger
 	repo     Repository

@@ -44,6 +44,12 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
+	// 验证验证码
+	if !h.svc.Captcha().Verify(c, req.CaptchaId, req.CaptchaVal) {
+		ginx.Error(c, 400, "验证码错误")
+		return
+	}
+
 	accessToken, refreshToken, err := h.svc.User().Login(c, req.Username, req.Password)
 	if err != nil {
 		ginx.ServerError(c, err)

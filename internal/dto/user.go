@@ -118,8 +118,10 @@ func ToUserListResponse(users []*model.User, total int64) *UserListResponse {
 
 // LoginRequest 用户登录请求
 type LoginRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Username   string `json:"username" binding:"required"`
+	Password   string `json:"password" binding:"required"`
+	CaptchaId  string `json:"captcha_id" binding:"required"`  // 验证码ID
+	CaptchaVal string `json:"captcha_val" binding:"required"` // 验证码值
 }
 
 // RefreshTokenRequest 刷新令牌请求

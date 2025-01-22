@@ -32,7 +32,7 @@ var HandlerSet = wire.NewSet(
 	handler.NewHandler,
 )
 
-func NewWire(*config.Config, *log.Logger) (*gin.Engine, func(), error) {
+func NewWire(cfg *config.Config, logger *log.Logger) (*gin.Engine, func(), error) {
 	panic(wire.Build(
 		casbinx.New,
 		gormx.NewDB,
@@ -43,4 +43,6 @@ func NewWire(*config.Config, *log.Logger) (*gin.Engine, func(), error) {
 		ServiceSet,
 		HandlerSet,
 	))
+
+	return nil, nil, nil
 }
