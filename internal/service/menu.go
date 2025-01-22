@@ -3,33 +3,23 @@ package service
 import (
 	"context"
 
+	"github.com/wxlbd/gin-casbin-admin/internal/handler"
+
 	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
 
 	"github.com/wxlbd/gin-casbin-admin/internal/dto"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
-	"github.com/wxlbd/gin-casbin-admin/internal/repository"
 	"github.com/wxlbd/gin-casbin-admin/internal/types"
 )
 
-type MenuService interface {
-	Create(ctx context.Context, req *dto.CreateMenuRequest) error
-	Update(ctx context.Context, req *dto.UpdateMenuRequest) error
-	Delete(ctx context.Context, id ...uint64) error
-	FindByID(ctx context.Context, id uint64) (*model.Menu, error)
-	List(ctx context.Context, query *model.MenuQuery) ([]*model.Menu, int64, error)
-	GetMenuTree(ctx context.Context) ([]*model.MenuTree, error)
-	GetUserMenus(ctx context.Context, userID uint64) ([]*model.MenuTree, error)
-	GetAllMenus(ctx context.Context) ([]*model.Menu, error)
-}
-
 type menuService struct {
-	repo     repository.Repository
+	repo     Repository
 	enforcer *casbin.Enforcer
 }
 
-func NewMenuService(repo repository.Repository, enforcer *casbin.Enforcer) MenuService {
+func NewMenuService(repo Repository, enforcer *casbin.Enforcer) handler.MenuService {
 	return &menuService{
 		repo:     repo,
 		enforcer: enforcer,

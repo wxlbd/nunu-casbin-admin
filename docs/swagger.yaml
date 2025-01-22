@@ -1,0 +1,1778 @@
+basePath: /api
+definitions:
+  dto.AssignMenusRequest:
+    properties:
+      permissions:
+        items:
+          type: string
+        type: array
+      roleID:
+        type: integer
+    required:
+    - permissions
+    type: object
+  dto.BtnPermission:
+    properties:
+      code:
+        type: string
+      i18n:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  dto.CreateMenuRequest:
+    properties:
+      btnPermission:
+        items:
+          $ref: '#/definitions/dto.BtnPermission'
+        type: array
+      component:
+        type: string
+      created_by:
+        type: integer
+      id:
+        type: integer
+      meta:
+        $ref: '#/definitions/types.MenuMeta'
+      name:
+        type: string
+      parent_id:
+        type: integer
+      path:
+        type: string
+      redirect:
+        type: string
+      remark:
+        type: string
+      sort:
+        type: integer
+      status:
+        type: integer
+      title:
+        type: string
+    type: object
+  dto.CreateUserRequest:
+    properties:
+      avatar:
+        type: string
+      backend_setting:
+        $ref: '#/definitions/types.BackendSetting'
+      email:
+        type: string
+      nickname:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      remark:
+        type: string
+      signed:
+        type: string
+      status:
+        type: integer
+      user_type:
+        type: integer
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.DictDataRequest:
+    properties:
+      id:
+        type: integer
+      label:
+        type: string
+      remark:
+        type: string
+      sort:
+        type: integer
+      status:
+        type: integer
+      type_code:
+        type: string
+      value:
+        type: string
+    required:
+    - label
+    - status
+    - type_code
+    - value
+    type: object
+  dto.DictDataResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      label:
+        type: string
+      remark:
+        type: string
+      sort:
+        type: integer
+      status:
+        type: integer
+      type_code:
+        type: string
+      updated_at:
+        type: string
+      value:
+        type: string
+    type: object
+  dto.DictTypeRequest:
+    properties:
+      code:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      remark:
+        type: string
+      sort:
+        type: integer
+      status:
+        type: integer
+    required:
+    - code
+    - name
+    - status
+    type: object
+  dto.DictTypeResponse:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      remark:
+        type: string
+      sort:
+        type: integer
+      status:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  dto.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      expires_at:
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+  dto.Menu:
+    properties:
+      component:
+        type: string
+      create_time:
+        type: string
+      id:
+        type: integer
+      mate: {}
+      name:
+        type: string
+      parent_id:
+        type: integer
+      path:
+        type: string
+      sort:
+        type: integer
+      status:
+        type: integer
+      update_time:
+        type: string
+    type: object
+  dto.MenuTreeNode:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/dto.MenuTreeNode'
+        type: array
+      component:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      id:
+        type: integer
+      meta:
+        $ref: '#/definitions/types.MenuMeta'
+      name:
+        type: string
+      parent_id:
+        type: integer
+      path:
+        type: string
+      redirect:
+        type: string
+      remark:
+        type: string
+      sort:
+        type: integer
+      status:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    type: object
+  dto.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  dto.RoleRequest:
+    properties:
+      code:
+        type: string
+      id:
+        description: 更新时必填
+        type: integer
+      name:
+        type: string
+      remark:
+        type: string
+      sort:
+        type: integer
+      status:
+        type: integer
+    required:
+    - code
+    - name
+    type: object
+  dto.RoleResponse:
+    properties:
+      code:
+        type: string
+      created:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      remark:
+        type: string
+      sort:
+        type: integer
+      status:
+        type: integer
+      updated:
+        type: string
+    type: object
+  dto.UpdateMenuRequest:
+    properties:
+      btnPermission:
+        items:
+          $ref: '#/definitions/dto.BtnPermission'
+        type: array
+      component:
+        type: string
+      id:
+        type: integer
+      meta:
+        $ref: '#/definitions/types.MenuMeta'
+      name:
+        type: string
+      parent_id:
+        type: integer
+      path:
+        type: string
+      redirect:
+        type: string
+      remark:
+        type: string
+      sort:
+        type: integer
+      status:
+        type: integer
+      title:
+        type: string
+      updated_by:
+        type: integer
+    type: object
+  dto.UpdateUserRequest:
+    properties:
+      avatar:
+        type: string
+      backend_setting:
+        $ref: '#/definitions/types.BackendSetting'
+      email:
+        type: string
+      id:
+        type: integer
+      nickname:
+        type: string
+      password:
+        description: 更新时密码可选
+        type: string
+      phone:
+        type: string
+      remark:
+        type: string
+      signed:
+        type: string
+      status:
+        type: integer
+      user_type:
+        type: integer
+    required:
+    - id
+    type: object
+  dto.UserAssignRolesRequest:
+    properties:
+      role_codes:
+        items:
+          type: string
+        type: array
+    type: object
+  dto.UserResponse:
+    properties:
+      avatar:
+        type: string
+      backend_setting:
+        $ref: '#/definitions/types.BackendSetting'
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      email:
+        type: string
+      id:
+        type: integer
+      login_ip:
+        type: string
+      login_time:
+        type: string
+      nickname:
+        type: string
+      phone:
+        type: string
+      remark:
+        type: string
+      signed:
+        type: string
+      status:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+      user_type:
+        type: integer
+      username:
+        type: string
+    type: object
+  ginx.ListData:
+    properties:
+      list: {}
+      total:
+        type: integer
+    type: object
+  ginx.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  types.BackendSetting:
+    properties:
+      app:
+        properties:
+          asideDark:
+            type: boolean
+          colorMode:
+            type: string
+          enableWatermark:
+            type: boolean
+          layout:
+            type: string
+          loadUserSetting:
+            type: boolean
+          pageAnimate:
+            type: string
+          primaryColor:
+            type: string
+          showBreadcrumb:
+            type: boolean
+          useLocale:
+            type: string
+          watermarkText:
+            type: string
+          whiteRoute:
+            items:
+              type: string
+            type: array
+        type: object
+      copyright:
+        properties:
+          company:
+            type: string
+          dates:
+            type: string
+          enable:
+            type: boolean
+          putOnRecord:
+            type: string
+          website:
+            type: string
+        type: object
+      mainAside:
+        properties:
+          enableOpenFirstRoute:
+            type: boolean
+          showIcon:
+            type: boolean
+          showTitle:
+            type: boolean
+        type: object
+      subAside:
+        properties:
+          fixedAsideState:
+            type: boolean
+          showCollapseButton:
+            type: boolean
+          showIcon:
+            type: boolean
+          showTitle:
+            type: boolean
+        type: object
+      tabbar:
+        properties:
+          enable:
+            type: boolean
+          mode:
+            type: string
+        type: object
+      welcomePage:
+        properties:
+          icon:
+            type: string
+          name:
+            type: string
+          path:
+            type: string
+          title:
+            type: string
+        type: object
+    type: object
+  types.MenuMeta:
+    properties:
+      affix:
+        description: 是否固定标签
+        type: boolean
+      breadcrumbEnable:
+        description: 是否启用面包屑
+        type: boolean
+      cache:
+        description: 是否缓存
+        type: boolean
+      componentPath:
+        description: 组件路径
+        type: string
+      componentSuffix:
+        description: 组件后缀
+        type: string
+      copyright:
+        description: 是否有版权
+        type: boolean
+      hidden:
+        description: 是否隐藏
+        type: boolean
+      i18n:
+        description: 国际化标识
+        type: string
+      icon:
+        description: 图标
+        type: string
+      title:
+        description: 标题
+        type: string
+      type:
+        description: 类型：M=菜单,B=按钮（按钮类型对应的就是后端API）
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: gopher095@gmail.com
+    name: wxl
+    url: https://github.com/wxlbd
+  description: 基于 Gin + Casbin 的权限管理系统
+  license:
+    name: MIT
+    url: https://github.com/wxlbd/gin-casbin-admin/blob/main/LICENSE
+  termsOfService: http://swagger.io/terms/
+  title: Gin-Casbin-Admin API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: 用户登录并获取访问令牌
+      parameters:
+      - description: 登录信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.LoginResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "401":
+          description: 用户名或密码错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      summary: 用户登录
+      tags:
+      - 认证管理
+  /auth/refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: 使用刷新令牌获取新的访问令牌
+      parameters:
+      - description: 刷新令牌
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.LoginResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "401":
+          description: 令牌无效或已过期
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      summary: 刷新访问令牌
+      tags:
+      - 认证管理
+  /permission/menu:
+    post:
+      consumes:
+      - application/json
+      description: 创建一个新的菜单
+      parameters:
+      - description: 菜单信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateMenuRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 创建菜单
+      tags:
+      - 菜单管理
+  /permission/menu/{id}:
+    put:
+      consumes:
+      - application/json
+      description: 更新指定ID的菜单
+      parameters:
+      - description: 菜单信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateMenuRequest'
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "404":
+          description: 菜单不存在
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 更新菜单
+      tags:
+      - 菜单管理
+  /permission/menu/{ids}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定ID的菜单
+      parameters:
+      - description: 菜单ID列表(多个用逗号分隔)
+        in: path
+        name: ids
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 删除菜单
+      tags:
+      - 菜单管理
+  /permission/menu/tree:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有菜单的树形结构
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  items:
+                    items:
+                      $ref: '#/definitions/dto.MenuTreeNode'
+                    type: array
+                  type: array
+              type: object
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 获取菜单树
+      tags:
+      - 菜单管理
+  /permission/role:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取角色列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 角色名称
+        in: query
+        name: name
+        type: string
+      - description: 角色编码
+        in: query
+        name: code
+        type: string
+      - description: 状态(1:正常 2:禁用)
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/ginx.ListData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/dto.RoleResponse'
+                        type: array
+                      total:
+                        type: integer
+                    type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 获取角色列表
+      tags:
+      - 角色管理
+    post:
+      consumes:
+      - application/json
+      description: 创建一个新的角色
+      parameters:
+      - description: 角色信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 创建角色
+      tags:
+      - 角色管理
+  /permission/role/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定ID的角色详情
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.RoleResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "404":
+          description: 角色不存在
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 获取角色详情
+      tags:
+      - 角色管理
+    put:
+      consumes:
+      - application/json
+      description: 更新指定ID的角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 角色信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "404":
+          description: 角色不存在
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 更新角色
+      tags:
+      - 角色管理
+  /permission/role/{id}/menus:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定角色的菜单权限列表
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.Menu'
+                  type: array
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "404":
+          description: 角色不存在
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 获取角色菜单
+      tags:
+      - 角色管理
+    post:
+      consumes:
+      - application/json
+      description: 为指定角色分配菜单权限
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 菜单权限列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AssignMenusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "404":
+          description: 角色不存在
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 分配菜单
+      tags:
+      - 角色管理
+  /permission/role/{ids}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定ID的角色
+      parameters:
+      - description: 角色ID列表(多个用逗号分隔)
+        in: path
+        name: ids
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 删除角色
+      tags:
+      - 角色管理
+  /permission/user:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取用户列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 用户名
+        in: query
+        name: username
+        type: string
+      - description: 昵称
+        in: query
+        name: nickname
+        type: string
+      - description: 状态(1:正常 2:禁用)
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/ginx.ListData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/dto.UserResponse'
+                        type: array
+                      total:
+                        type: integer
+                    type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 获取用户列表
+      tags:
+      - 用户管理
+    post:
+      consumes:
+      - application/json
+      description: 创建一个新的用户
+      parameters:
+      - description: 用户信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 创建用户
+      tags:
+      - 用户管理
+  /permission/user/{id}:
+    put:
+      consumes:
+      - application/json
+      description: 更新指定ID的用户信息
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 用户信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 更新用户
+      tags:
+      - 用户管理
+  /permission/user/{id}/roles:
+    post:
+      consumes:
+      - application/json
+      description: 为指定用户分配角色
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 角色列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserAssignRolesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 分配角色
+      tags:
+      - 用户管理
+  /permission/user/{ids}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定ID的用户
+      parameters:
+      - description: 用户ID列表(多个用逗号分隔)
+        in: path
+        name: ids
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 删除用户
+      tags:
+      - 用户管理
+  /profile:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前登录用户的详细信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserResponse'
+              type: object
+        "401":
+          description: 未登录或令牌无效
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 获取当前用户信息
+      tags:
+      - 用户管理
+  /profile/menus:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前登录用户的菜单树
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  items:
+                    items:
+                      $ref: '#/definitions/dto.MenuTreeNode'
+                    type: array
+                  type: array
+              type: object
+        "401":
+          description: 用户未登录
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 获取用户菜单
+      tags:
+      - 菜单管理
+  /system/dict/data:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取字典数据列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 字典类型编码
+        in: query
+        name: type_code
+        type: string
+      - description: 字典标签
+        in: query
+        name: label
+        type: string
+      - description: 状态(1:正常 2:禁用)
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/ginx.ListData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/dto.DictDataResponse'
+                        type: array
+                      total:
+                        type: integer
+                    type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 获取字典数据列表
+      tags:
+      - 字典管理
+    post:
+      consumes:
+      - application/json
+      description: 创建一个新的字典数据
+      parameters:
+      - description: 字典数据信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DictDataRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.DictDataResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 创建字典数据
+      tags:
+      - 字典管理
+  /system/dict/data/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定ID的字典数据详情
+      parameters:
+      - description: 字典数据ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.DictDataResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "404":
+          description: 字典数据不存在
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 获取字典数据详情
+      tags:
+      - 字典管理
+    put:
+      consumes:
+      - application/json
+      description: 更新指定ID的字典数据
+      parameters:
+      - description: 字典数据ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 字典数据信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DictDataRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.DictDataResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "404":
+          description: 字典数据不存在
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 更新字典数据
+      tags:
+      - 字典管理
+  /system/dict/data/{ids}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定ID的字典数据
+      parameters:
+      - description: 字典数据ID列表(多个用逗号分隔)
+        in: path
+        name: ids
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 删除字典数据
+      tags:
+      - 字典管理
+  /system/dict/data/type/{type}:
+    get:
+      consumes:
+      - application/json
+      description: 根据字典类型编码获取字典数据列表
+      parameters:
+      - description: 字典类型编码
+        in: path
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.DictDataResponse'
+                  type: array
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 根据字典类型获取字典数据
+      tags:
+      - 字典管理
+  /system/dict/type:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取字典类型列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 字典类型名称
+        in: query
+        name: name
+        type: string
+      - description: 字典类型编码
+        in: query
+        name: code
+        type: string
+      - description: 状态(1:正常 2:禁用)
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/ginx.ListData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/dto.DictTypeResponse'
+                        type: array
+                      total:
+                        type: integer
+                    type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 获取字典类型列表
+      tags:
+      - 字典管理
+    post:
+      consumes:
+      - application/json
+      description: 创建一个新的字典类型
+      parameters:
+      - description: 字典类型信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DictTypeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.DictTypeResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 创建字典类型
+      tags:
+      - 字典管理
+  /system/dict/type/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定ID的字典类型详情
+      parameters:
+      - description: 字典类型ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.DictTypeResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "404":
+          description: 字典类型不存在
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 获取字典类型详情
+      tags:
+      - 字典管理
+    put:
+      consumes:
+      - application/json
+      description: 更新指定ID的字典类型
+      parameters:
+      - description: 字典类型ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 字典类型信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DictTypeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/ginx.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.DictTypeResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "404":
+          description: 字典类型不存在
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 更新字典类型
+      tags:
+      - 字典管理
+  /system/dict/type/{ids}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定ID的字典类型
+      parameters:
+      - description: 字典类型ID列表(多个用逗号分隔)
+        in: path
+        name: ids
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/ginx.Response'
+      security:
+      - Bearer: []
+      summary: 删除字典类型
+      tags:
+      - 字典管理
+schemes:
+- http
+- https
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

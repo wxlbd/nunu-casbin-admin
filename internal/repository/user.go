@@ -3,30 +3,22 @@ package repository
 import (
 	"context"
 
+	"github.com/wxlbd/gin-casbin-admin/internal/service"
+
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
 )
-
-type UserRepository interface {
-	WithTx(tx *Query) UserRepository
-	Create(ctx context.Context, user *model.User) error
-	Update(ctx context.Context, user *model.User) error
-	Delete(ctx context.Context, ids ...uint64) error
-	FindByID(ctx context.Context, id uint64) (*model.User, error)
-	FindByUsername(ctx context.Context, username string) (*model.User, error)
-	List(ctx context.Context, query *model.UserQuery) ([]*model.User, int64, error)
-}
 
 type userRepository struct {
 	query *Query
 }
 
-func NewUserRepository(query *Query) UserRepository {
+func NewUserRepository(query *Query) service.UserRepository {
 	return &userRepository{
 		query: query,
 	}
 }
 
-func (r *userRepository) WithTx(tx *Query) UserRepository {
+func (r *userRepository) WithTx(tx *Query) service.UserRepository {
 	return &userRepository{
 		query: tx,
 	}

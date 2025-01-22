@@ -4,8 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/wxlbd/gin-casbin-admin/internal/handler"
+
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
-	"github.com/wxlbd/gin-casbin-admin/internal/repository"
 	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
 	"github.com/wxlbd/gin-casbin-admin/pkg/jwtx"
 	"github.com/wxlbd/gin-casbin-admin/pkg/log"
@@ -13,28 +14,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserService interface {
-	Create(ctx context.Context, user *model.User) error
-	Update(ctx context.Context, user *model.User) error
-	Delete(ctx context.Context, ids ...uint64) error
-	FindByID(ctx context.Context, id uint64) (*model.User, error)
-	FindByUsername(ctx context.Context, username string) (*model.User, error)
-	List(ctx context.Context, query *model.UserQuery) ([]*model.User, int64, error)
-	UpdatePassword(ctx context.Context, id uint64, oldPassword, newPassword string) error
-	AssignRoles(ctx context.Context, userID uint64, roleCodes []string) error
-	Login(ctx context.Context, username, password string) (accessToken, refreshToken string, err error)
-	RefreshToken(ctx context.Context, refreshToken string) (newAccessToken, newRefreshToken string, err error)
-	Logout(ctx context.Context, token string) error
-	GetUserRoles(ctx context.Context, userID uint64) ([]*model.Role, error)
-}
-
 type userService struct {
-	repo   repository.Repository
+	repo   Repository
 	jwt    *jwtx.JWT
 	logger *log.Logger
 }
 
-func NewUserService(logger *log.Logger, repo repository.Repository, jwt *jwtx.JWT) UserService {
+func NewUserService(logger *log.Logger, repo Repository, jwt *jwtx.JWT) handler.UserService {
 	return &userService{
 		repo:   repo,
 		jwt:    jwt,
@@ -128,7 +114,7 @@ func (s *userService) AssignRoles(ctx context.Context, userID uint64, roleCodes 
 	for _, role := range roles {
 		roleIDs = append(roleIDs, role.ID)
 	}
-	return s.repo.Transaction(func(r repository.Repository) error {
+	return s.repo.Transaction(func(r Repository) error {
 		// 2.1 删除原有的用户-角色关系
 		if err := r.UserRole().DeleteByUserID(ctx, userID); err != nil {
 			return err

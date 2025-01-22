@@ -3,9 +3,10 @@ package server
 import (
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/wxlbd/gin-casbin-admin/internal/handler"
 	"github.com/wxlbd/gin-casbin-admin/internal/middleware"
-	"github.com/wxlbd/gin-casbin-admin/internal/service"
 	"github.com/wxlbd/gin-casbin-admin/pkg/config"
 	"github.com/wxlbd/gin-casbin-admin/pkg/jwtx"
 	"github.com/wxlbd/gin-casbin-admin/pkg/log"
@@ -17,7 +18,7 @@ func NewServerHTTP(
 	jwt *jwtx.JWT,
 	handler *handler.Handler,
 	enforcer *casbin.Enforcer,
-	svc service.Service,
+	svc handler.Service,
 ) *gin.Engine {
 	if cfg.Server.Mode == "release" {
 		gin.SetMode(gin.ReleaseMode)
@@ -88,8 +89,36 @@ func NewServerHTTP(
 				menuGroup.DELETE("/:ids", handler.Menu().Delete)   // permission:menu:delete
 				menuGroup.GET("/tree", handler.Menu().GetMenuTree) // permission:menu:tree
 			}
+			sys := authorized.Group("system")
+			// 字典管理
+			dict := sys.Group("dict")
+			{
+				// 字典类型管理
+				dictType := dict.Group("type")
+				{
+					dictType.POST("", handler.Dict().CreateDictType)        // system:dict:type:create
+					dictType.PUT("/:id", handler.Dict().UpdateDictType)     // system:dict:type:update
+					dictType.DELETE("/:ids", handler.Dict().DeleteDictType) // system:dict:type:delete
+					dictType.GET("/:id", handler.Dict().GetDictType)        // system:dict:type:detail
+					dictType.GET("", handler.Dict().ListDictType)           // system:dict:type:list
+				}
+
+				// 字典数据管理
+				dictData := dict.Group("data")
+				{
+					dictData.POST("", handler.Dict().CreateDictData)              // system:dict:data:create
+					dictData.PUT("/:id", handler.Dict().UpdateDictData)           // system:dict:data:update
+					dictData.DELETE("/:ids", handler.Dict().DeleteDictData)       // system:dict:data:delete
+					dictData.GET("/:id", handler.Dict().GetDictData)              // system:dict:data:detail
+					dictData.GET("", handler.Dict().ListDictData)                 // system:dict:data:list
+					dictData.GET("/type/:type", handler.Dict().GetDictDataByType) // system:dict:data:list:type
+				}
+			}
 		}
 	}
+
+	// Swagger 文档
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return r
 }

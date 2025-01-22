@@ -3,25 +3,20 @@ package repository
 import (
 	"context"
 
+	"github.com/wxlbd/gin-casbin-admin/internal/service"
+
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
 )
-
-type UserRoleRepository interface {
-	WithTx(tx *Query) UserRoleRepository
-	Create(ctx context.Context, userRoles ...*model.UserRoles) error
-	DeleteByUserID(ctx context.Context, userID uint64) error
-	FindRolesByUserID(ctx context.Context, userID uint64) ([]*model.Role, error)
-}
 
 type userRoleRepository struct {
 	query *Query
 }
 
-func NewUserRoleRepository(query *Query) UserRoleRepository {
+func NewUserRoleRepository(query *Query) service.UserRoleRepository {
 	return &userRoleRepository{query: query}
 }
 
-func (r *userRoleRepository) WithTx(tx *Query) UserRoleRepository {
+func (r *userRoleRepository) WithTx(tx *Query) service.UserRoleRepository {
 	return &userRoleRepository{query: tx}
 }
 

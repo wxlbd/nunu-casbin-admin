@@ -3,30 +3,20 @@ package repository
 import (
 	"context"
 
+	"github.com/wxlbd/gin-casbin-admin/internal/service"
+
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
 )
-
-type RoleMenuRepository interface {
-	WithTx(tx *Query) RoleMenuRepository
-	Create(ctx context.Context, roleID, menuID uint64) error
-	Delete(ctx context.Context, roleID, menuID uint64) error
-	DeleteByRoleID(ctx context.Context, roleID uint64) error
-	FindMenusByRoleID(ctx context.Context, roleID uint64) ([]*model.Menu, error)
-	FindRolesByMenuID(ctx context.Context, menuID uint64) ([]*model.Role, error)
-	BatchCreate(ctx context.Context, roleID uint64, menuIDs []uint64) error
-	FindMenusByRoleIDs(ctx context.Context, roleIDs ...uint64) ([]*model.Menu, error)
-	FindRolesByMenuIDs(ctx context.Context, menuIDs []uint64) ([]*model.Role, error)
-}
 
 type roleMenuRepository struct {
 	query *Query
 }
 
-func NewRoleMenuRepository(query *Query) RoleMenuRepository {
+func NewRoleMenuRepository(query *Query) service.RoleMenuRepository {
 	return &roleMenuRepository{query: query}
 }
 
-func (r *roleMenuRepository) WithTx(tx *Query) RoleMenuRepository {
+func (r *roleMenuRepository) WithTx(tx *Query) service.RoleMenuRepository {
 	return &roleMenuRepository{query: tx}
 }
 

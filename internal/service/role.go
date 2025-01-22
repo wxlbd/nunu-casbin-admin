@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/wxlbd/gin-casbin-admin/internal/handler"
+
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 
 	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
@@ -12,25 +14,14 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/wxlbd/gin-casbin-admin/internal/dto"
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
-	"github.com/wxlbd/gin-casbin-admin/internal/repository"
 )
 
-type RoleService interface {
-	Create(ctx context.Context, role *model.Role) error
-	Update(ctx context.Context, role *model.Role) error
-	Delete(ctx context.Context, id ...uint64) error
-	FindByID(ctx context.Context, id uint64) (*model.Role, error)
-	List(ctx context.Context, req *dto.RoleListRequest) ([]*model.Role, int64, error)
-	AssignMenus(ctx context.Context, roleID uint64, menus []string) error
-	GetRoleMenus(ctx context.Context, roleID uint64) ([]*model.Menu, error)
-}
-
 type roleService struct {
-	repo     repository.Repository
+	repo     Repository
 	enforcer *casbin.Enforcer
 }
 
-func NewRoleService(repo repository.Repository, enforcer *casbin.Enforcer) RoleService {
+func NewRoleService(repo Repository, enforcer *casbin.Enforcer) handler.RoleService {
 	return &roleService{
 		repo:     repo,
 		enforcer: enforcer,
@@ -107,7 +98,7 @@ func (s *roleService) AssignMenus(ctx context.Context, roleID uint64, names []st
 	if err != nil {
 		return err
 	}
-	return s.repo.Transaction(func(r repository.Repository) error {
+	return s.repo.Transaction(func(r Repository) error {
 		// 获取事务中的 gorm.DB
 		tx := r.DB()
 		adapter, err := gormadapter.NewAdapterByDB(tx)
