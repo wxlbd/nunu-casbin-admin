@@ -5,20 +5,22 @@ import (
 )
 
 type Handler struct {
-	user *UserHandler
-	role *RoleHandler
-	menu *MenuHandler
-	dict *DictHandler
-	cfg  *config.Config
+	user    *UserHandler
+	role    *RoleHandler
+	menu    *MenuHandler
+	dict    *DictHandler
+	captcha *CaptchaHandler
+	cfg     *config.Config
 }
 
 func NewHandler(svc Service, cfg *config.Config) *Handler {
 	return &Handler{
-		cfg:  cfg,
-		user: NewUserHandler(svc, cfg),
-		role: NewRoleHandler(svc),
-		menu: NewMenuHandler(svc),
-		dict: NewDictHandler(svc.Dict()),
+		user:    NewUserHandler(svc, cfg),
+		role:    NewRoleHandler(svc),
+		menu:    NewMenuHandler(svc),
+		dict:    NewDictHandler(svc.Dict()),
+		captcha: NewCaptchaHandler(svc),
+		cfg:     cfg,
 	}
 }
 
@@ -36,4 +38,8 @@ func (h *Handler) Menu() *MenuHandler {
 
 func (h *Handler) Dict() *DictHandler {
 	return h.dict
+}
+
+func (h *Handler) Captcha() *CaptchaHandler {
+	return h.captcha
 }

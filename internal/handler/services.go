@@ -60,9 +60,15 @@ type UserService interface {
 	GetUserRoles(ctx context.Context, userID uint64) ([]*model.Role, error)
 }
 
+type CaptchaService interface {
+	Generate(ctx context.Context) (id, b64s string, err error)
+	Verify(ctx context.Context, id, answer string) bool
+}
+
 type Service interface {
 	User() UserService
 	Role() RoleService
 	Menu() MenuService
 	Dict() DictService
+	Captcha() CaptchaService
 }

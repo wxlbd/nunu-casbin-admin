@@ -35,6 +35,8 @@ func NewServerHTTP(
 		// 完全公开的接口
 		auth.POST("/login", handler.User().Login)
 		auth.POST("/refresh-token", handler.User().RefreshToken)
+		auth.POST("/logout", handler.User().Logout)
+		auth.GET("/captcha", handler.Captcha().Generate)
 
 		// 需要JWT认证的接口
 		profile := api.Group("profile").Use(middleware.JWTAuth(jwt))
