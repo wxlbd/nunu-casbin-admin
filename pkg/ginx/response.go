@@ -12,6 +12,11 @@ const (
 	ERROR   = 500
 )
 
+type ListData struct {
+	List  any   `json:"list"`
+	Total int64 `json:"total"`
+}
+
 type Response struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`

@@ -3,6 +3,8 @@ package server
 import (
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/wxlbd/gin-casbin-admin/internal/handler"
 	"github.com/wxlbd/gin-casbin-admin/internal/middleware"
 	"github.com/wxlbd/gin-casbin-admin/pkg/config"
@@ -114,6 +116,9 @@ func NewServerHTTP(
 			}
 		}
 	}
+
+	// Swagger 文档
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return r
 }
