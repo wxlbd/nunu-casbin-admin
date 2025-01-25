@@ -118,10 +118,10 @@ func ToUserListResponse(users []*model.User, total int64) *UserListResponse {
 
 // LoginRequest 用户登录请求
 type LoginRequest struct {
-	Username   string `json:"username" binding:"required"`
-	Password   string `json:"password" binding:"required"`
-	CaptchaId  string `json:"captcha_id" binding:"required"`  // 验证码ID
-	CaptchaVal string `json:"captcha_val" binding:"required"` // 验证码值
+	Username    string `json:"username" binding:"required"`
+	Password    string `json:"password" binding:"required"`
+	CaptchaId   string `json:"captcha_id" binding:"required"`   // 验证码ID
+	CaptchaCode string `json:"captcha_code" binding:"required"` // 验证码值
 }
 
 // RefreshTokenRequest 刷新令牌请求
@@ -160,9 +160,9 @@ type UpdatePasswordRequest struct {
 
 // LoginResponse 登录响应
 type LoginResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	ExpiresAt    int64  `json:"expires_at"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+	Expires      string `json:"expires"`
 }
 
 // UserListResponse 用户列表响应

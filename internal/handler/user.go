@@ -3,6 +3,7 @@ package handler
 import (
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
 
@@ -45,7 +46,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 	}
 
 	// 验证验证码
-	if !h.svc.Captcha().Verify(c, req.CaptchaId, req.CaptchaVal) {
+	if !h.svc.Captcha().Verify(c, req.CaptchaId, req.CaptchaCode) {
 		ginx.Error(c, 400, "验证码错误")
 		return
 	}
@@ -59,7 +60,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 	ginx.Success(c, &dto.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		ExpiresAt:    int64(h.cfg.JWT.AccessExpire.Seconds()),
+		Expires:      time.Now().Add(h.cfg.JWT.AccessExpire).Format("2006/01/02 15:04:05"),
 	})
 }
 
@@ -91,7 +92,7 @@ func (h *UserHandler) RefreshToken(c *gin.Context) {
 	ginx.Success(c, &dto.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		ExpiresAt:    int64(h.cfg.JWT.AccessExpire.Seconds()),
+		Expires:      time.Now().Add(h.cfg.JWT.AccessExpire).Format("2006/01/02 15:04:05"),
 	})
 }
 
