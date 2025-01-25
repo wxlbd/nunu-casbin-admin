@@ -235,3 +235,15 @@ func (s *roleService) GetRoleMenus(ctx context.Context, roleID uint64) ([]*model
 	// 获取角色的菜单列表
 	return s.repo.RoleMenu().FindMenusByRoleID(ctx, roleID)
 }
+
+func (s *roleService) GetRoleMenuIds(ctx context.Context, roleID uint64) ([]uint64, error) {
+	selected, err := s.repo.RoleMenu().FindMenusByRoleID(ctx, roleID)
+	if err != nil {
+		return nil, err
+	}
+	var ids []uint64
+	for _, menu := range selected {
+		ids = append(ids, menu.ID)
+	}
+	return ids, nil
+}
