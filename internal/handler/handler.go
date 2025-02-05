@@ -7,7 +7,6 @@ import (
 type Handler struct {
 	user    *UserHandler
 	role    *RoleHandler
-	menu    *MenuHandler
 	dict    *DictHandler
 	captcha *CaptchaHandler
 	sysMenu *SysMenuHandler
@@ -18,7 +17,6 @@ func NewHandler(svc Service, cfg *config.Config) *Handler {
 	return &Handler{
 		user:    NewUserHandler(svc, cfg),
 		role:    NewRoleHandler(svc),
-		menu:    NewMenuHandler(svc),
 		dict:    NewDictHandler(svc.Dict()),
 		captcha: NewCaptchaHandler(svc),
 		sysMenu: NewSysMenuHandler(svc),
@@ -32,10 +30,6 @@ func (h *Handler) User() *UserHandler {
 
 func (h *Handler) Role() *RoleHandler {
 	return h.role
-}
-
-func (h *Handler) Menu() *MenuHandler {
-	return h.menu
 }
 
 func (h *Handler) Dict() *DictHandler {

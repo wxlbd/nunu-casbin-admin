@@ -225,7 +225,7 @@ func convertMenuToAPI(menuName string) (path, method string) {
 	return path, item.method
 }
 
-func (s *roleService) GetRoleMenus(ctx context.Context, roleID uint64) ([]*model.Menu, error) {
+func (s *roleService) GetRoleMenus(ctx context.Context, roleID uint64) ([]*model.SysMenu, error) {
 	// 检查角色是否存在
 	role, err := s.repo.Role().FindByID(ctx, roleID)
 	if err != nil {
@@ -235,20 +235,20 @@ func (s *roleService) GetRoleMenus(ctx context.Context, roleID uint64) ([]*model
 		return nil, errors.WithMsg(errors.NotFound, "角色不存在")
 	}
 	if role.Code == "SuperAdmin" {
-		return s.repo.Menu().FindAll(ctx)
+		return s.repo.SysMenu().FindAll(ctx)
 	}
 	// 获取角色的菜单列表
 	return s.repo.RoleMenu().FindMenusByRoleID(ctx, roleID)
 }
 
 func (s *roleService) GetRoleMenuIds(ctx context.Context, roleID uint64) ([]uint64, error) {
-	selected, err := s.repo.RoleMenu().FindMenusByRoleID(ctx, roleID)
+	menus, err := s.repo.RoleMenu().FindMenusByRoleID(ctx, roleID)
 	if err != nil {
 		return nil, err
 	}
 	var ids []uint64
-	for _, menu := range selected {
-		ids = append(ids, menu.ID)
+	for _, menu := range menus {
+		ids = append(ids, uint64(menu.ID))
 	}
 	return ids, nil
 }

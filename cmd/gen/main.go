@@ -33,7 +33,7 @@ func main() {
 
 	// g.GenerateModel("dict_types")
 	// g.GenerateModel("dict_data")
-	g.ApplyBasic(g.GenerateModel("dict_types"), g.GenerateModel("dict_data"), model.Menu{}, model.Role{}, model.RoleMenus{}, model.User{}, model.UserRoles{})
+	g.ApplyBasic(g.GenerateModel("sys_menus"), model.DictType{}, model.DictDatum{}, model.Role{}, model.RoleMenus{}, model.User{}, model.UserRoles{})
 	// g.GenerateAllTable()
 	// g.GenerateAllTable()
 	g.Execute()

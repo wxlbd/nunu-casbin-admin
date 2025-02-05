@@ -227,7 +227,7 @@ func (h *RoleHandler) GetPermittedMenus(c *gin.Context) {
 		return
 	}
 
-	ginx.Success(c, dto.ToMenuList(menus))
+	ginx.Success(c, dto.ToSysMenuList(menus))
 }
 
 // Detail 获取角色详情

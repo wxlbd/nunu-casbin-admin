@@ -3,3 +3,4 @@
 *.log
 .vscode!/
 cmd/server/wire/wire_gen.go
+configs/config.yaml
