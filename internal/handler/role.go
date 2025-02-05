@@ -165,22 +165,26 @@ func (h *RoleHandler) List(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "角色ID"
-// @Param data body dto.AssignMenusRequest true "菜单权限列表"
+// @Param data body dto.AssignRoleMenuIdsRequest true "菜单权限列表"
 // @Success 200 {object} ginx.Response "成功"
 // @Failure 400 {object} ginx.Response "请求参数错误"
 // @Failure 404 {object} ginx.Response "角色不存在"
 // @Failure 500 {object} ginx.Response "服务器内部错误"
 // @Security Bearer
 // @Router /permission/role/{id}/menus [post]
-func (h *RoleHandler) AssignMenus(c *gin.Context) {
-	var req dto.AssignMenusRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+func (h *RoleHandler) AssignRoleMenusByIDs(c *gin.Context) {
+	var menuIds dto.AssignRoleMenuIdsRequest
+	if err := c.ShouldBindJSON(&menuIds); err != nil {
 		ginx.ParamError(c, err)
 		return
 	}
 	param := c.Param("id")
-	req.RoleID, _ = strconv.ParseUint(param, 10, 64)
-	if err := h.svc.Role().AssignMenus(c, req.RoleID, req.Permissions); err != nil {
+	roleId, err := strconv.ParseUint(param, 10, 64)
+	if err != nil {
+		ginx.ParamError(c, errors.WithMsg(errors.InvalidParam, "无效的角色ID"))
+		return
+	}
+	if err := h.svc.Role().AssignMenuByIds(c, roleId, menuIds); err != nil {
 		ginx.ServerError(c, err)
 		return
 	}
