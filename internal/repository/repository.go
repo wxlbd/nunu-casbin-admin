@@ -14,6 +14,7 @@ type repository struct {
 	roleMenuRepo service.RoleMenuRepository
 	dictTypeRepo service.DictTypeRepository
 	dictDataRepo service.DictDataRepository
+	db           *gorm.DB
 }
 
 func NewRepository(db *gorm.DB) service.Repository {
@@ -27,6 +28,7 @@ func NewRepository(db *gorm.DB) service.Repository {
 		roleMenuRepo: NewRoleMenuRepository(Q),
 		dictTypeRepo: NewDictTypeRepository(Q),
 		dictDataRepo: NewDictDataRepository(Q),
+		db:           db,
 	}
 }
 
@@ -50,6 +52,7 @@ func (r *repository) clone(tx *Query) *repository {
 		roleMenuRepo: NewRoleMenuRepository(tx),
 		dictTypeRepo: NewDictTypeRepository(tx),
 		dictDataRepo: NewDictDataRepository(tx),
+		db:           r.db,
 	}
 }
 
@@ -83,4 +86,8 @@ func (r *repository) DictType() service.DictTypeRepository {
 
 func (r *repository) DictData() service.DictDataRepository {
 	return r.dictDataRepo
+}
+
+func (r *repository) SysMenu() service.SysMenuRepository {
+	return NewSysMenuRepository(r.query)
 }

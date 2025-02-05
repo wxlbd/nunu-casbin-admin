@@ -33,7 +33,7 @@ func newDictDatum(db *gorm.DB, opts ...gen.DOOption) dictDatum {
 	_dictDatum.Value = field.NewString(tableName, "value")
 	_dictDatum.Status = field.NewInt32(tableName, "status")
 	_dictDatum.Sort = field.NewInt32(tableName, "sort")
-	_dictDatum.Remake = field.NewString(tableName, "remake")
+	_dictDatum.Remark = field.NewString(tableName, "remark")
 	_dictDatum.CreatedAt = field.NewTime(tableName, "created_at")
 	_dictDatum.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_dictDatum.DeletedAt = field.NewInt32(tableName, "deleted_at")
@@ -48,12 +48,12 @@ type dictDatum struct {
 
 	ALL       field.Asterisk
 	ID        field.Int64
-	TypeCode  field.String // 字典类型编码
-	Label     field.String // 字典key
-	Value     field.String // 字典值
-	Status    field.Int32  // 字典状态:1-正常,2-禁用
-	Sort      field.Int32  // 排序
-	Remake    field.String // 备注
+	TypeCode  field.String
+	Label     field.String
+	Value     field.String
+	Status    field.Int32
+	Sort      field.Int32
+	Remark    field.String
 	CreatedAt field.Time
 	UpdatedAt field.Time
 	DeletedAt field.Int32
@@ -79,7 +79,7 @@ func (d *dictDatum) updateTableName(table string) *dictDatum {
 	d.Value = field.NewString(table, "value")
 	d.Status = field.NewInt32(table, "status")
 	d.Sort = field.NewInt32(table, "sort")
-	d.Remake = field.NewString(table, "remake")
+	d.Remark = field.NewString(table, "remark")
 	d.CreatedAt = field.NewTime(table, "created_at")
 	d.UpdatedAt = field.NewTime(table, "updated_at")
 	d.DeletedAt = field.NewInt32(table, "deleted_at")
@@ -106,7 +106,7 @@ func (d *dictDatum) fillFieldMap() {
 	d.fieldMap["value"] = d.Value
 	d.fieldMap["status"] = d.Status
 	d.fieldMap["sort"] = d.Sort
-	d.fieldMap["remake"] = d.Remake
+	d.fieldMap["remark"] = d.Remark
 	d.fieldMap["created_at"] = d.CreatedAt
 	d.fieldMap["updated_at"] = d.UpdatedAt
 	d.fieldMap["deleted_at"] = d.DeletedAt

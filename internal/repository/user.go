@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"gorm.io/gorm"
 
 	"github.com/wxlbd/gin-casbin-admin/internal/service"
 
@@ -44,6 +46,9 @@ func (r *userRepository) FindByID(ctx context.Context, id uint64) (*model.User, 
 func (r *userRepository) FindByUsername(ctx context.Context, username string) (*model.User, error) {
 	user, err := r.query.WithContext(ctx).User.Where(r.query.User.Username.Eq(username)).First()
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return user, nil

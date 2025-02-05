@@ -10,6 +10,7 @@ type Handler struct {
 	menu    *MenuHandler
 	dict    *DictHandler
 	captcha *CaptchaHandler
+	sysMenu *SysMenuHandler
 	cfg     *config.Config
 }
 
@@ -20,6 +21,7 @@ func NewHandler(svc Service, cfg *config.Config) *Handler {
 		menu:    NewMenuHandler(svc),
 		dict:    NewDictHandler(svc.Dict()),
 		captcha: NewCaptchaHandler(svc),
+		sysMenu: NewSysMenuHandler(svc),
 		cfg:     cfg,
 	}
 }
@@ -42,4 +44,8 @@ func (h *Handler) Dict() *DictHandler {
 
 func (h *Handler) Captcha() *CaptchaHandler {
 	return h.captcha
+}
+
+func (h *Handler) SysMenu() *SysMenuHandler {
+	return h.sysMenu
 }

@@ -10,6 +10,10 @@ var (
 	ErrForbidden    = New(Forbidden, "禁止访问").WithStatus(http.StatusForbidden)
 	ErrNotFound     = New(NotFound, "资源不存在").WithStatus(http.StatusNotFound)
 	ErrDatabase     = New(DatabaseError, "数据库错误").WithStatus(http.StatusInternalServerError)
+	// ErrTokenExpired token过期
+	ErrTokenExpired = New(TokenExpired, "令牌过期").WithStatus(http.StatusUnauthorized)
+	// ErrTokenInvalid token无效
+	ErrTokenInvalid = New(TokenInvalid, "令牌无效").WithStatus(http.StatusUnauthorized)
 
 	// 业务错误
 	ErrCircularReference = New(CircularReference, "检测到循环引用")

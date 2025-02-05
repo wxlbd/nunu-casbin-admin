@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -24,6 +25,10 @@ func (w responseWriter) Write(b []byte) (int, error) {
 // RequestLogger 请求日志中间件
 func RequestLogger(logger *log.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if strings.HasPrefix(c.FullPath(), "/swagger") {
+			c.Next()
+			return
+		}
 		// 开始时间
 		start := time.Now()
 

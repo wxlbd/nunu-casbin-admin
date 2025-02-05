@@ -32,7 +32,7 @@ func newDictType(db *gorm.DB, opts ...gen.DOOption) dictType {
 	_dictType.Name = field.NewString(tableName, "name")
 	_dictType.Status = field.NewInt32(tableName, "status")
 	_dictType.Sort = field.NewInt32(tableName, "sort")
-	_dictType.Remake = field.NewString(tableName, "remake")
+	_dictType.Remark = field.NewString(tableName, "remark")
 	_dictType.CreatedAt = field.NewTime(tableName, "created_at")
 	_dictType.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_dictType.DeletedAt = field.NewInt32(tableName, "deleted_at")
@@ -47,11 +47,11 @@ type dictType struct {
 
 	ALL       field.Asterisk
 	ID        field.Int64
-	Code      field.String // 字典类型编码
-	Name      field.String // 字典key
-	Status    field.Int32  // 字典状态:1-正常,2-禁用
-	Sort      field.Int32  // 排序
-	Remake    field.String // 备注
+	Code      field.String
+	Name      field.String
+	Status    field.Int32
+	Sort      field.Int32
+	Remark    field.String
 	CreatedAt field.Time
 	UpdatedAt field.Time
 	DeletedAt field.Int32
@@ -76,7 +76,7 @@ func (d *dictType) updateTableName(table string) *dictType {
 	d.Name = field.NewString(table, "name")
 	d.Status = field.NewInt32(table, "status")
 	d.Sort = field.NewInt32(table, "sort")
-	d.Remake = field.NewString(table, "remake")
+	d.Remark = field.NewString(table, "remark")
 	d.CreatedAt = field.NewTime(table, "created_at")
 	d.UpdatedAt = field.NewTime(table, "updated_at")
 	d.DeletedAt = field.NewInt32(table, "deleted_at")
@@ -102,7 +102,7 @@ func (d *dictType) fillFieldMap() {
 	d.fieldMap["name"] = d.Name
 	d.fieldMap["status"] = d.Status
 	d.fieldMap["sort"] = d.Sort
-	d.fieldMap["remake"] = d.Remake
+	d.fieldMap["remark"] = d.Remark
 	d.fieldMap["created_at"] = d.CreatedAt
 	d.fieldMap["updated_at"] = d.UpdatedAt
 	d.fieldMap["deleted_at"] = d.DeletedAt

@@ -22,6 +22,7 @@ var (
 	Menu      *menu
 	Role      *role
 	RoleMenus *roleMenus
+	SysMenu   *sysMenu
 	User      *user
 	UserRoles *userRoles
 )
@@ -33,6 +34,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	Menu = &Q.Menu
 	Role = &Q.Role
 	RoleMenus = &Q.RoleMenus
+	SysMenu = &Q.SysMenu
 	User = &Q.User
 	UserRoles = &Q.UserRoles
 }
@@ -45,6 +47,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		Menu:      newMenu(db, opts...),
 		Role:      newRole(db, opts...),
 		RoleMenus: newRoleMenus(db, opts...),
+		SysMenu:   newSysMenu(db, opts...),
 		User:      newUser(db, opts...),
 		UserRoles: newUserRoles(db, opts...),
 	}
@@ -58,6 +61,7 @@ type Query struct {
 	Menu      menu
 	Role      role
 	RoleMenus roleMenus
+	SysMenu   sysMenu
 	User      user
 	UserRoles userRoles
 }
@@ -72,6 +76,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		Menu:      q.Menu.clone(db),
 		Role:      q.Role.clone(db),
 		RoleMenus: q.RoleMenus.clone(db),
+		SysMenu:   q.SysMenu.clone(db),
 		User:      q.User.clone(db),
 		UserRoles: q.UserRoles.clone(db),
 	}
@@ -93,6 +98,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		Menu:      q.Menu.replaceDB(db),
 		Role:      q.Role.replaceDB(db),
 		RoleMenus: q.RoleMenus.replaceDB(db),
+		SysMenu:   q.SysMenu.replaceDB(db),
 		User:      q.User.replaceDB(db),
 		UserRoles: q.UserRoles.replaceDB(db),
 	}
@@ -104,6 +110,7 @@ type queryCtx struct {
 	Menu      IMenuDo
 	Role      IRoleDo
 	RoleMenus IRoleMenusDo
+	SysMenu   ISysMenuDo
 	User      IUserDo
 	UserRoles IUserRolesDo
 }
@@ -115,6 +122,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		Menu:      q.Menu.WithContext(ctx),
 		Role:      q.Role.WithContext(ctx),
 		RoleMenus: q.RoleMenus.WithContext(ctx),
+		SysMenu:   q.SysMenu.WithContext(ctx),
 		User:      q.User.WithContext(ctx),
 		UserRoles: q.UserRoles.WithContext(ctx),
 	}

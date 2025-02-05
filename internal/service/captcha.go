@@ -20,7 +20,7 @@ func NewCaptchaService(redisClient *redis.Client) handler.CaptchaService {
 }
 
 func (s *captchaService) Generate(ctx context.Context) (id, b64s string, err error) {
-	driver := base64Captcha.NewDriverDigit(80, 240, 4, 0.7, 80)
+	driver := base64Captcha.NewDriverDigit(180, 360, 4, 0.7, 80)
 	captcha := base64Captcha.NewCaptcha(driver, s.store)
 	id, b64s, _, err = captcha.Generate()
 	return

@@ -3,6 +3,7 @@ package handler
 import (
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/wxlbd/gin-casbin-admin/pkg/errors"
 
@@ -45,7 +46,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 	}
 
 	// 验证验证码
-	if !h.svc.Captcha().Verify(c, req.CaptchaId, req.CaptchaVal) {
+	if !h.svc.Captcha().Verify(c, req.CaptchaId, req.CaptchaCode) {
 		ginx.Error(c, 400, "验证码错误")
 		return
 	}
@@ -59,7 +60,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 	ginx.Success(c, &dto.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		ExpiresAt:    int64(h.cfg.JWT.AccessExpire.Seconds()),
+		Expires:      time.Now().Add(h.cfg.JWT.AccessExpire).Format("2006/01/02 15:04:05"),
 	})
 }
 
@@ -84,14 +85,14 @@ func (h *UserHandler) RefreshToken(c *gin.Context) {
 
 	accessToken, refreshToken, err := h.svc.User().RefreshToken(c, req.RefreshToken)
 	if err != nil {
-		ginx.Unauthorized(c)
+		ginx.Unauthorized(c, err)
 		return
 	}
 
 	ginx.Success(c, &dto.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		ExpiresAt:    int64(h.cfg.JWT.AccessExpire.Seconds()),
+		Expires:      time.Now().Add(h.cfg.JWT.AccessExpire).Format("2006/01/02 15:04:05"),
 	})
 }
 
@@ -259,7 +260,7 @@ func (h *UserHandler) AssignRoles(c *gin.Context) {
 		ginx.ParamError(c, errors.WithMsg(errors.InvalidParam, "无效的用户ID"))
 		return
 	}
-	if err := h.svc.User().AssignRoles(c, userID, req.RoleCodes); err != nil {
+	if err := h.svc.User().AssignRoles(c, userID, req.RoleIds); err != nil {
 		ginx.ServerError(c, err)
 		return
 	}
@@ -355,10 +356,18 @@ func (h *UserHandler) GerUserRoles(ctx *gin.Context) {
 		ginx.ParamError(ctx, errors.WithMsg(errors.InvalidParam, "无效的用户ID"))
 		return
 	}
-	roles, err := h.svc.User().GetUserRoles(ctx.Request.Context(), id)
+	list, err := h.svc.User().GetUserRoles(ctx.Request.Context(), id)
 	if err != nil {
 		ginx.ServerError(ctx, err)
 		return
+	}
+	var roles []*dto.UserRoleItem
+	for _, role := range list {
+		roles = append(roles, &dto.UserRoleItem{
+			ID:   role.ID,
+			Name: role.Name,
+			Code: role.Code,
+		})
 	}
 	ginx.Success(ctx, roles)
 }

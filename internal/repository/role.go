@@ -14,6 +14,17 @@ type roleRepository struct {
 	query *Query
 }
 
+func (r *roleRepository) GetAllRoles(ctx context.Context) ([]*model.Role, error) {
+	roles, err := r.query.WithContext(ctx).Role.Where(r.query.Role.Status.Eq(1)).Select(r.query.Role.ID, r.query.Role.Name, r.query.Role.Code).Find()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return roles, nil
+}
+
 func (r *roleRepository) FindByCodes(ctx context.Context, codes ...string) ([]*model.Role, error) {
 	roles, err := r.query.WithContext(ctx).Role.Where(r.query.Role.Code.In(codes...)).Find()
 	if err != nil {

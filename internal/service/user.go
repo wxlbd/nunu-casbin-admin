@@ -102,29 +102,18 @@ func (s *userService) UpdatePassword(ctx context.Context, id uint64, oldPassword
 	return s.repo.User().Update(ctx, user)
 }
 
-func (s *userService) AssignRoles(ctx context.Context, userID uint64, roleCodes []string) error {
-	// 1. 查找角色ID
-	roles, err := s.repo.Role().FindByCodes(ctx, roleCodes...)
-	if err != nil {
-		return errors.ErrDatabase
-	}
-
-	// 获取角色ID列表
-	roleIDs := make([]uint64, 0, len(roles))
-	for _, role := range roles {
-		roleIDs = append(roleIDs, role.ID)
-	}
+func (s *userService) AssignRoles(ctx context.Context, userID uint64, roleIds []uint64) error {
 	return s.repo.Transaction(func(r Repository) error {
-		// 2.1 删除原有的用户-角色关系
+		// 删除原有的用户-角色关系
 		if err := r.UserRole().DeleteByUserID(ctx, userID); err != nil {
 			return err
 		}
-		if len(roleIDs) == 0 {
+		if len(roleIds) == 0 {
 			return nil
 		}
-		// 2.2 插入新的用户-角色关系
-		userRoles := make([]*model.UserRoles, 0, len(roleIDs))
-		for _, roleID := range roleIDs {
+		// 插入新的用户-角色关系
+		userRoles := make([]*model.UserRoles, 0, len(roleIds))
+		for _, roleID := range roleIds {
 			userRoles = append(userRoles, &model.UserRoles{UserID: userID, RoleID: roleID})
 		}
 		return r.UserRole().Create(ctx, userRoles...)

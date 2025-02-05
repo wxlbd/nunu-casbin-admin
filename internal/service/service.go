@@ -14,6 +14,7 @@ type service struct {
 	menu    handler.MenuService
 	dict    handler.DictService
 	captcha handler.CaptchaService
+	sysMenu handler.SysMenuService
 }
 
 func NewService(logger *log.Logger, repo Repository, enforcer *casbin.Enforcer, jwt *jwtx.JWT, redisClient *redis.Client) handler.Service {
@@ -23,6 +24,7 @@ func NewService(logger *log.Logger, repo Repository, enforcer *casbin.Enforcer, 
 		menu:    NewMenuService(repo, enforcer),
 		dict:    NewDictService(logger, repo),
 		captcha: NewCaptchaService(redisClient),
+		sysMenu: NewSysMenuService(repo),
 	}
 }
 
@@ -44,4 +46,8 @@ func (s *service) Dict() handler.DictService {
 
 func (s *service) Captcha() handler.CaptchaService {
 	return s.captcha
+}
+
+func (s *service) SysMenu() handler.SysMenuService {
+	return s.sysMenu
 }

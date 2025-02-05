@@ -41,8 +41,10 @@ type RoleService interface {
 	Delete(ctx context.Context, id ...uint64) error
 	FindByID(ctx context.Context, id uint64) (*model.Role, error)
 	List(ctx context.Context, req *dto.RoleListRequest) ([]*model.Role, int64, error)
-	AssignMenus(ctx context.Context, roleID uint64, menus []string) error
 	GetRoleMenus(ctx context.Context, roleID uint64) ([]*model.Menu, error)
+	AssignMenuByIds(ctx context.Context, roleID uint64, menuIds []uint64) error
+	// GetAllRoles 获取所有角色
+	GetAllRoles(ctx context.Context) ([]*model.Role, error)
 }
 
 type UserService interface {
@@ -53,7 +55,7 @@ type UserService interface {
 	FindByUsername(ctx context.Context, username string) (*model.User, error)
 	List(ctx context.Context, query *model.UserQuery) ([]*model.User, int64, error)
 	UpdatePassword(ctx context.Context, id uint64, oldPassword, newPassword string) error
-	AssignRoles(ctx context.Context, userID uint64, roleCodes []string) error
+	AssignRoles(ctx context.Context, userID uint64, roleIds []uint64) error
 	Login(ctx context.Context, username, password string) (accessToken, refreshToken string, err error)
 	RefreshToken(ctx context.Context, refreshToken string) (newAccessToken, newRefreshToken string, err error)
 	Logout(ctx context.Context, token string) error
@@ -65,10 +67,21 @@ type CaptchaService interface {
 	Verify(ctx context.Context, id, answer string) bool
 }
 
+type SysMenuService interface {
+	Create(ctx context.Context, menu *model.SysMenu) error
+	Update(ctx context.Context, menu *model.SysMenu) error
+	Delete(ctx context.Context, ids ...int64) error
+	List(ctx context.Context, query *model.SysMenuQuery) ([]*model.SysMenu, int64, error)
+	GetMenuTree(ctx context.Context) ([]*model.SysMenuTree, error)
+	GetUserMenuTree(ctx context.Context, userID uint64) ([]*model.SysMenuTree, error)
+	GetAllMenus(ctx context.Context) ([]*model.SysMenu, error)
+}
+
 type Service interface {
 	User() UserService
 	Role() RoleService
 	Menu() MenuService
 	Dict() DictService
 	Captcha() CaptchaService
+	SysMenu() SysMenuService
 }

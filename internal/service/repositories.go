@@ -51,6 +51,8 @@ type RoleRepository interface {
 	// FindByIDs 根据角色ID列表查询角色
 	FindByIDs(ctx context.Context, ids []uint64) ([]*model.Role, error)
 	FindByCodes(ctx context.Context, codes ...string) ([]*model.Role, error)
+	// GetAllRoles 获取所有角色
+	GetAllRoles(ctx context.Context) ([]*model.Role, error)
 }
 
 type RoleMenuRepository interface {
@@ -72,7 +74,18 @@ type UserRepository interface {
 	FindByUsername(ctx context.Context, username string) (*model.User, error)
 	List(ctx context.Context, query *model.UserQuery) ([]*model.User, int64, error)
 }
-
+type SysMenuRepository interface {
+	Create(ctx context.Context, menu *model.SysMenu) error
+	Save(ctx context.Context, menu *model.SysMenu) error
+	Delete(ctx context.Context, ids ...int64) error
+	Get(ctx context.Context, id int64) (*model.SysMenu, error)
+	FindByTitle(ctx context.Context, title string) (*model.SysMenu, error)
+	FindByParentID(ctx context.Context, parentID int64) ([]*model.SysMenu, error)
+	List(ctx context.Context, query *model.SysMenuQuery) ([]*model.SysMenu, int64, error)
+	FindAll(ctx context.Context) ([]*model.SysMenu, error)
+	FindByRoleIDs(ctx context.Context, roleIDs ...uint64) ([]*model.SysMenu, error)
+	FindByIDs(ctx context.Context, ids ...uint64) ([]*model.SysMenu, error)
+}
 type UserRoleRepository interface {
 	Create(ctx context.Context, userRoles ...*model.UserRoles) error
 	DeleteByUserID(ctx context.Context, userID uint64) error
@@ -87,6 +100,7 @@ type Repository interface {
 	RoleMenu() RoleMenuRepository
 	DictType() DictTypeRepository
 	DictData() DictDataRepository
+	SysMenu() SysMenuRepository // 添加系统菜单仓储接口
 	Transaction(fn func(Repository) error) error
 	// DB 获取当前仓储使用的gorm.DB
 	DB() *gorm.DB
