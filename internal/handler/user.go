@@ -356,10 +356,18 @@ func (h *UserHandler) GerUserRoles(ctx *gin.Context) {
 		ginx.ParamError(ctx, errors.WithMsg(errors.InvalidParam, "无效的用户ID"))
 		return
 	}
-	roles, err := h.svc.User().GetUserRoles(ctx.Request.Context(), id)
+	list, err := h.svc.User().GetUserRoles(ctx.Request.Context(), id)
 	if err != nil {
 		ginx.ServerError(ctx, err)
 		return
+	}
+	var roles []*dto.UserRoleItem
+	for _, role := range list {
+		roles = append(roles, &dto.UserRoleItem{
+			RoleID:   role.ID,
+			RoleName: role.Name,
+			RoleCode: role.Code,
+		})
 	}
 	ginx.Success(ctx, roles)
 }

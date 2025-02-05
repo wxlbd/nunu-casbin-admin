@@ -175,3 +175,11 @@ type UserListResponse struct {
 type UserAssignRolesRequest struct {
 	RoleCodes []string `json:"role_codes"`
 }
+type UserRoleItem struct {
+	RoleID   uint64 `json:"role_id"`
+	RoleName string `json:"role_name"`
+	RoleCode string `json:"role_code"`
+}
+type UserRolesResponse struct {
+	Roles []*UserRoleItem `json:"roles"`
+}
