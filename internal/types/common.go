@@ -107,8 +107,8 @@ func (b *BackendSetting) UnmarshalJSON(data []byte) error {
 
 // PageParam 分页请求参数
 type PageParam struct {
-	Page     int `json:"page" form:"page"`
-	PageSize int `json:"pageSize" form:"page_size"`
+	Page     int `json:"page" form:"pageNum"`
+	PageSize int `json:"pageSize" form:"pageSize"`
 }
 
 // Normalize 规范化分页参数
