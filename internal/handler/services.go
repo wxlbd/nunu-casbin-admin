@@ -55,7 +55,7 @@ type UserService interface {
 	FindByUsername(ctx context.Context, username string) (*model.User, error)
 	List(ctx context.Context, query *model.UserQuery) ([]*model.User, int64, error)
 	UpdatePassword(ctx context.Context, id uint64, oldPassword, newPassword string) error
-	AssignRoles(ctx context.Context, userID uint64, roleCodes []string) error
+	AssignRoles(ctx context.Context, userID uint64, roleIds []uint64) error
 	Login(ctx context.Context, username, password string) (accessToken, refreshToken string, err error)
 	RefreshToken(ctx context.Context, refreshToken string) (newAccessToken, newRefreshToken string, err error)
 	Logout(ctx context.Context, token string) error
