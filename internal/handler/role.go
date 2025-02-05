@@ -257,3 +257,17 @@ func (h *RoleHandler) Detail(c *gin.Context) {
 	}
 	ginx.Success(c, dto.ToRoleResponse(role))
 }
+
+// GetAllRoles 获取所有角色
+func (h *RoleHandler) GetAllRoles(ctx *gin.Context) {
+	roles, err := h.svc.Role().GetAllRoles(ctx.Request.Context())
+	if err != nil {
+		ginx.ServerError(ctx, err)
+		return
+	}
+	var roleList []*dto.RoleResponse
+	for _, role := range roles {
+		roleList = append(roleList, dto.ToRoleResponse(role))
+	}
+	ginx.Success(ctx, roleList)
+}
