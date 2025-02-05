@@ -39,12 +39,16 @@ func NewServerHTTP(
 		auth.GET("/captcha", handler.Captcha().Generate)
 
 		// 需要JWT认证的接口
-		profile := api.Group("profile").Use(middleware.JWTAuth(jwt))
+		user := api.Group("user")
+		user.Use(middleware.JWTAuth(jwt))
 		{
-			profile.GET("", handler.User().Current)
-			profile.GET("menus", handler.Menu().GetUserMenus)
-			// profile.GET("/menu/tree", handler.Menu().GetMenuTree)
-			profile.GET("roles", handler.User().GetCurrentUserRoles)
+			profile := user.Group("profile")
+			{
+				profile.GET("", handler.User().Current)
+				profile.GET("menus", handler.SysMenu().GetUserMenuTree)
+				// profile.GET("/menu/tree", handler.Menu().GetMenuTree)
+				profile.GET("roles", handler.User().GetCurrentUserRoles)
+			}
 		}
 
 		// 需要完整权限控制的接口
@@ -53,12 +57,12 @@ func NewServerHTTP(
 			middleware.JWTAuth(jwt),
 			middleware.CasbinMiddleware(enforcer, logger, svc),
 		)
+		sys := authorized.Group("system")
+
 		// 权限控制
 		{
-			permission := authorized.Group("permission")
-
 			// 用户管理 system:user:xxx
-			userGroup := permission.Group("user")
+			userGroup := sys.Group("user")
 			{
 				userGroup.GET("", handler.User().List)                         // permission:user:list
 				userGroup.POST("", handler.User().Create)                      // permission:user:create
@@ -71,27 +75,35 @@ func NewServerHTTP(
 			}
 
 			// 角色管理 permission:role:xxx
-			roleGroup := permission.Group("role")
+			roleGroup := sys.Group("role")
 			{
-				roleGroup.GET("", handler.Role().List)                        // permission:role:list
-				roleGroup.POST("", handler.Role().Create)                     // permission:role:create
-				roleGroup.PUT("/:id", handler.Role().Update)                  // permission:role:update
-				roleGroup.DELETE("/:ids", handler.Role().Delete)              // permission:role:delete
-				roleGroup.GET("/:id", handler.Role().Detail)                  // permission:role:detail
-				roleGroup.GET("/:id/menus", handler.Role().GetPermittedMenus) // permission:role:get:menus
-				roleGroup.PUT("/:id/menus", handler.Role().AssignMenus)       // permission:role:set:menus
+				roleGroup.GET("", handler.Role().List)                           // permission:role:list
+				roleGroup.POST("", handler.Role().Create)                        // permission:role:create
+				roleGroup.PUT("/:id", handler.Role().Update)                     // permission:role:update
+				roleGroup.DELETE("/:ids", handler.Role().Delete)                 // permission:role:delete
+				roleGroup.GET("/:id", handler.Role().Detail)                     // permission:role:detail
+				roleGroup.GET("/:id/menus", handler.Role().GetPermittedMenus)    // permission:role:get:menus
+				roleGroup.PUT("/:id/menus", handler.Role().AssignRoleMenusByIDs) // permission:role:set:menus
 			}
 
 			// 菜单管理 permission:menu:xxx
-			menuGroup := permission.Group("menu")
+			menuGroup := sys.Group("menu")
+			// {
+			// 	// menuGroup.GET("", handler.Menu().List)             // permission:menu:list
+			// 	menuGroup.POST("", handler.Menu().Create)          // permission:menu:create
+			// 	menuGroup.PUT("/:id", handler.Menu().Update)       // permission:menu:update
+			// 	menuGroup.DELETE("/:ids", handler.Menu().Delete)   // permission:menu:delete
+			// 	menuGroup.GET("/tree", handler.Menu().GetMenuTree) // permission:menu:tree
+			// }
 			{
-				// menuGroup.GET("", handler.Menu().List)             // permission:menu:list
-				menuGroup.POST("", handler.Menu().Create)          // permission:menu:create
-				menuGroup.PUT("/:id", handler.Menu().Update)       // permission:menu:update
-				menuGroup.DELETE("/:ids", handler.Menu().Delete)   // permission:menu:delete
-				menuGroup.GET("/tree", handler.Menu().GetMenuTree) // permission:menu:tree
+				menuGroup.POST("", handler.SysMenu().Create)                   // system:menu:create
+				menuGroup.PUT("/:id", handler.SysMenu().Update)                // system:menu:update
+				menuGroup.DELETE("/:ids", handler.SysMenu().Delete)            // system:menu:delete
+				menuGroup.GET("", handler.SysMenu().List)                      // system:menu:list
+				menuGroup.GET("/tree", handler.SysMenu().GetMenuTree)          // system:menu:tree
+				menuGroup.GET("/user-tree", handler.SysMenu().GetUserMenuTree) // system:menu:user-tree
 			}
-			sys := authorized.Group("system")
+
 			// 字典管理
 			dict := sys.Group("dict")
 			{
@@ -116,6 +128,15 @@ func NewServerHTTP(
 					dictData.GET("/type/:type", handler.Dict().GetDictDataByType) // system:dict:data:list:type
 				}
 			}
+
+			// 系统菜单管理
+			// menuGroup := sys.Group("menu")
+			// {
+			// 	menuGroup.POST("", handler.SysMenu().Create)        // system:menu:create
+			// 	menuGroup.PUT("/:id", handler.SysMenu().Update)     // system:menu:update
+			// 	menuGroup.DELETE("/:ids", handler.SysMenu().Delete) // system:menu:delete
+			// 	menuGroup.GET("", handler.SysMenu().List)           // system:menu:list
+			// }
 		}
 	}
 
