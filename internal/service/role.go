@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/wxlbd/gin-casbin-admin/internal/types"
 	"strings"
 
 	"github.com/wxlbd/gin-casbin-admin/internal/handler"
@@ -19,6 +20,10 @@ import (
 type roleService struct {
 	repo     Repository
 	enforcer *casbin.Enforcer
+}
+
+func (s *roleService) GetAllRoles(ctx context.Context) ([]*model.Role, error) {
+	return s.repo.Role().GetAllRoles(ctx)
 }
 
 func NewRoleService(repo Repository, enforcer *casbin.Enforcer) handler.RoleService {
@@ -86,9 +91,9 @@ func (s *roleService) List(ctx context.Context, req *dto.RoleListRequest) ([]*mo
 	return s.repo.Role().List(ctx, query)
 }
 
-func (s *roleService) AssignMenus(ctx context.Context, roleID uint64, names []string) error {
+func (s *roleService) AssignMenuByIds(ctx context.Context, roleID uint64, menuIds []uint64) error {
 	// 2. 获取所有按钮类型的菜单（即 API）
-	menus, err := s.repo.Menu().FindByNames(ctx, names...)
+	menus, err := s.repo.SysMenu().FindByIDs(ctx, menuIds...)
 	if err != nil {
 		return err
 	}
@@ -116,7 +121,6 @@ func (s *roleService) AssignMenus(ctx context.Context, roleID uint64, names []st
 			return err
 		}
 
-		var menuIDs []uint64
 		// 使用事务中的 enforcer 删除旧的权限
 		if _, err := txEnforcer.DeletePermissionsForUser(role.Code); err != nil {
 			return err
@@ -124,9 +128,8 @@ func (s *roleService) AssignMenus(ctx context.Context, roleID uint64, names []st
 
 		// 添加新的权限
 		for _, menu := range menus {
-			menuIDs = append(menuIDs, menu.ID)
-			if menu.Meta.Type == "B" {
-				path, method := convertMenuToAPI(menu.Name)
+			if types.MenuType(menu.MenuType) == types.MenuTypeButton {
+				path, method := convertMenuToAPI(menu.Auths)
 				_, err = txEnforcer.AddPolicy(role.Code, path, method)
 				if err != nil {
 					return err
@@ -135,7 +138,7 @@ func (s *roleService) AssignMenus(ctx context.Context, roleID uint64, names []st
 		}
 
 		// 创建新的角色菜单关联
-		return r.RoleMenu().BatchCreate(ctx, roleID, menuIDs)
+		return r.RoleMenu().BatchCreate(ctx, roleID, menuIds)
 	})
 }
 
@@ -231,7 +234,9 @@ func (s *roleService) GetRoleMenus(ctx context.Context, roleID uint64) ([]*model
 	if role == nil {
 		return nil, errors.WithMsg(errors.NotFound, "角色不存在")
 	}
-
+	if role.Code == "SuperAdmin" {
+		return s.repo.Menu().FindAll(ctx)
+	}
 	// 获取角色的菜单列表
 	return s.repo.RoleMenu().FindMenusByRoleID(ctx, roleID)
 }
