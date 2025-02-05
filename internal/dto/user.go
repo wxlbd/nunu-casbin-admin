@@ -126,7 +126,7 @@ type LoginRequest struct {
 
 // RefreshTokenRequest 刷新令牌请求
 type RefreshTokenRequest struct {
-	RefreshToken string `json:"refresh_token" binding:"required"`
+	RefreshToken string `json:"refreshToken" binding:"required"`
 }
 
 // UserListRequest 用户列表请求
