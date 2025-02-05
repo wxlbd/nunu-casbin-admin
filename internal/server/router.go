@@ -39,16 +39,17 @@ func NewServerHTTP(
 		auth.GET("/captcha", handler.Captcha().Generate)
 
 		// 需要JWT认证的接口
-		user := api.Group("user")
-		user.Use(middleware.JWTAuth(jwt))
+		jwtGroup := api.Group("")
+		jwtGroup.Use(middleware.JWTAuth(jwt))
 		{
-			profile := user.Group("profile")
+			profile := jwtGroup.Group("user/profile")
 			{
 				profile.GET("", handler.User().Current)
 				profile.GET("menus", handler.SysMenu().GetUserMenuTree)
 				// profile.GET("/menu/tree", handler.Menu().GetMenuTree)
 				profile.GET("roles", handler.User().GetCurrentUserRoles)
 			}
+			jwtGroup.GET("system/role/all", handler.Role().GetAllRoles)
 		}
 
 		// 需要完整权限控制的接口
