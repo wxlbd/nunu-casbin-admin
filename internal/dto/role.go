@@ -64,11 +64,8 @@ func (r *RoleListRequest) ToModel() *model.RoleQuery {
 	}
 }
 
-// AssignMenusRequest 分配菜单请求
-type AssignMenusRequest struct {
-	RoleID      uint64
-	Permissions []string `json:"permissions" binding:"required"`
-}
+// AssignRoleMenuIdsRequest 分配菜单请求
+type AssignRoleMenuIdsRequest []uint64
 
 // RoleResponse 角色信息响应
 type RoleResponse struct {
