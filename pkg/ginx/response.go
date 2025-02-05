@@ -50,7 +50,12 @@ func ParamError(c *gin.Context, err error) {
 }
 
 // Unauthorized 未授权响应
-func Unauthorized(c *gin.Context) {
+func Unauthorized(c *gin.Context, err error) {
+	var customErr *cerrors.Error
+	if errors.As(err, &customErr) {
+		Error(c, customErr.Code, customErr.Message)
+		return
+	}
 	Error(c, 401, "未授权")
 }
 
