@@ -11,7 +11,6 @@ import (
 type service struct {
 	user    handler.UserService
 	role    handler.RoleService
-	menu    handler.MenuService
 	dict    handler.DictService
 	captcha handler.CaptchaService
 	sysMenu handler.SysMenuService
@@ -21,7 +20,6 @@ func NewService(logger *log.Logger, repo Repository, enforcer *casbin.Enforcer, 
 	return &service{
 		user:    NewUserService(logger, repo, jwt),
 		role:    NewRoleService(repo, enforcer),
-		menu:    NewMenuService(repo, enforcer),
 		dict:    NewDictService(logger, repo),
 		captcha: NewCaptchaService(redisClient),
 		sysMenu: NewSysMenuService(repo),
@@ -34,10 +32,6 @@ func (s *service) User() handler.UserService {
 
 func (s *service) Role() handler.RoleService {
 	return s.role
-}
-
-func (s *service) Menu() handler.MenuService {
-	return s.menu
 }
 
 func (s *service) Dict() handler.DictService {

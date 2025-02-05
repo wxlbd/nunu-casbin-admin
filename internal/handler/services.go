@@ -2,21 +2,9 @@ package handler
 
 import (
 	"context"
-
 	"github.com/wxlbd/gin-casbin-admin/internal/dto"
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
 )
-
-type MenuService interface {
-	Create(ctx context.Context, req *dto.CreateMenuRequest) error
-	Update(ctx context.Context, req *dto.UpdateMenuRequest) error
-	Delete(ctx context.Context, id ...uint64) error
-	FindByID(ctx context.Context, id uint64) (*model.Menu, error)
-	List(ctx context.Context, query *model.MenuQuery) ([]*model.Menu, int64, error)
-	GetMenuTree(ctx context.Context) ([]*model.MenuTree, error)
-	GetUserMenus(ctx context.Context, userID uint64) ([]*model.MenuTree, error)
-	GetAllMenus(ctx context.Context) ([]*model.Menu, error)
-}
 
 type DictService interface {
 	// CreateDictType DictType
@@ -41,10 +29,10 @@ type RoleService interface {
 	Delete(ctx context.Context, id ...uint64) error
 	FindByID(ctx context.Context, id uint64) (*model.Role, error)
 	List(ctx context.Context, req *dto.RoleListRequest) ([]*model.Role, int64, error)
-	GetRoleMenus(ctx context.Context, roleID uint64) ([]*model.Menu, error)
 	AssignMenuByIds(ctx context.Context, roleID uint64, menuIds []uint64) error
 	// GetAllRoles 获取所有角色
 	GetAllRoles(ctx context.Context) ([]*model.Role, error)
+	GetRoleMenus(c context.Context, id uint64) ([]*model.SysMenu, error)
 }
 
 type UserService interface {
@@ -80,7 +68,6 @@ type SysMenuService interface {
 type Service interface {
 	User() UserService
 	Role() RoleService
-	Menu() MenuService
 	Dict() DictService
 	Captcha() CaptchaService
 	SysMenu() SysMenuService

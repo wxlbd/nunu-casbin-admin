@@ -38,8 +38,8 @@ func (r *roleMenuRepository) DeleteByRoleID(ctx context.Context, roleID uint64) 
 	return err
 }
 
-func (r *roleMenuRepository) FindMenusByRoleID(ctx context.Context, roleID uint64) ([]*model.Menu, error) {
-	menus, err := r.query.WithContext(ctx).Menu.LeftJoin(r.query.RoleMenus, r.query.RoleMenus.MenuID.EqCol(r.query.Menu.ID)).Where(r.query.RoleMenus.RoleID.Eq(roleID)).Find()
+func (r *roleMenuRepository) FindMenusByRoleID(ctx context.Context, roleID uint64) ([]*model.SysMenu, error) {
+	menus, err := r.query.WithContext(ctx).SysMenu.LeftJoin(r.query.RoleMenus, r.query.RoleMenus.MenuID.EqCol(r.query.SysMenu.ID)).Where(r.query.RoleMenus.RoleID.Eq(roleID)).Find()
 	if err != nil {
 		return nil, err
 	}
@@ -73,8 +73,8 @@ func (r *roleMenuRepository) BatchCreate(ctx context.Context, roleID uint64, men
 	})
 }
 
-func (r *roleMenuRepository) FindMenusByRoleIDs(ctx context.Context, roleIDs ...uint64) ([]*model.Menu, error) {
-	menus, err := r.query.WithContext(ctx).Menu.LeftJoin(r.query.RoleMenus, r.query.RoleMenus.MenuID.EqCol(r.query.Menu.ID)).Where(r.query.RoleMenus.RoleID.In(roleIDs...)).Find()
+func (r *roleMenuRepository) FindMenusByRoleIDs(ctx context.Context, roleIDs ...uint64) ([]*model.SysMenu, error) {
+	menus, err := r.query.WithContext(ctx).SysMenu.LeftJoin(r.query.RoleMenus, r.query.RoleMenus.MenuID.EqCol(r.query.SysMenu.ID)).Where(r.query.RoleMenus.RoleID.In(roleIDs...)).Find()
 	if err != nil {
 		return nil, err
 	}

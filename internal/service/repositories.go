@@ -26,21 +26,6 @@ type DictDataRepository interface {
 	List(ctx context.Context, query *model.DictDataQuery) ([]*model.DictDatum, int64, error)
 }
 
-type MenuRepository interface {
-	Create(ctx context.Context, menu *model.Menu) error
-	BatchCreate(ctx context.Context, menus []*model.Menu) error
-	Update(ctx context.Context, menu *model.Menu) error
-	BatchUpdate(ctx context.Context, menus []*model.Menu) error
-	Delete(ctx context.Context, ids ...uint64) error
-	FindByID(ctx context.Context, id uint64) (*model.Menu, error)
-	FindByIDs(ctx context.Context, ids []uint64) ([]*model.Menu, error)
-	FindByNames(ctx context.Context, names ...string) ([]*model.Menu, error)
-	FindAll(ctx context.Context) ([]*model.Menu, error)
-	List(ctx context.Context, query *model.MenuQuery) ([]*model.Menu, int64, error)
-	FindByParentID(ctx context.Context, parentID uint64) ([]*model.Menu, error)
-	FindByRoleID(ctx context.Context, roleID uint64) ([]*model.Menu, error)
-}
-
 type RoleRepository interface {
 	Create(ctx context.Context, role *model.Role) error
 	Update(ctx context.Context, role *model.Role) error
@@ -59,10 +44,10 @@ type RoleMenuRepository interface {
 	Create(ctx context.Context, roleID, menuID uint64) error
 	Delete(ctx context.Context, roleID, menuID uint64) error
 	DeleteByRoleID(ctx context.Context, roleID uint64) error
-	FindMenusByRoleID(ctx context.Context, roleID uint64) ([]*model.Menu, error)
+	FindMenusByRoleID(ctx context.Context, roleID uint64) ([]*model.SysMenu, error)
 	FindRolesByMenuID(ctx context.Context, menuID uint64) ([]*model.Role, error)
 	BatchCreate(ctx context.Context, roleID uint64, menuIDs []uint64) error
-	FindMenusByRoleIDs(ctx context.Context, roleIDs ...uint64) ([]*model.Menu, error)
+	FindMenusByRoleIDs(ctx context.Context, roleIDs ...uint64) ([]*model.SysMenu, error)
 	FindRolesByMenuIDs(ctx context.Context, menuIDs []uint64) ([]*model.Role, error)
 }
 
@@ -95,7 +80,6 @@ type UserRoleRepository interface {
 type Repository interface {
 	User() UserRepository
 	Role() RoleRepository
-	Menu() MenuRepository
 	UserRole() UserRoleRepository
 	RoleMenu() RoleMenuRepository
 	DictType() DictTypeRepository

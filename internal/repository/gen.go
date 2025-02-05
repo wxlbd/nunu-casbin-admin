@@ -19,7 +19,6 @@ var (
 	Q         = new(Query)
 	DictDatum *dictDatum
 	DictType  *dictType
-	Menu      *menu
 	Role      *role
 	RoleMenus *roleMenus
 	SysMenu   *sysMenu
@@ -31,7 +30,6 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
 	DictDatum = &Q.DictDatum
 	DictType = &Q.DictType
-	Menu = &Q.Menu
 	Role = &Q.Role
 	RoleMenus = &Q.RoleMenus
 	SysMenu = &Q.SysMenu
@@ -44,7 +42,6 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		db:        db,
 		DictDatum: newDictDatum(db, opts...),
 		DictType:  newDictType(db, opts...),
-		Menu:      newMenu(db, opts...),
 		Role:      newRole(db, opts...),
 		RoleMenus: newRoleMenus(db, opts...),
 		SysMenu:   newSysMenu(db, opts...),
@@ -58,7 +55,6 @@ type Query struct {
 
 	DictDatum dictDatum
 	DictType  dictType
-	Menu      menu
 	Role      role
 	RoleMenus roleMenus
 	SysMenu   sysMenu
@@ -73,7 +69,6 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		db:        db,
 		DictDatum: q.DictDatum.clone(db),
 		DictType:  q.DictType.clone(db),
-		Menu:      q.Menu.clone(db),
 		Role:      q.Role.clone(db),
 		RoleMenus: q.RoleMenus.clone(db),
 		SysMenu:   q.SysMenu.clone(db),
@@ -95,7 +90,6 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		db:        db,
 		DictDatum: q.DictDatum.replaceDB(db),
 		DictType:  q.DictType.replaceDB(db),
-		Menu:      q.Menu.replaceDB(db),
 		Role:      q.Role.replaceDB(db),
 		RoleMenus: q.RoleMenus.replaceDB(db),
 		SysMenu:   q.SysMenu.replaceDB(db),
@@ -107,7 +101,6 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 type queryCtx struct {
 	DictDatum IDictDatumDo
 	DictType  IDictTypeDo
-	Menu      IMenuDo
 	Role      IRoleDo
 	RoleMenus IRoleMenusDo
 	SysMenu   ISysMenuDo
@@ -119,7 +112,6 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
 		DictDatum: q.DictDatum.WithContext(ctx),
 		DictType:  q.DictType.WithContext(ctx),
-		Menu:      q.Menu.WithContext(ctx),
 		Role:      q.Role.WithContext(ctx),
 		RoleMenus: q.RoleMenus.WithContext(ctx),
 		SysMenu:   q.SysMenu.WithContext(ctx),

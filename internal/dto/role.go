@@ -86,4 +86,4 @@ type RoleListResponse struct {
 }
 
 // RoleMenusResponse 角色菜单响应
-type RoleMenusResponse []*Menu
+type RoleMenusResponse []*SysMenuResponse
