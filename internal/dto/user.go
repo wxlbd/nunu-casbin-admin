@@ -173,12 +173,12 @@ type UserListResponse struct {
 
 // UserAssignRolesRequest 用户分配角色
 type UserAssignRolesRequest struct {
-	RoleCodes []string `json:"role_codes"`
+	RoleIds []uint64 `json:"roleIds"`
 }
 type UserRoleItem struct {
-	RoleID   uint64 `json:"role_id"`
-	RoleName string `json:"role_name"`
-	RoleCode string `json:"role_code"`
+	ID   uint64 `json:"id"`
+	Name string `json:"name"`
+	Code string `json:"code"`
 }
 type UserRolesResponse struct {
 	Roles []*UserRoleItem `json:"roles"`
