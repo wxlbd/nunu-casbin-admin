@@ -85,7 +85,7 @@ func (h *UserHandler) RefreshToken(c *gin.Context) {
 
 	accessToken, refreshToken, err := h.svc.User().RefreshToken(c, req.RefreshToken)
 	if err != nil {
-		ginx.Unauthorized(c)
+		ginx.Unauthorized(c, err)
 		return
 	}
 
@@ -260,7 +260,7 @@ func (h *UserHandler) AssignRoles(c *gin.Context) {
 		ginx.ParamError(c, errors.WithMsg(errors.InvalidParam, "无效的用户ID"))
 		return
 	}
-	if err := h.svc.User().AssignRoles(c, userID, req.RoleCodes); err != nil {
+	if err := h.svc.User().AssignRoles(c, userID, req.RoleIds); err != nil {
 		ginx.ServerError(c, err)
 		return
 	}
@@ -364,9 +364,9 @@ func (h *UserHandler) GerUserRoles(ctx *gin.Context) {
 	var roles []*dto.UserRoleItem
 	for _, role := range list {
 		roles = append(roles, &dto.UserRoleItem{
-			RoleID:   role.ID,
-			RoleName: role.Name,
-			RoleCode: role.Code,
+			ID:   role.ID,
+			Name: role.Name,
+			Code: role.Code,
 		})
 	}
 	ginx.Success(ctx, roles)
