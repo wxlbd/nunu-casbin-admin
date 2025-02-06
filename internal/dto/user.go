@@ -7,15 +7,14 @@ import (
 
 // UserBase 基础字段
 type UserBase struct {
-	Nickname       string                `json:"nickname"`
-	Phone          string                `json:"phone"`
-	Email          string                `json:"email"`
-	Avatar         string                `json:"avatar"`
-	Status         int8                  `json:"status"`
-	UserType       int                   `json:"user_type"`
-	Signed         string                `json:"signed"`
-	BackendSetting *types.BackendSetting `json:"backend_setting"`
-	Remark         string                `json:"remark"`
+	Nickname string `json:"nickname"`
+	Phone    string `json:"phone"`
+	Email    string `json:"email"`
+	Avatar   string `json:"avatar"`
+	Status   int8   `json:"status"`
+	UserType int    `json:"user_type"`
+	Signed   string `json:"signed"`
+	Remark   string `json:"remark"`
 }
 
 // CreateUserRequest CreateUserReq 创建用户请求
@@ -79,15 +78,14 @@ func ToUserResponse(m *model.User) *UserResponse {
 		ID:       m.ID,
 		Username: m.Username,
 		UserBase: UserBase{
-			Nickname:       m.Nickname,
-			Phone:          m.Phone,
-			Email:          m.Email,
-			Status:         m.Status,
-			BackendSetting: m.BackendSetting,
-			Remark:         m.Remark,
-			Avatar:         m.Avatar,
-			UserType:       m.UserType,
-			Signed:         m.Signed,
+			Nickname: m.Nickname,
+			Phone:    m.Phone,
+			Email:    m.Email,
+			Status:   m.Status,
+			Remark:   m.Remark,
+			Avatar:   m.Avatar,
+			UserType: m.UserType,
+			Signed:   m.Signed,
 		},
 		CreatedBy: m.CreatedBy,
 		UpdatedBy: m.UpdatedBy,
