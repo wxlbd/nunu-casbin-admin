@@ -102,6 +102,24 @@ func (s *userService) UpdatePassword(ctx context.Context, id uint64, oldPassword
 	return s.repo.User().Update(ctx, user)
 }
 
+// ResetPassword 重置用户密码
+func (s *userService) ResetPassword(ctx context.Context, id uint64, newPassword string) error {
+	user, err := s.repo.User().FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return errors.WithMsg(errors.NotFound, "用户不存在")
+	}
+	// 加密新密码
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return errors.WithMsg(errors.ServerError, "密码加密失败")
+	}
+	user.Password = string(hashedPassword)
+	return s.repo.User().Update(ctx, user)
+}
+
 func (s *userService) AssignRoles(ctx context.Context, userID uint64, roleIds []uint64) error {
 	return s.repo.Transaction(func(r Repository) error {
 		// 删除原有的用户-角色关系

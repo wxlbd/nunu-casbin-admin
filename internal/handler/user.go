@@ -155,19 +155,26 @@ func (h *UserHandler) Create(c *gin.Context) {
 // @Failure 500 {object} ginx.Response "服务器内部错误"
 // @Security Bearer
 // @Router /permission/user/{id} [put]
-func (h *UserHandler) Update(c *gin.Context) {
+func (h *UserHandler) Update(ctx *gin.Context) {
 	var user dto.UpdateUserRequest
-	if err := c.ShouldBindJSON(&user); err != nil {
-		ginx.ParamError(c, err)
+	p := ctx.Param("id")
+	id, err := strconv.ParseUint(p, 10, 64)
+	if err != nil {
+		ginx.ParamError(ctx, errors.WithMsg(errors.InvalidParam, "无效的用户ID"))
+		return
+	}
+	user.ID = id
+	if err := ctx.ShouldBindJSON(&user); err != nil {
+		ginx.ParamError(ctx, err)
 		return
 	}
 
-	if err := h.svc.User().Update(c, user.ToModel()); err != nil {
-		ginx.ServerError(c, err)
+	if err := h.svc.User().Update(ctx, user.ToModel()); err != nil {
+		ginx.ServerError(ctx, err)
 		return
 	}
 
-	ginx.Success(c, nil)
+	ginx.Success(ctx, nil)
 }
 
 // Delete 删除用户
@@ -268,21 +275,25 @@ func (h *UserHandler) AssignRoles(c *gin.Context) {
 	ginx.Success(c, nil)
 }
 
-// UpdatePassword 修改密码
-func (h *UserHandler) UpdatePassword(c *gin.Context) {
-	var req dto.UpdatePasswordRequest
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		ginx.ParamError(c, err)
+// ResetPassword 重置用户密码
+func (h *UserHandler) ResetPassword(ctx *gin.Context) {
+	var req dto.ResetPasswordRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ginx.ParamError(ctx, err)
 		return
 	}
-
-	if err := h.svc.User().UpdatePassword(c, req.ID, req.OldPassword, req.NewPassword); err != nil {
-		ginx.ServerError(c, err)
+	p := ctx.Param("id")
+	id, err := strconv.ParseUint(p, 10, 64)
+	if err != nil {
+		ginx.ParamError(ctx, errors.WithMsg(errors.InvalidParam, "无效的用户ID"))
 		return
 	}
-
-	ginx.Success(c, nil)
+	req.ID = id
+	if err := h.svc.User().ResetPassword(ctx, req.ID, req.Password); err != nil {
+		ginx.ServerError(ctx, err)
+		return
+	}
+	ginx.Success(ctx, nil)
 }
 
 // Current 获取当前用户信息

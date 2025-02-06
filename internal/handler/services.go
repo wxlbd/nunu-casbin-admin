@@ -48,6 +48,7 @@ type UserService interface {
 	RefreshToken(ctx context.Context, refreshToken string) (newAccessToken, newRefreshToken string, err error)
 	Logout(ctx context.Context, token string) error
 	GetUserRoles(ctx context.Context, userID uint64) ([]*model.Role, error)
+	ResetPassword(ctx context.Context, id uint64, newPassword string) error
 }
 
 type CaptchaService interface {

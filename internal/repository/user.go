@@ -31,7 +31,11 @@ func (r *userRepository) Create(ctx context.Context, user *model.User) error {
 }
 
 func (r *userRepository) Update(ctx context.Context, user *model.User) error {
-	return r.query.WithContext(ctx).User.Save(user)
+	_, err := r.query.WithContext(ctx).User.Updates(user)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *userRepository) Delete(ctx context.Context, ids ...uint64) error {
