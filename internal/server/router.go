@@ -65,37 +65,30 @@ func NewServerHTTP(
 			// 用户管理 system:user:xxx
 			userGroup := sys.Group("user")
 			{
-				userGroup.GET("", handler.User().List)                         // permission:user:list
-				userGroup.POST("", handler.User().Create)                      // permission:user:create
-				userGroup.PUT("/:id", handler.User().Update)                   // permission:user:update
-				userGroup.DELETE("/:ids", handler.User().Delete)               // permission:user:delete
-				userGroup.GET("/:id", handler.User().Detail)                   // permission:user:detail
-				userGroup.GET("/:id/roles", handler.User().GerUserRoles)       // permission:user:get:roles
-				userGroup.PATCH(":id/password", handler.User().UpdatePassword) // permission:user:set:password
-				userGroup.PUT(":id/roles", handler.User().AssignRoles)         // permission:user:set:roles
+				userGroup.GET("", handler.User().List)                      // system:user:list
+				userGroup.POST("", handler.User().Create)                   // system:user:create
+				userGroup.PUT("/:id", handler.User().Update)                // system:user:update
+				userGroup.DELETE("/:ids", handler.User().Delete)            // system:user:delete
+				userGroup.GET("/:id", handler.User().Detail)                // system:user:detail
+				userGroup.GET("/:id/roles", handler.User().GerUserRoles)    // system:user:get:roles
+				userGroup.PUT(":id/password", handler.User().ResetPassword) // system:user:set:password
+				userGroup.PUT(":id/roles", handler.User().AssignRoles)      // system:user:set:roles
 			}
 
 			// 角色管理 permission:role:xxx
 			roleGroup := sys.Group("role")
 			{
-				roleGroup.GET("", handler.Role().List)                           // permission:role:list
-				roleGroup.POST("", handler.Role().Create)                        // permission:role:create
-				roleGroup.PUT("/:id", handler.Role().Update)                     // permission:role:update
-				roleGroup.DELETE("/:ids", handler.Role().Delete)                 // permission:role:delete
-				roleGroup.GET("/:id", handler.Role().Detail)                     // permission:role:detail
-				roleGroup.GET("/:id/menus", handler.Role().GetPermittedMenus)    // permission:role:get:menus
-				roleGroup.PUT("/:id/menus", handler.Role().AssignRoleMenusByIDs) // permission:role:set:menus
+				roleGroup.GET("", handler.Role().List)                           // system:role:list
+				roleGroup.POST("", handler.Role().Create)                        // system:role:create
+				roleGroup.PUT("/:id", handler.Role().Update)                     // system:role:update
+				roleGroup.DELETE("/:ids", handler.Role().Delete)                 // system:role:delete
+				roleGroup.GET("/:id", handler.Role().Detail)                     // system:role:detail
+				roleGroup.GET("/:id/menus", handler.Role().GetPermittedMenus)    // system:role:get:menus
+				roleGroup.PUT("/:id/menus", handler.Role().AssignRoleMenusByIDs) // system:role:set:menus
 			}
 
 			// 菜单管理 permission:menu:xxx
 			menuGroup := sys.Group("menu")
-			// {
-			// 	// menuGroup.GET("", handler.Menu().List)             // permission:menu:list
-			// 	menuGroup.POST("", handler.Menu().Create)          // permission:menu:create
-			// 	menuGroup.PUT("/:id", handler.Menu().Update)       // permission:menu:update
-			// 	menuGroup.DELETE("/:ids", handler.Menu().Delete)   // permission:menu:delete
-			// 	menuGroup.GET("/tree", handler.Menu().GetMenuTree) // permission:menu:tree
-			// }
 			{
 				menuGroup.POST("", handler.SysMenu().Create)                   // system:menu:create
 				menuGroup.PUT("/:id", handler.SysMenu().Update)                // system:menu:update
@@ -129,15 +122,6 @@ func NewServerHTTP(
 					dictData.GET("/type/:type", handler.Dict().GetDictDataByType) // system:dict:data:list:type
 				}
 			}
-
-			// 系统菜单管理
-			// menuGroup := sys.Group("menu")
-			// {
-			// 	menuGroup.POST("", handler.SysMenu().Create)        // system:menu:create
-			// 	menuGroup.PUT("/:id", handler.SysMenu().Update)     // system:menu:update
-			// 	menuGroup.DELETE("/:ids", handler.SysMenu().Delete) // system:menu:delete
-			// 	menuGroup.GET("", handler.SysMenu().List)           // system:menu:list
-			// }
 		}
 	}
 
