@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"gorm.io/gorm"
 
 	"github.com/wxlbd/gin-casbin-admin/internal/model"
 	"github.com/wxlbd/gin-casbin-admin/internal/service"
@@ -43,7 +45,14 @@ func (r *dictTypeRepository) FindByID(ctx context.Context, id int64) (*model.Dic
 }
 
 func (r *dictTypeRepository) FindByCode(ctx context.Context, code string) (*model.DictType, error) {
-	return r.query.WithContext(ctx).DictType.Where(r.query.DictType.Code.Eq(code)).First()
+	first, err := r.query.WithContext(ctx).DictType.Where(r.query.DictType.Code.Eq(code)).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return first, nil
 }
 
 func (r *dictTypeRepository) List(ctx context.Context, query *model.DictTypeQuery) ([]*model.DictType, int64, error) {

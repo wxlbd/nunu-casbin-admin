@@ -331,7 +331,6 @@ func (h *DictHandler) ListDictData(c *gin.Context) {
 		ginx.ParamError(c, err)
 		return
 	}
-
 	list, total, err := h.svc.ListDictData(c, &query)
 	if err != nil {
 		ginx.ServerError(c, err)

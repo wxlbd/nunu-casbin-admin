@@ -99,10 +99,9 @@ func NewServerHTTP(
 			}
 
 			// 字典管理
-			dict := sys.Group("dict")
 			{
 				// 字典类型管理
-				dictType := dict.Group("type")
+				dictType := sys.Group("dict-type")
 				{
 					dictType.POST("", handler.Dict().CreateDictType)        // system:dict:type:create
 					dictType.PUT("/:id", handler.Dict().UpdateDictType)     // system:dict:type:update
@@ -112,14 +111,14 @@ func NewServerHTTP(
 				}
 
 				// 字典数据管理
-				dictData := dict.Group("data")
+				dictData := sys.Group("dict-data")
 				{
-					dictData.POST("", handler.Dict().CreateDictData)              // system:dict:data:create
-					dictData.PUT("/:id", handler.Dict().UpdateDictData)           // system:dict:data:update
-					dictData.DELETE("/:ids", handler.Dict().DeleteDictData)       // system:dict:data:delete
-					dictData.GET("/:id", handler.Dict().GetDictData)              // system:dict:data:detail
-					dictData.GET("", handler.Dict().ListDictData)                 // system:dict:data:list
-					dictData.GET("/type/:type", handler.Dict().GetDictDataByType) // system:dict:data:list:type
+					dictData.POST("", handler.Dict().CreateDictData)        // system:dict:data:create
+					dictData.PUT("/:id", handler.Dict().UpdateDictData)     // system:dict:data:update
+					dictData.DELETE("/:ids", handler.Dict().DeleteDictData) // system:dict:data:delete
+					dictData.GET("/:id", handler.Dict().GetDictData)        // system:dict:data:detail
+					dictData.GET("", handler.Dict().ListDictData)           // system:dict:data:list
+					//dictData.GET("/type/:type", handler.Dict().GetDictDataByType) // system:dict:data:list:type
 				}
 			}
 		}

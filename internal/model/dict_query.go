@@ -9,9 +9,9 @@ type DictTypeQuery struct {
 }
 
 type DictDataQuery struct {
-	TypeCode string `form:"type_code"`
+	TypeCode string `form:"typeCode"`
 	Label    string `form:"label"`
 	Status   int32  `form:"status"`
-	Page     int    `form:"page,default=1"`
-	PageSize int    `form:"page_size,default=10"`
+	Page     int    `form:"pageNum,default=1"`
+	PageSize int    `form:"pageSize,default=10"`
 }

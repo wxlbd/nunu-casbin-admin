@@ -30,7 +30,7 @@ type DictTypeResponse struct {
 // DictData DTOs
 type DictDataRequest struct {
 	ID       int64  `json:"id"`
-	TypeCode string `json:"type_code" binding:"required"`
+	TypeCode string `json:"typeCode" binding:"required"`
 	Label    string `json:"label" binding:"required"`
 	Value    string `json:"value" binding:"required"`
 	Status   int32  `json:"status" binding:"required"`
