@@ -61,7 +61,7 @@ type UserRepository interface {
 }
 type SysMenuRepository interface {
 	Create(ctx context.Context, menu *model.SysMenu) error
-	Save(ctx context.Context, menu *model.SysMenu) error
+	Update(ctx context.Context, menu *model.SysMenu) error
 	Delete(ctx context.Context, ids ...int64) error
 	Get(ctx context.Context, id int64) (*model.SysMenu, error)
 	FindByTitle(ctx context.Context, title string) (*model.SysMenu, error)

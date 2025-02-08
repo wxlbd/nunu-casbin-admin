@@ -83,7 +83,7 @@ func (s *sysMenuService) Update(ctx context.Context, menu *model.SysMenu) error 
 	}
 
 	// 4. 更新菜单
-	return s.repo.SysMenu().Save(ctx, menu)
+	return s.repo.SysMenu().Update(ctx, menu)
 }
 
 func (s *sysMenuService) Delete(ctx context.Context, ids ...int64) error {

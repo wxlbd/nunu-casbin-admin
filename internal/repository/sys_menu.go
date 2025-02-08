@@ -31,8 +31,13 @@ func (r *sysMenuRepository) Create(ctx context.Context, menu *model.SysMenu) err
 	return r.WithContext(ctx).SysMenu.Create(menu)
 }
 
-func (r *sysMenuRepository) Save(ctx context.Context, menu *model.SysMenu) error {
-	return r.WithContext(ctx).SysMenu.Save(menu)
+func (r *sysMenuRepository) Update(ctx context.Context, menu *model.SysMenu) error {
+	// gorm gen生成的代码使用结构体不能更新零值字段
+	err := r.db.Select("*").Omit("created_at").Updates(menu).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *sysMenuRepository) Delete(ctx context.Context, ids ...int64) error {
