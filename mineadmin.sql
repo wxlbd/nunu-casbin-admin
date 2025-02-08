@@ -11,7 +11,7 @@
  Target Server Version : 50744 (5.7.44)
  File Encoding         : 65001
 
- Date: 06/02/2025 09:56:40
+ Date: 08/02/2025 10:13:24
 */
 
 SET NAMES utf8mb4;
@@ -88,22 +88,23 @@ COMMIT;
 DROP TABLE IF EXISTS `dict_data`;
 CREATE TABLE `dict_data` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `type_code` varchar(30) NOT NULL COMMENT '字典类型编码',
-  `label` varchar(20) NOT NULL COMMENT '字典key',
-  `value` varchar(255) NOT NULL COMMENT '字典值',
+  `type_code` varchar(30) CHARACTER SET latin1 NOT NULL COMMENT '字典类型编码',
+  `label` varchar(20) CHARACTER SET utf8mb4 NOT NULL COMMENT '字典key',
+  `value` varchar(255) CHARACTER SET utf8mb4 NOT NULL COMMENT '字典值',
   `status` int(11) NOT NULL DEFAULT '1' COMMENT '字典状态:1-正常,2-禁用',
   `sort` int(11) NOT NULL COMMENT '排序',
-  `remark` varchar(255) NOT NULL COMMENT '备注',
+  `remark` varchar(255) CHARACTER SET utf8mb4 NOT NULL COMMENT '备注',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='字典数据表';
 
 -- ----------------------------
 -- Records of dict_data
 -- ----------------------------
 BEGIN;
+INSERT INTO `dict_data` (`id`, `type_code`, `label`, `value`, `status`, `sort`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (1, 'gender', '男', '1', 1, 0, '备注', '2025-02-08 02:05:26', '2025-02-08 10:05:27', 0);
 COMMIT;
 
 -- ----------------------------
@@ -121,76 +122,14 @@ CREATE TABLE `dict_types` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='字典类型表';
 
 -- ----------------------------
 -- Records of dict_types
 -- ----------------------------
 BEGIN;
-COMMIT;
-
--- ----------------------------
--- Table structure for menu
--- ----------------------------
-DROP TABLE IF EXISTS `menu`;
-CREATE TABLE `menu` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `parent_id` bigint(20) unsigned NOT NULL COMMENT '父ID',
-  `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '菜单名称',
-  `meta` json DEFAULT NULL COMMENT '附加属性',
-  `path` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '路径',
-  `component` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '组件路径',
-  `redirect` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '重定向地址',
-  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '状态:1=正常,2=停用',
-  `sort` smallint(6) NOT NULL DEFAULT '0' COMMENT '排序',
-  `created_by` bigint(20) NOT NULL DEFAULT '0' COMMENT '创建者',
-  `updated_by` bigint(20) NOT NULL DEFAULT '0' COMMENT '更新者',
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `remark` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '备注',
-  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `menu_name_unique` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='菜单信息表';
-
--- ----------------------------
--- Records of menu
--- ----------------------------
-BEGIN;
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (1, 0, 'permission', '{\"i18n\": \"baseMenu.permission.index\", \"icon\": \"ri:git-repository-private-line\", \"type\": \"M\", \"affix\": false, \"cache\": true, \"title\": \"权限管理\", \"hidden\": false, \"copyright\": true, \"componentPath\": \"modules/\", \"componentSuffix\": \".vue\", \"breadcrumbEnable\": true}', '/permission', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:22:58', '', 'menu');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (2, 1, 'permission:user', '{\"i18n\": \"baseMenu.permission.user\", \"icon\": \"material-symbols:manage-accounts-outline\", \"type\": \"M\", \"affix\": false, \"cache\": true, \"title\": \"用户管理\", \"hidden\": false, \"copyright\": true, \"componentPath\": \"modules/\", \"componentSuffix\": \".vue\", \"breadcrumbEnable\": true}', '/permission/user', 'base/views/permission/user/index', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:45:57', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (3, 2, 'permission:user:index', '{\"i18n\": \"baseMenu.permission.userList\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"用户列表\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:45:57', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (4, 2, 'permission:user:save', '{\"i18n\": \"baseMenu.permission.userSave\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"用户保存\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:45:57', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (5, 2, 'permission:user:update', '{\"i18n\": \"baseMenu.permission.userUpdate\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"用户更新\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:45:57', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (6, 2, 'permission:user:delete', '{\"i18n\": \"baseMenu.permission.userDelete\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"用户删除\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:45:57', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (7, 2, 'permission:user:set:password', '{\"i18n\": \"baseMenu.permission.userPassword\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"用户初始化密码\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:45:57', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (8, 2, 'permission:user:get:roles', '{\"i18n\": \"baseMenu.permission.getUserRole\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"获取用户角色\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:45:57', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (9, 2, 'permission:user:set:roles', '{\"i18n\": \"baseMenu.permission.setUserRole\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"用户角色赋予\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:45:57', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (10, 1, 'permission:menu', '{\"i18n\": \"baseMenu.permission.menu\", \"icon\": \"ph:list-bold\", \"type\": \"M\", \"affix\": false, \"cache\": true, \"title\": \"菜单管理\", \"hidden\": false, \"copyright\": true, \"componentPath\": \"modules/\", \"componentSuffix\": \".vue\", \"breadcrumbEnable\": true}', '/permission/menu', 'base/views/permission/menu/index', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 16:21:17', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (11, 10, 'permission:menu:tree', '{\"i18n\": \"baseMenu.permission.menuList\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"菜单列表\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-16 10:16:54', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (12, 10, 'permission:menu:create', '{\"i18n\": \"baseMenu.permission.menuSave\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"菜单保存\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 16:21:17', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (13, 10, 'permission:menu:update', '{\"i18n\": \"baseMenu.permission.menuUpdate\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"菜单更新\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 16:21:17', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (14, 10, 'permission:menu:delete', '{\"i18n\": \"baseMenu.permission.menuDelete\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"菜单删除\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 16:21:17', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (15, 1, 'permission:role', '{\"i18n\": \"baseMenu.permission.role\", \"icon\": \"material-symbols:supervisor-account-outline-rounded\", \"type\": \"M\", \"affix\": false, \"cache\": true, \"title\": \"角色管理\", \"hidden\": false, \"copyright\": true, \"componentPath\": \"modules/\", \"componentSuffix\": \".vue\", \"breadcrumbEnable\": true}', '/permission/role', 'base/views/permission/role/index', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 13:13:04', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (16, 15, 'permission:role:index', '{\"i18n\": \"baseMenu.permission.roleList\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"角色列表\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 13:13:04', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (17, 15, 'permission:role:create', '{\"i18n\": \"baseMenu.permission.roleSave\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"角色创建\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 13:17:24', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (18, 15, 'permission:role:update', '{\"i18n\": \"baseMenu.permission.roleUpdate\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"角色更新\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 13:13:04', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (19, 15, 'permission:role:delete', '{\"i18n\": \"baseMenu.permission.roleDelete\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"角色删除\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 13:13:04', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (20, 15, 'permission:role:get:menus', '{\"i18n\": \"baseMenu.permission.getRolePermission\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"获取角色权限\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 13:13:04', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (21, 15, 'permission:role:set:menus', '{\"i18n\": \"baseMenu.permission.setRolePermission\", \"icon\": \"\", \"type\": \"B\", \"affix\": false, \"cache\": false, \"title\": \"赋予角色权限\", \"hidden\": false, \"copyright\": false, \"componentPath\": \"\", \"componentSuffix\": \"\", \"breadcrumbEnable\": false}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 13:13:04', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (22, 0, 'log', '{\"i18n\": \"baseMenu.log.index\", \"icon\": \"ph:instagram-logo\", \"type\": \"M\", \"affix\": false, \"cache\": true, \"title\": \"日志管理\", \"hidden\": false, \"copyright\": true, \"componentPath\": \"modules/\", \"componentSuffix\": \".vue\", \"breadcrumbEnable\": true}', '/log', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:22:58', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (23, 22, 'log:userLogin', '{\"i18n\": \"baseMenu.log.userLoginLog\", \"icon\": \"ph:user-list\", \"type\": \"M\", \"affix\": false, \"cache\": true, \"title\": \"用户登录日志管理\", \"hidden\": false, \"copyright\": true, \"componentPath\": \"modules/\", \"componentSuffix\": \".vue\", \"breadcrumbEnable\": true}', '/log/userLoginLog', 'base/views/log/userLogin', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:22:58', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (24, 23, 'log:userLogin:list', '{\"i18n\": \"baseMenu.log.userLoginLogList\", \"type\": \"B\", \"title\": \"用户登录日志列表\"}', '/log/userLoginLog', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:22:58', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (25, 23, 'log:userLogin:delete', '{\"i18n\": \"baseMenu.log.userLoginLogDelete\", \"type\": \"B\", \"title\": \"删除用户登录日志\"}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:22:58', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (26, 22, 'log:userOperation', '{\"i18n\": \"baseMenu.log.operationLog\", \"icon\": \"ph:list-magnifying-glass\", \"type\": \"M\", \"affix\": false, \"cache\": true, \"title\": \"操作日志管理\", \"hidden\": false, \"copyright\": true, \"componentPath\": \"modules/\", \"componentSuffix\": \".vue\", \"breadcrumbEnable\": true}', '/log/operationLog', 'base/views/log/userOperation', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:22:58', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (27, 26, 'log:userOperation:list', '{\"i18n\": \"baseMenu.log.userOperationLog\", \"type\": \"B\", \"title\": \"用户操作日志列表\"}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:22:58', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (28, 26, 'log:userOperation:delete', '{\"i18n\": \"baseMenu.log.userOperationLogDelete\", \"type\": \"B\", \"title\": \"删除用户操作日志\"}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:22:58', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (29, 0, 'dataCenter', '{\"i18n\": \"baseMenu.dataCenter.index\", \"icon\": \"ri:database-line\", \"type\": \"M\", \"affix\": false, \"cache\": true, \"title\": \"数据中心\", \"hidden\": false, \"copyright\": true, \"componentPath\": \"modules/\", \"componentSuffix\": \".vue\", \"breadcrumbEnable\": true}', '/dataCenter', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:22:58', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (30, 29, 'dataCenter:attachment', '{\"i18n\": \"baseMenu.dataCenter.attachment\", \"icon\": \"ri:attachment-line\", \"type\": \"M\", \"affix\": false, \"cache\": true, \"title\": \"附件管理\", \"hidden\": false, \"copyright\": true, \"componentPath\": \"modules/\", \"componentSuffix\": \".vue\", \"breadcrumbEnable\": true}', '/dataCenter/attachment', 'base/views/dataCenter/attachment/index', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:22:58', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (31, 30, 'dataCenter:attachment:list', '{\"i18n\": \"baseMenu.dataCenter.attachmentList\", \"type\": \"B\", \"title\": \"附件列表\"}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:22:58', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (32, 30, 'dataCenter:attachment:upload', '{\"i18n\": \"baseMenu.dataCenter.attachmentUpload\", \"type\": \"B\", \"title\": \"上传附件\"}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:22:58', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (33, 30, 'dataCenter:attachment:delete', '{\"i18n\": \"baseMenu.dataCenter.attachmentDelete\", \"type\": \"B\", \"title\": \"删除附件\"}', '', '', '', 1, 0, 0, 0, '2025-01-15 11:22:58', '2025-01-15 11:22:58', '', '');
-INSERT INTO `menu` (`id`, `parent_id`, `name`, `meta`, `path`, `component`, `redirect`, `status`, `sort`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`, `type`) VALUES (34, 0, 'PurePermission', NULL, '/permission', '', '', 1, 0, 0, 0, NULL, NULL, '', 'menu');
+INSERT INTO `dict_types` (`id`, `code`, `name`, `status`, `sort`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (1, 'gender', '性别', 1, 1, '备注', '2025-02-08 01:08:22', '2025-02-08 09:08:23', 0);
+INSERT INTO `dict_types` (`id`, `code`, `name`, `status`, `sort`, `remark`, `created_at`, `updated_at`, `deleted_at`) VALUES (3, 'byteOrder', '字节序', 1, 4, '', '2025-02-08 02:06:53', '2025-02-08 10:06:53', 0);
 COMMIT;
 
 -- ----------------------------
@@ -297,7 +236,7 @@ CREATE TABLE `sys_menus` (
   `created_at` datetime DEFAULT NULL COMMENT '创建时间',
   `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COMMENT='菜单权限表';
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COMMENT='菜单权限表';
 
 -- ----------------------------
 -- Records of sys_menus
@@ -324,6 +263,8 @@ INSERT INTO `sys_menus` (`id`, `parent_id`, `menu_type`, `title`, `name`, `path`
 INSERT INTO `sys_menus` (`id`, `parent_id`, `menu_type`, `title`, `name`, `path`, `component`, `rank`, `redirect`, `icon`, `extra_icon`, `enter_transition`, `leave_transition`, `active_path`, `auths`, `frame_src`, `frame_loading`, `keep_alive`, `hidden_tag`, `fixed_tag`, `show_link`, `show_parent`, `status`, `created_at`, `updated_at`) VALUES (19, 4, 4, '获取用户角色', '', '', '', 99, '', '', '', '', '', '', 'system:user:get:roles', '', 1, 0, 0, 0, 1, 0, 1, '2025-01-25 15:15:20', '2025-01-25 15:15:20');
 INSERT INTO `sys_menus` (`id`, `parent_id`, `menu_type`, `title`, `name`, `path`, `component`, `rank`, `redirect`, `icon`, `extra_icon`, `enter_transition`, `leave_transition`, `active_path`, `auths`, `frame_src`, `frame_loading`, `keep_alive`, `hidden_tag`, `fixed_tag`, `show_link`, `show_parent`, `status`, `created_at`, `updated_at`) VALUES (20, 4, 4, '赋予用户角色', '', '', '', 99, '', '', '', '', '', '', 'system:user:set:roles', '', 1, 0, 0, 0, 1, 0, 1, '2025-01-25 15:15:45', '2025-01-25 15:15:45');
 INSERT INTO `sys_menus` (`id`, `parent_id`, `menu_type`, `title`, `name`, `path`, `component`, `rank`, `redirect`, `icon`, `extra_icon`, `enter_transition`, `leave_transition`, `active_path`, `auths`, `frame_src`, `frame_loading`, `keep_alive`, `hidden_tag`, `fixed_tag`, `show_link`, `show_parent`, `status`, `created_at`, `updated_at`) VALUES (21, 0, 1, 'menus.pureHome', 'Home', '/welcome', '', 1, '', 'ep:home-filled', '', '', '', '', '', '', 1, 0, 0, 0, 1, 0, 1, '2025-02-06 09:54:19', '2025-02-06 09:55:24');
+INSERT INTO `sys_menus` (`id`, `parent_id`, `menu_type`, `title`, `name`, `path`, `component`, `rank`, `redirect`, `icon`, `extra_icon`, `enter_transition`, `leave_transition`, `active_path`, `auths`, `frame_src`, `frame_loading`, `keep_alive`, `hidden_tag`, `fixed_tag`, `show_link`, `show_parent`, `status`, `created_at`, `updated_at`) VALUES (22, 1, 1, '字典管理', 'sysDict', '/system/dict/index', '', 99, '', 'ep:memo', '', '', '', '', '', '', 1, 0, 0, 0, 1, 0, 1, '2025-02-07 09:33:47', '2025-02-08 09:10:03');
+INSERT INTO `sys_menus` (`id`, `parent_id`, `menu_type`, `title`, `name`, `path`, `component`, `rank`, `redirect`, `icon`, `extra_icon`, `enter_transition`, `leave_transition`, `active_path`, `auths`, `frame_src`, `frame_loading`, `keep_alive`, `hidden_tag`, `fixed_tag`, `show_link`, `show_parent`, `status`, `created_at`, `updated_at`) VALUES (23, 1, 1, '字典数据', 'dictData', '/system/dict/dictData', '', 99, '', '', '', '', '', '', '', '', 1, 0, 0, 0, 0, 0, 1, '2025-02-08 09:12:52', '2025-02-08 09:12:52');
 COMMIT;
 
 -- ----------------------------
@@ -357,7 +298,7 @@ CREATE TABLE `user` (
 -- Records of user
 -- ----------------------------
 BEGIN;
-INSERT INTO `user` (`id`, `username`, `password`, `user_type`, `nickname`, `phone`, `email`, `avatar`, `signed`, `status`, `login_ip`, `login_time`, `backend_setting`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`) VALUES (1, 'admin', '$2y$10$T3Po5Ufu1pKiKczWqp.dbOOjmeZ4H3Oj0daATqlqXsZOvrRW2s2IS', '100', '创始人', '16858888988', 'admin@adminmine.com', '', '广阔天地，大有所为', 1, '127.0.0.1', '2025-02-06 08:42:37', NULL, 0, 0, '2025-01-15 11:22:58', '2025-02-06 08:42:37', '');
+INSERT INTO `user` (`id`, `username`, `password`, `user_type`, `nickname`, `phone`, `email`, `avatar`, `signed`, `status`, `login_ip`, `login_time`, `backend_setting`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`) VALUES (1, 'admin', '$2y$10$T3Po5Ufu1pKiKczWqp.dbOOjmeZ4H3Oj0daATqlqXsZOvrRW2s2IS', '100', '创始人', '16858888988', 'admin@adminmine.com', '', '广阔天地，大有所为', 1, '127.0.0.1', '2025-02-08 09:06:29', NULL, 0, 0, '2025-01-15 11:22:58', '2025-02-08 09:06:29', '');
 INSERT INTO `user` (`id`, `username`, `password`, `user_type`, `nickname`, `phone`, `email`, `avatar`, `signed`, `status`, `login_ip`, `login_time`, `backend_setting`, `created_by`, `updated_by`, `created_at`, `updated_at`, `remark`) VALUES (2, 'test', '$2a$10$Tl8cyMEFtXp7mBmG3KZ49.q0CiCRejuxw6cjNwr/CRiwuWBbNJk2a', '100', '测试用户', '16711411400', '', '', '', 1, '', '2025-02-05 14:23:20', '{\"app\": {\"layout\": \"\", \"asideDark\": false, \"colorMode\": \"\", \"useLocale\": \"\", \"whiteRoute\": null, \"pageAnimate\": \"\", \"primaryColor\": \"\", \"watermarkText\": \"\", \"showBreadcrumb\": false, \"enableWatermark\": false, \"loadUserSetting\": false}, \"tabbar\": {\"mode\": \"\", \"enable\": false}, \"subAside\": {\"showIcon\": false, \"showTitle\": false, \"fixedAsideState\": false, \"showCollapseButton\": false}, \"copyright\": {\"dates\": \"\", \"enable\": false, \"company\": \"\", \"website\": \"\", \"putOnRecord\": \"\"}, \"mainAside\": {\"showIcon\": false, \"showTitle\": false, \"enableOpenFirstRoute\": false}, \"welcomePage\": {\"icon\": \"\", \"name\": \"\", \"path\": \"\", \"title\": \"\"}}', 0, 0, '2025-01-15 13:20:34', '2025-02-06 09:29:59', '');
 COMMIT;
 
